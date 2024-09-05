@@ -4,7 +4,7 @@ This project is
 
 ## Setup
 ### Dependencies
-You can install the depencies with the following instructions:
+You can install the dependencies with the following instructions:
 
 #### Linux
 ##### Debian-Based Distributions
@@ -12,10 +12,10 @@ You can install the depencies with the following instructions:
 sudo apt install git g++ cmake make
 ```
 
-#### Windows
+##### Windows
 
 
-#### Mac OS
+##### Mac OS
 ```shell
 brew install git g++ cmake make
 ```
