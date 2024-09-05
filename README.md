@@ -44,5 +44,5 @@ bin/Image-Ination
 ```
 
 ## Credits
-This project wad done in the context of the teaching unit of [LIFPROJET](http://cazabetremy.fr/wiki/doku.php?id=projet:presentation#enseignants)
+This project was done in the context of the teaching unit of [LIFPROJET](http://cazabetremy.fr/wiki/doku.php?id=projet:presentation#enseignants)
 at [University Claude Bernard Lyon 1](https://www.univ-lyon1.fr/).
