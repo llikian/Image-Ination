@@ -7,15 +7,25 @@ This project is
 You can install the dependencies with the following instructions:
 
 #### Linux
-##### Debian-Based Distributions
+##### Debian Based Distributions
 ```shell
-sudo apt install git g++ cmake make
+sudo apt install -y git g++ cmake make
 ```
 
-##### Windows
+##### Arch Based Distributions
+```shell
+sudo pacman -Sy git g++ cmake make
+```
+
+##### Fedora Based Distributions
+```shell
+sudo dnf install git g++ cmake make
+```
+
+#### Windows
 
 
-##### Mac OS
+#### Mac OS
 ```shell
 brew install git g++ cmake make
 ```
