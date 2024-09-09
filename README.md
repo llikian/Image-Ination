@@ -26,6 +26,8 @@ sudo dnf install git g++ cmake make
 
 
 #### Mac OS
+You can install all dependencies using [Homebrew](https://brew.sh/).
+
 ```shell
 brew install git g++ cmake make
 ```
