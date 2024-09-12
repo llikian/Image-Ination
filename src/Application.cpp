@@ -100,6 +100,8 @@ void Application::handleKeyboardEvents() {
                 case GLFW_KEY_ESCAPE:
                     glfwSetWindowShouldClose(window, true);
                     break;
+                case GLFW_KEY_A:
+                    keys[key] = false;
             }
         }
     }

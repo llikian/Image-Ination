@@ -11,11 +11,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-
-struct vec2 {
-    float x;
-    float y;
-};
+#include <glm/vec2.hpp>
 
 /**
  * @class Application
@@ -84,7 +80,7 @@ private:
 
     std::unordered_map<int, bool> keys; ///< Map of the current state of keys.
 
-    vec2 mousePos; ///< The position of the mouse on the screen.
+    glm::vec2 mousePos; ///< The position of the mouse on the screen.
 
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.

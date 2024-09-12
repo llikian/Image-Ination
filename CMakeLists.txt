@@ -36,7 +36,8 @@ set(INCLUDES
 )
 
 set(LIBRARIES
-    glfw
+        glfw
+        glm:glm
 )
 
 # Executable

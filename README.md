@@ -9,7 +9,7 @@ You can install the dependencies with the following instructions:
 #### Linux
 ##### Debian Based Distributions
 ```shell
-sudo apt install -y git g++ cmake make libglfw3-dev libxxf86vm-dev libxi-dev
+sudo apt install -y git g++ cmake make libglfw3-dev libxxf86vm-dev libxi-dev libglm-dev
 ```
 
 ##### Arch Based Distributions
