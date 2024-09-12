@@ -92,7 +92,7 @@ private:
     vec3 right; ///< The right vector, cross product of the front vector and the world up.
     vec3 up;    ///< The up vector, cross product of the right vector and the front vector.
 
-    const vec3 worldUp;
+    const vec3 worldUp; ///< The world up vector, represents where the general "up" is.
 
     mat4 view; ///< The view matrix corresponding to the camera.
 };
