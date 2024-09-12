@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.26)
 project(Image-Ination)
 
 # Find packages
-
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
 
 # Compiler options
 set(CMAKE_CXX_STANDARD 23)
@@ -18,24 +19,24 @@ set(SOURCES
         src/main.cpp
 
         # Classes
-
+        src/Application.cpp
 
         # Other Sources
-
+        src/callbacks.cpp
 
         # Libraries
-
+        lib/glad/src/glad.c
 )
 
 set(INCLUDES
         include
 
         # Libraries
-
+        lib/glad/include
 )
 
 set(LIBRARIES
-
+    glfw
 )
 
 # Executable
