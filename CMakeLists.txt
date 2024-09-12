@@ -20,6 +20,7 @@ set(SOURCES
 
         # Classes
         src/Application.cpp
+        src/Camera.cpp
 
         # Other Sources
         src/callbacks.cpp
@@ -37,7 +38,6 @@ set(INCLUDES
 
 set(LIBRARIES
         glfw
-        glm:glm
 )
 
 # Executable

@@ -13,6 +13,8 @@
 #include <vector>
 #include <glm/vec2.hpp>
 
+#include "Camera.hpp"
+
 /**
  * @class Application
  * @brief The core of the engine.
@@ -84,4 +86,6 @@ private:
 
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
+
+    Camera camera; ///< A first person camera to move around the scene.
 };

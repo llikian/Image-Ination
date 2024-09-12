@@ -5,12 +5,12 @@
 
 #include "Application.hpp"
 
-#include <cmath>
 #include "callbacks.hpp"
 
 Application::Application()
     : window(nullptr), width(1600), height(900),
-      time(0.0f), delta(0.0f) {
+      time(0.0f), delta(0.0f),
+      camera(vec3(0.0f, 2.0f, 5.0f)) {
 
     /**** GLFW ****/
     if(!glfwInit()) {
