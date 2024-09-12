@@ -1,6 +1,6 @@
 # Image-Ination
 ## Project Description
-This project is
+This project is a simulation of clouds and water using OpenGL.
 
 ## Setup
 ### Dependencies
