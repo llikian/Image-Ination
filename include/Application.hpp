@@ -98,6 +98,8 @@ private:
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
 
+    bool cursorVisible; ///< Whether the cursor is currently visible.
+
     Shader* shader; ///< The default shader program.
 
     Camera camera; ///< A first person camera to move around the scene.

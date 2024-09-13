@@ -10,6 +10,7 @@
 Application::Application()
     : window(nullptr), width(1600), height(900),
       time(0.0f), delta(0.0f),
+      cursorVisible(false),
       shader(nullptr),
       camera(vec3(0.0f, 2.0f, 5.0f)) {
 
@@ -90,6 +91,10 @@ void Application::handleKeyCallback(int key, int action, int /* mods */) {
 }
 
 void Application::handleCursorPositionEvent(float xPos, float yPos) {
+    if(!cursorVisible) {
+        camera.look(vec2(xPos - mousePos.x, yPos - mousePos.y));
+    }
+
     mousePos.x = xPos;
     mousePos.y = yPos;
 }
@@ -106,8 +111,13 @@ void Application::handleKeyboardEvents() {
                 case GLFW_KEY_ESCAPE:
                     glfwSetWindowShouldClose(window, true);
                     break;
-                case GLFW_KEY_A:
+                case GLFW_KEY_TAB:
+                    glfwSetInputMode(window, GLFW_CURSOR,
+                                     cursorVisible ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+                    cursorVisible = !cursorVisible;
+
                     keys[key] = false;
+                    break;
             }
         }
     }
