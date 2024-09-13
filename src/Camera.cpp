@@ -64,9 +64,9 @@ void Camera::move(CameraControls direction, float deltaTime) {
             break;
     }
 
-    view[0][3] = -dot(right, position);
-    view[1][3] = -dot(up, position);
-    view[2][3] = dot(front, position);
+    view[3][0] = -dot(right, position);
+    view[3][1] = -dot(up, position);
+    view[3][2] = dot(front, position);
 }
 
 void Camera::look(vec2 mouseOffset) {
@@ -96,17 +96,17 @@ void Camera::look(vec2 mouseOffset) {
     up = normalize(cross(right, front));
     
     view[0][0] = right.x;
-    view[0][1] = right.y;
-    view[0][2] = right.z;
-    view[0][3] = -dot(right, position);
+    view[1][0] = right.y;
+    view[2][0] = right.z;
+    view[3][0] = -dot(right, position);
     
-    view[1][0] = up.x;
+    view[0][1] = up.x;
     view[1][1] = up.y;
-    view[1][2] = up.z;
-    view[1][3] = -dot(up, position);
+    view[2][1] = up.z;
+    view[3][1] = -dot(up, position);
     
-    view[2][0] = -front.x;
-    view[2][1] = -front.y;
+    view[0][2] = -front.x;
+    view[1][2] = -front.y;
     view[2][2] = -front.z;
-    view[2][3] = dot(front, position);
+    view[3][2] = dot(front, position);
 }
