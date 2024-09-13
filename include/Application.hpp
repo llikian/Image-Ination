@@ -105,7 +105,9 @@ private:
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
 
-    bool cursorVisible; ///< Whether the cursor is currently visible.
+    bool wireframe;       ///< Whether to display in wireframe mode.
+    bool cullface;        ///< Whether face culling is activated.
+    bool isCursorVisible; ///< Whether the cursor is currently visible.
 
     Shader* shader; ///< The default shader program.
 

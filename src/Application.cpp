@@ -12,7 +12,7 @@
 Application::Application()
     : window(nullptr), width(1600), height(900),
       time(0.0f), delta(0.0f),
-      cursorVisible(false),
+      wireframe(false), cullface(true), isCursorVisible(false),
       shader(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 100.0f)),
       camera(vec3(0.0f, 2.0f, 5.0f)) {
@@ -114,7 +114,7 @@ void Application::handleKeyCallback(int key, int action, int /* mods */) {
 }
 
 void Application::handleCursorPositionEvent(float xPos, float yPos) {
-    if(!cursorVisible) {
+    if(!isCursorVisible) {
         camera.look(vec2(xPos - mousePos.x, yPos - mousePos.y));
     }
 
@@ -136,8 +136,20 @@ void Application::handleKeyboardEvents() {
                     break;
                 case GLFW_KEY_TAB:
                     glfwSetInputMode(window, GLFW_CURSOR,
-                                     cursorVisible ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-                    cursorVisible = !cursorVisible;
+                                     isCursorVisible ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+                    isCursorVisible = !isCursorVisible;
+
+                    keys[key] = false;
+                    break;
+                case GLFW_KEY_Z:
+                    glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_FILL : GL_LINE);
+                    wireframe = !wireframe;
+
+                    keys[key] = false;
+                    break;
+                case GLFW_KEY_C:
+                    (cullface ? glDisable : glEnable)(GL_CULL_FACE);
+                    cullface = !cullface;
 
                     keys[key] = false;
                     break;
