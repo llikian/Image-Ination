@@ -21,6 +21,7 @@ set(SOURCES
         # Classes
         src/Application.cpp
         src/Camera.cpp
+        src/Shader.cpp
 
         # Other Sources
         src/callbacks.cpp

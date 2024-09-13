@@ -14,6 +14,7 @@
 #include <glm/vec2.hpp>
 
 #include "Camera.hpp"
+#include "Shader.hpp"
 
 /**
  * @class Application
@@ -75,6 +76,16 @@ private:
      */
     void handleKeyboardEvents();
 
+    /**
+     * @brief Initializes all the uniforms to their correct default values.
+     */
+    void initUniforms();
+
+    /**
+     * @brief Updates all the uniforms.
+     */
+    void updateUniforms();
+
     /**** Variables & Constants ****/
     GLFWwindow* window;  ///< GLFW window.
     unsigned int width;  ///< The width of the window in pixels.
@@ -86,6 +97,8 @@ private:
 
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
+
+    Shader* shader; ///< The default shader program.
 
     Camera camera; ///< A first person camera to move around the scene.
 };

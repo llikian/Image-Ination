@@ -10,6 +10,7 @@
 Application::Application()
     : window(nullptr), width(1600), height(900),
       time(0.0f), delta(0.0f),
+      shader(nullptr),
       camera(vec3(0.0f, 2.0f, 5.0f)) {
 
     /**** GLFW ****/
@@ -48,6 +49,11 @@ Application::Application()
 
     /**** OpenGL ****/
     glViewport(0, 0, width, height);
+
+    /**** Shaders ****/
+    shader = new Shader("shaders/default.vert", "shaders/default.frag");
+    shader->use();
+    initUniforms();
 }
 
 Application::~Application() {
@@ -105,4 +111,12 @@ void Application::handleKeyboardEvents() {
             }
         }
     }
+}
+
+void Application::initUniforms() {
+
+}
+
+void Application::updateUniforms() {
+
 }
