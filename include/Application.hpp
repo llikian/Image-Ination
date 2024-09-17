@@ -14,6 +14,7 @@
 #include <glm/vec2.hpp>
 
 #include "Camera.hpp"
+#include "Shader.hpp"
 
 /**
  * @class Application
@@ -75,6 +76,23 @@ private:
      */
     void handleKeyboardEvents();
 
+    /**
+     * @brief Initializes all the uniforms to their correct default values.
+     */
+    void initUniforms();
+
+    /**
+     * @brief Updates all the uniforms.
+     */
+    void updateUniforms();
+
+    /**
+     * @brief Calculates the MVP (Matrix-View-Projection) Matrix and sends it to the shader.
+     * @param model The new value of the model matrix. It is a product of translation, scale
+     * and rotation matrices used to apply transformations on the scene's objects.
+     */
+    void calculateMVP(const mat4& model);
+
     /**** Variables & Constants ****/
     GLFWwindow* window;  ///< GLFW window.
     unsigned int width;  ///< The width of the window in pixels.
@@ -86,6 +104,14 @@ private:
 
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
+
+    bool wireframe;       ///< Whether to display in wireframe mode.
+    bool cullface;        ///< Whether face culling is activated.
+    bool isCursorVisible; ///< Whether the cursor is currently visible.
+
+    Shader* shader; ///< The default shader program.
+
+    mat4 projection; ///< The projection matrix.
 
     Camera camera; ///< A first person camera to move around the scene.
 };
