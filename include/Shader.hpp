@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <unordered_map>
 
@@ -50,85 +51,101 @@ public:
      * @param uniform The uniform's name.
      * @param value The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, int value) const;
+    template<typename... Value>
+    void setUniform(const std::string& uniform, Value... value) const {
+        try {
+            int location = uniforms.at(uniform);
+            setUniform(location, value...);
+        } catch(const std::exception&) {
+            std::cout << "The uniform named '" << uniform << "' is unknown.\n";
+        }
+    }
+
+private:
+
+    /**
+     * @brief Sets the value of an uniform of type int.
+     * @param location The uniform's location.
+     * @param value The new value of the uniform.
+     */
+    void setUniform(int location, int value) const;
 
     /**
      * @brief Sets the value of an uniform of type unsigned int.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param value The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, unsigned int value) const;
+    void setUniform(int location, unsigned int value) const;
 
     /**
      * @brief Sets the value of an uniform of type bool.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param value The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, bool value) const;
+    void setUniform(int location, bool value) const;
 
     /**
      * @brief Sets the value of an uniform of type float.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param value The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, float value) const;
+    void setUniform(int location, float value) const;
 
     /**
      * @brief Sets the value of an uniform of type vec2.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
      */
-    void setUniform(const std::string& uniform, float x, float y) const;
+    void setUniform(int location, float x, float y) const;
 
     /**
      * @brief Sets the value of an uniform of type vec3.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
      * @param z The new z value of the uniform.
      */
-    void setUniform(const std::string& uniform, float x, float y, float z) const;
+    void setUniform(int location, float x, float y, float z) const;
 
     /**
      * @brief Sets the value of an uniform of type vec4.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
      * @param z The new z value of the uniform.
      * @param w The new w value of the uniform.
      */
-    void setUniform(const std::string& uniform, float x, float y, float z, float w) const;
+    void setUniform(int location, float x, float y, float z, float w) const;
 
     /**
      * @brief Sets the value of an uniform of type vec2.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param vec The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, const vec2& vec) const;
+    void setUniform(int location, const vec2& vec) const;
 
     /**
      * @brief Sets the value of an uniform of type vec3.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param vec The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, const vec3& vec) const;
+    void setUniform(int location, const vec3& vec) const;
 
     /**
      * @brief Sets the value of an uniform of type vec4.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param vec The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, const vec4& vec) const;
+    void setUniform(int location, const vec4& vec) const;
 
     /**
      * @brief Sets the value of an uniform of type mat4.
-     * @param uniform The uniform's name.
+     * @param location The uniform's location.
      * @param matrix The new value of the uniform.
      */
-    void setUniform(const std::string& uniform, const mat4& matrix) const;
+    void setUniform(int location, const mat4& matrix) const;
 
-private:
     unsigned int id; ///< The shader program's id.
     std::unordered_map<std::string, int> uniforms; ///< Stores uniforms id's.
 };

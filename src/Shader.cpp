@@ -96,11 +96,13 @@ void Shader::use() {
 }
 
 void Shader::getUniforms() {
-    const unsigned int MAX_CHAR = 32u;
+    int MAX_CHAR;
+    glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &MAX_CHAR);
+
     int length;
     unsigned int type;
     int size;
-    char name[MAX_CHAR];
+    char* name = new char[MAX_CHAR];
 
     int count;
     glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count);
@@ -109,48 +111,50 @@ void Shader::getUniforms() {
         glGetActiveUniform(id, i, MAX_CHAR, &length, &size, &type, name);
         uniforms.emplace(name, i);
     }
+
+    delete[] name;
 }
 
-void Shader::setUniform(const std::string& uniform, int value) const {
-    glUniform1i(uniforms.at(uniform), value);
+void Shader::setUniform(int location, int value) const {
+    glUniform1i(location, value);
 }
 
-void Shader::setUniform(const std::string& uniform, unsigned int value) const {
-    glUniform1ui(uniforms.at(uniform), value);
+void Shader::setUniform(int location, unsigned int value) const {
+    glUniform1ui(location, value);
 }
 
-void Shader::setUniform(const std::string& uniform, bool value) const {
-    glUniform1i(uniforms.at(uniform), static_cast<int>(value));
+void Shader::setUniform(int location, bool value) const {
+    glUniform1i(location, static_cast<int>(value));
 }
 
-void Shader::setUniform(const std::string& uniform, float value) const {
-    glUniform1f(uniforms.at(uniform), value);
+void Shader::setUniform(int location, float value) const {
+    glUniform1f(location, value);
 }
 
-void Shader::setUniform(const std::string& uniform, float x, float y) const {
-    glUniform2f(uniforms.at(uniform), x, y);
+void Shader::setUniform(int location, float x, float y) const {
+    glUniform2f(location, x, y);
 }
 
-void Shader::setUniform(const std::string& uniform, float x, float y, float z) const {
-    glUniform3f(uniforms.at(uniform), x, y, z);
+void Shader::setUniform(int location, float x, float y, float z) const {
+    glUniform3f(location, x, y, z);
 }
 
-void Shader::setUniform(const std::string& uniform, float x, float y, float z, float w) const {
-    glUniform4f(uniforms.at(uniform), x, y, z, w);
+void Shader::setUniform(int location, float x, float y, float z, float w) const {
+    glUniform4f(location, x, y, z, w);
 }
 
-void Shader::setUniform(const std::string& uniform, const vec2& vec) const {
-    glUniform2fv(uniforms.at(uniform), 1, &vec.x);
+void Shader::setUniform(int location, const vec2& vec) const {
+    glUniform2fv(location, 1, &vec.x);
 }
 
-void Shader::setUniform(const std::string& uniform, const vec3& vec) const {
-    glUniform3fv(uniforms.at(uniform), 1, &vec.x);
+void Shader::setUniform(int location, const vec3& vec) const {
+    glUniform3fv(location, 1, &vec.x);
 }
 
-void Shader::setUniform(const std::string& uniform, const vec4& vec) const {
-    glUniform4fv(uniforms.at(uniform), 1, &vec.x);
+void Shader::setUniform(int location, const vec4& vec) const {
+    glUniform4fv(location, 1, &vec.x);
 }
 
-void Shader::setUniform(const std::string& uniform, const mat4& matrix) const {
-    glUniformMatrix4fv(uniforms.at(uniform), 1, false, &(matrix[0][0]));
+void Shader::setUniform(int location, const mat4& matrix) const {
+    glUniformMatrix4fv(location, 1, false, &(matrix[0][0]));
 }
