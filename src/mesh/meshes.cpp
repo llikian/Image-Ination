@@ -298,6 +298,41 @@ Mesh Meshes::grid(float size, int divisions) {
     return mesh;
 }
 
+Mesh Meshes::planeGrid(float size, int divisions) {
+    Mesh mesh(GL_TRIANGLES);
+
+    const float halfSize = -size / 2.0f;
+    const float squareSize = size / divisions;
+    float squareX = halfSize, squareZ = halfSize;
+
+    for(int i = 0 ; i <= divisions ; ++i) {
+        for(int j = 0 ; j <= divisions ; ++j) {
+            mesh.addPosition(squareX, 0.0f, squareZ);
+            mesh.addNormal(0.0f, 1.0f, 0.0f);
+
+            squareX += squareSize;
+        }
+
+        squareX = halfSize;
+        squareZ += squareSize;
+    }
+
+    auto index = [&](int x, int y) -> int {
+        return x + y * (divisions + 1);
+    };
+
+    for(int i = 0 ; i < divisions ; ++i) {
+        for(int j = 0 ; j < divisions ; ++j) {
+            mesh.addFace(index(i, j),
+                         index(i, j + 1),
+                         index(i + 1, j + 1),
+                         index(i + 1, j));
+        }
+    }
+
+    return mesh;
+}
+
 Mesh Meshes::axes(float size) {
     Mesh mesh(GL_LINES);
 

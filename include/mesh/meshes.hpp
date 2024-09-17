@@ -31,11 +31,18 @@ namespace Meshes {
     Mesh plainCube();
 
     /**
-     * @brief Creates the mesh for a grid on the XZ plane.
+     * @brief Creates the mesh for a grid made up of lines on the XZ plane.
      * @param size Size of one line of the grid.
      * @param divisions Number of divisions on the grid.
      */
     Mesh grid(float size, int divisions);
+
+    /**
+     * @brief Creates the mesh for a grid made up of faces on the XZ plane.
+     * @param size Size of one line of the grid.
+     * @param divisions Number of divisions on the grid.
+     */
+    Mesh planeGrid(float size, int divisions);
 
     /**
      * @brief Creates the mesh for the axes. The x axis is red, the y axis is green and the z axes
