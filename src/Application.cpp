@@ -8,6 +8,9 @@
 #include "mesh/meshes.hpp"
 #include "callbacks.hpp"
 #include <glm/gtc/matrix_transform.hpp>
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 Application::Application()
     : window(nullptr), width(1600), height(900),
@@ -46,6 +49,14 @@ Application::Application()
     glfwSetCursorPosCallback(window, cursorPositionCallback);
 //    glfwSetScrollCallback(window, scrollCallback);
 
+    /**** ImGui ****/
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 460");
+    ImGui::GetIO().IniFilename = "lib/imgui/imgui.ini";
+
     /**** GLAD ****/
     if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         throw std::runtime_error("Failed to initialize GLAD.");
@@ -71,15 +82,40 @@ Application::Application()
 Application::~Application() {
     delete shader;
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glfwDestroyWindow(window);
     glfwTerminate();
 }
 
 void Application::run() {
-    Mesh sphere = Meshes::sphere(32, 16);
+    struct Terrain {
+        float size = 25.0f;
+        int divisions = 2000.0f;
+
+        float frequency = 1.0f;
+        float amplitude = 0.75f;
+        int octave = 8;
+    } terrain;
+
+    Mesh sphere = Meshes::sphere(8, 16);
+    Mesh plane = Meshes::planeGrid(terrain.size, terrain.divisions);
+
+    shader->setUniform("squareSize", terrain.size / terrain.divisions);
+
+    vec3 lightPos(terrain.size);
+    shader->setUniform("lightPos", lightPos);
+
+    const mat4 IDENTITY(1.0f);
 
     /**** Main Loop ****/
     while(!glfwWindowShouldClose(window)) {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         handleEvents();
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -90,10 +126,35 @@ void Application::run() {
 
         shader->use();
         updateUniforms();
+        shader->setUniform("frequency", terrain.frequency);
+        shader->setUniform("amplitude", terrain.amplitude);
+        shader->setUniform("octave", terrain.octave);
 
-        calculateMVP(mat4(1.0f));
+        calculateMVP(translate(scale(IDENTITY, vec3(0.25f)), lightPos));
+        shader->setUniform("isLight", true);
         sphere.draw();
+        shader->setUniform("isLight", false);
 
+        calculateMVP(IDENTITY);
+        shader->setUniform("isTerrain", true);
+        plane.draw();
+        shader->setUniform("isTerrain", false);
+
+        ImGui::Begin("Test");
+        ImGui::InputFloat("Frequency", &terrain.frequency, 0.1f, 1.0f);
+        ImGui::InputFloat("Amplitude", &terrain.amplitude, 0.1f, 1.0f);
+        ImGui::InputInt("Octaves", &terrain.octave, 1, 8);
+        ImGui::NewLine();
+        ImGui::InputFloat("Terrain Size", &terrain.size, 10.0f, 100.0f);
+        ImGui::InputInt("Terrain Divisions", &terrain.divisions, 10, 25);
+        if(ImGui::Button("Generate Mesh")) {
+            plane = Meshes::planeGrid(terrain.size, terrain.divisions);
+            shader->setUniform("squareSize", terrain.size / terrain.divisions);
+        }
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
     }
 }
@@ -185,6 +246,6 @@ void Application::updateUniforms() {
 }
 
 void Application::calculateMVP(const mat4& model) {
-    shader->setUniform("mvp", std::move(camera.getVPmatrix(projection) * model));
+    shader->setUniform("mvp", camera.getVPmatrix(projection) * model);
     shader->setUniform("model", model);
 }
