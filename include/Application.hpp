@@ -40,6 +40,7 @@ public:
      * @brief Contains the main loop.
      */
     void run();
+    void run2();
 
     /**
      * @brief Sets the width and height of the GLFW window.
@@ -110,6 +111,7 @@ private:
     bool isCursorVisible; ///< Whether the cursor is currently visible.
 
     Shader* shader; ///< The default shader program.
+    Shader* sTerrain; ///< The shader program for rendering the terrain.
 
     mat4 projection; ///< The projection matrix.
 

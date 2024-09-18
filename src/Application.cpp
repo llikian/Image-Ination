@@ -74,9 +74,16 @@ Application::Application()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, white);
 
     /**** Shaders ****/
-    shader = new Shader("shaders/default.vert", "shaders/default.frag");
+    std::string paths[4]{"shaders/default.vert", "shaders/default.frag", "", ""};
+    shader = new Shader(paths, 2);
     shader->use();
     initUniforms();
+
+    paths[0] = "shaders/terrain.vert";
+    paths[1] = "shaders/terrain.frag";
+    paths[2] = "shaders/terrain.tesc";
+    paths[3] = "shaders/terrain.tese";
+    sTerrain = new Shader(paths, 4);
 }
 
 Application::~Application() {
@@ -160,6 +167,56 @@ void Application::run() {
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        glfwSwapBuffers(window);
+    }
+}
+
+void Application::run2() {
+    float size = 20.0f / 2.0f;
+    float vertices[] = {
+        -size, 0.0f, size,
+        size, 0.0f, size,
+        size, 0.0f, -size,
+        -size, 0.0f, -size,
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,  // First triangle
+        2, 3, 0   // Second triangle
+    };
+
+    unsigned int VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+
+    glPatchParameteri(GL_PATCH_VERTICES, 4);
+    /**** Main Loop ****/
+    while(!glfwWindowShouldClose(window)) {
+        handleEvents();
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        delta = glfwGetTime() - time;
+        time = glfwGetTime();
+
+        sTerrain->use();
+        sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
+        glBindVertexArray(VAO);
+        glDrawElements(GL_PATCHES, 6, GL_UNSIGNED_INT, nullptr);
+
         glfwSwapBuffers(window);
     }
 }

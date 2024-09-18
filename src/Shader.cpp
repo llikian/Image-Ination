@@ -9,68 +9,21 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) {
-    int messageLength;
+Shader::Shader(const std::string* paths, unsigned int count) {
+    id = glCreateProgram();
 
-    /**** Vertex Shader ****/
-    std::ifstream vertexShaderFile(vertexShaderPath);
-    if(!vertexShaderFile.is_open()) {
-        throw std::runtime_error("Failed to open vertex shader.");
-    }
-
-    std::string vertexShaderCode = (std::stringstream() << vertexShaderFile.rdbuf()).str();
-    const char* vertexShader = vertexShaderCode.c_str();
-    unsigned int vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShaderID, 1, &vertexShader, nullptr);
-    glCompileShader(vertexShaderID);
-
-    glGetShaderiv(vertexShaderID, GL_INFO_LOG_LENGTH, &messageLength);
-    if(messageLength > 0) {
-        char* message = new char[messageLength];
-        glGetShaderInfoLog(vertexShaderID, messageLength, nullptr, message);
-
-        std::string errorMessage = "Failed to compile vertex shader :\n";
-        errorMessage += message;
-
-        delete[] message;
-
-        throw std::runtime_error(errorMessage);
-    }
-
-    /**** Fragment Shader ****/
-    std::ifstream fragmentShaderFile(fragmentShaderPath);
-    if(!fragmentShaderFile.is_open()) {
-        throw std::runtime_error("Failed to open fragment shader.");
-    }
-
-    std::string fragmentShaderCode = (std::stringstream() << fragmentShaderFile.rdbuf()).str();
-    const char* fragmentShader = fragmentShaderCode.c_str();
-    unsigned int fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShaderID, 1, &fragmentShader, nullptr);
-    glCompileShader(fragmentShaderID);
-
-    glGetShaderiv(fragmentShaderID, GL_INFO_LOG_LENGTH, &messageLength);
-    if(messageLength > 0) {
-        char* message = new char[messageLength];
-        glGetShaderInfoLog(fragmentShaderID, messageLength, nullptr, message);
-
-        std::string errorMessage = "Failed to compile fragment shader :\n";
-        errorMessage += message;
-
-        delete[] message;
-
-        throw std::runtime_error(errorMessage);
+    /**** Shaders ****/
+    unsigned int shaderID;
+    for(unsigned int i = 0 ; i < count ; ++i) {
+        shaderID = compileShader(paths[i]);
+        glAttachShader(id, shaderID);
+        glDeleteShader(shaderID);
     }
 
     /**** Shader Program ****/
-    id = glCreateProgram();
-    glAttachShader(id, vertexShaderID);
-    glAttachShader(id, fragmentShaderID);
     glLinkProgram(id);
 
-    glDeleteShader(vertexShaderID);
-    glDeleteShader(fragmentShaderID);
-
+    int messageLength;
     glGetProgramiv(id, GL_INFO_LOG_LENGTH, &messageLength);
     if(messageLength > 0) {
         char* message = new char[messageLength];
@@ -89,6 +42,67 @@ Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentS
 
 Shader::~Shader() {
     glDeleteProgram(id);
+}
+
+unsigned int Shader::compileShader(const std::string& path) {
+    std::string extension = path.substr(path.find_last_of('.') + 1);
+
+    std::string shaderTypeName;
+    unsigned int shaderType;
+    switch(extension[0]) {
+        case 'v':
+            shaderTypeName = "vertex";
+            shaderType = GL_VERTEX_SHADER;
+            break;
+        case 'f':
+            shaderTypeName = "fragment";
+            shaderType = GL_FRAGMENT_SHADER;
+            break;
+        case 't':
+            if(extension[3] == 'c') {
+                shaderTypeName = "tesselation control";
+                shaderType = GL_TESS_CONTROL_SHADER;
+            } else {
+                shaderTypeName = "tesselation evaluation";
+                shaderType = GL_TESS_EVALUATION_SHADER;
+            }
+            break;
+        case 'c':
+            shaderTypeName = "compute";
+            shaderType = GL_COMPUTE_SHADER;
+            break;
+        case 'g':
+            shaderTypeName = "geometry";
+            shaderType = GL_GEOMETRY_SHADER;
+            break;
+    }
+
+    std::ifstream file(path);
+    if(!file.is_open()) {
+        throw std::runtime_error(std::string("Failed to open " + shaderTypeName + " shader."));
+    }
+
+    std::string rawCode = (std::stringstream() << file.rdbuf()).str();
+    const char* code = rawCode.c_str();
+    unsigned int id = glCreateShader(shaderType);
+    glShaderSource(id, 1, &code, nullptr);
+    glCompileShader(id);
+
+    int messageLength;
+    glGetShaderiv(id, GL_INFO_LOG_LENGTH, &messageLength);
+    if(messageLength > 0) {
+        char* message = new char[messageLength];
+        glGetShaderInfoLog(id, messageLength, nullptr, message);
+
+        std::string errorMessage = "Failed to compile " + shaderTypeName + " shader:\n";
+        errorMessage += message;
+
+        delete[] message;
+
+        throw std::runtime_error(errorMessage);
+    }
+
+    return id;
 }
 
 void Shader::use() {

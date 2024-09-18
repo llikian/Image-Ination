@@ -23,18 +23,26 @@ using namespace glm;
  */
 class Shader {
 public:
+
     /**
-     * @brief Compiles then links and creates the shader program from the vertex and fragment
-     * shaders located at the given paths.
-     * @param vertexShaderPath The path to the vertex shader.
-     * @param fragmentShaderPath The path to the fragment shader.
+     * @brief Creates a shader program and compiles then attaches the shaders at the specified paths
+     * to it.
+     * @param paths The paths to each of the different shaders.
+     * @param count The amount of shaders to attach.
      */
-    Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+    Shader(const std::string* paths, unsigned int count);
 
     /**
      * @brief Deletes the shader program.
      */
     ~Shader();
+
+    /**
+     * @brief Compiles a shader and returns its corresponding id.
+     * @param path The path to the shader file.
+     * @return The shader's corresponding id.
+     */
+    static unsigned int compileShader(const std::string& path);
 
     /**
      * @brief Uses the shader program.
