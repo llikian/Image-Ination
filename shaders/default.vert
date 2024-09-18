@@ -16,7 +16,7 @@ uniform mat4 mvp;
 uniform mat4 model;
 
 uniform bool isTerrain;
-uniform float squareSize;
+uniform float deltaNormal;
 uniform float frequency;
 uniform float amplitude;
 uniform int octave;
@@ -104,7 +104,7 @@ void main() {
 
     if(isTerrain) {
         pos = vec4(aPos.x, getHeight(aPos.xz), aPos.z, 1.0f);
-        normal = getNormal(pos.xz, squareSize);
+        normal = getNormal(pos.xz, deltaNormal);
     } else {
         pos = vec4(aPos, 1.0f);
         normal = aNormal;

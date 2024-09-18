@@ -93,7 +93,9 @@ Application::~Application() {
 void Application::run() {
     struct Terrain {
         float size = 25.0f;
-        int divisions = 2000.0f;
+        int divisions = 1000.0f;
+
+        float deltaNormal = 0.01f;
 
         float frequency = 1.0f;
         float amplitude = 0.75f;
@@ -126,6 +128,7 @@ void Application::run() {
 
         shader->use();
         updateUniforms();
+        shader->setUniform("deltaNormal", terrain.deltaNormal);
         shader->setUniform("frequency", terrain.frequency);
         shader->setUniform("amplitude", terrain.amplitude);
         shader->setUniform("octave", terrain.octave);
@@ -144,6 +147,8 @@ void Application::run() {
         ImGui::InputFloat("Frequency", &terrain.frequency, 0.1f, 1.0f);
         ImGui::InputFloat("Amplitude", &terrain.amplitude, 0.1f, 1.0f);
         ImGui::InputInt("Octaves", &terrain.octave, 1, 8);
+        ImGui::NewLine();
+        ImGui::InputFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.01f);
         ImGui::NewLine();
         ImGui::InputFloat("Terrain Size", &terrain.size, 10.0f, 100.0f);
         ImGui::InputInt("Terrain Divisions", &terrain.divisions, 10, 25);
