@@ -5,9 +5,96 @@
 
 #version 460 core
 
-layout(quads, equal_spacing, ccw) in;  // Ensure counter-clockwise order
+layout(quads, fractional_even_spacing, ccw) in;
+
+out vec3 position;
+out vec3 normal;
+out float maxHeight;
 
 uniform mat4 vpMatrix;
+
+uniform float deltaNormal;
+uniform float frequency;
+uniform float amplitude;
+uniform int octave;
+
+float simple_interpolate(in float a, in float b, in float x) {
+    return a + smoothstep(0.0,1.0,x) * (b-a);
+}
+
+float rand2D(in vec2 co) {
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float rand3D(in vec3 co) {
+    return fract(sin(dot(co.xyz ,vec3(12.9898,78.233,144.7272))) * 43758.5453);
+}
+
+float interpolatedNoise3D(in vec3 pos) {
+    float integer_x = pos.x - fract(pos.x);
+    float fractional_x = pos.x - integer_x;
+
+    float integer_y = pos.y - fract(pos.y);
+    float fractional_y = pos.y - integer_y;
+
+    float integer_z = pos.z - fract(pos.z);
+    float fractional_z = pos.z - integer_z;
+
+    float v1 = rand3D(vec3(integer_x, integer_y, integer_z));
+    float v2 = rand3D(vec3(integer_x + 1.0f, integer_y, integer_z));
+    float v3 = rand3D(vec3(integer_x, integer_y + 1.0f, integer_z));
+    float v4 = rand3D(vec3(integer_x + 1.0f, integer_y + 1.0f, integer_z));
+
+    float v5 = rand3D(vec3(integer_x, integer_y, integer_z + 1.0f));
+    float v6 = rand3D(vec3(integer_x + 1.0f, integer_y, integer_z + 1.0f));
+    float v7 = rand3D(vec3(integer_x, integer_y + 1.0f, integer_z + 1.0f));
+    float v8 = rand3D(vec3(integer_x + 1.0f, integer_y + 1.0f, integer_z + 1.0f));
+
+    float i1 = simple_interpolate(v1, v5, fractional_z);
+    float i2 = simple_interpolate(v2, v6, fractional_z);
+    float i3 = simple_interpolate(v3, v7, fractional_z);
+    float i4 = simple_interpolate(v4, v8, fractional_z);
+
+    float ii1 = simple_interpolate(i1, i2, fractional_x);
+    float ii2 = simple_interpolate(i3, i4, fractional_x);
+
+    return simple_interpolate(ii1, ii2, fractional_y);
+}
+
+float noise(in vec2 pos) {
+    const vec3 POS = vec3(pos.x, 0.0f, pos.y);
+    float total = 0.0f;
+    float amp = amplitude;
+    float freq = frequency;
+
+    maxHeight = 0.0f;
+
+    for(int i = 0 ; i < octave ; ++i) {
+        maxHeight += amp;
+
+        total += interpolatedNoise3D(POS * freq) * amp;
+        freq *= 2.0f;
+        amp /= 2.0f;
+
+    }
+
+    return total;
+}
+
+float getHeight(in vec2 pos) {
+    return noise(pos);
+}
+
+vec3 getNormal(in vec2 pos) {
+    float height = getHeight(pos);
+    float heightX = getHeight(pos + vec2(deltaNormal, 0.0f));
+    float heightZ = getHeight(pos + vec2(0.0f, deltaNormal));
+
+    vec3 tangentX = vec3(1.0f, (heightX - height) / deltaNormal, 0.0f);
+    vec3 tangentZ = vec3(0.0f, (heightZ - height) / deltaNormal, 1.0f);
+
+    return normalize(cross(tangentZ, tangentX));
+}
 
 void main() {
     vec3 p0 = gl_in[0].gl_Position.xyz;
@@ -15,6 +102,10 @@ void main() {
     vec3 p2 = gl_in[2].gl_Position.xyz;
     vec3 p3 = gl_in[3].gl_Position.xyz;
 
-    vec3 position = mix(mix(p0, p1, gl_TessCoord.x), mix(p3, p2, gl_TessCoord.x), gl_TessCoord.y);
-    gl_Position = vpMatrix * vec4(position, 1.0);
+    position = mix(mix(p0, p1, gl_TessCoord.x), mix(p3, p2, gl_TessCoord.x), gl_TessCoord.y);
+//    position.y = getHeight(position.xz);
+
+    normal = getNormal(position.xz);
+
+    gl_Position = vpMatrix * vec4(position, 1.0f);
 }

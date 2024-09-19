@@ -97,10 +97,61 @@ Application::~Application() {
     glfwTerminate();
 }
 
+Mesh planeTess(float size, int divisions) {
+    Mesh mesh(GL_PATCHES);
+
+    const float halfSize = -size / 2.0f;
+    const float squareSize = size / divisions;
+    float squareX = halfSize, squareZ = halfSize;
+
+    for(int i = 0 ; i < divisions ; ++i) {
+        for(int j = 0 ; j < divisions ; ++j) {
+            vec3 A(squareX, 0.0f, squareZ);
+            vec3 B(squareX, 0.0f, squareZ + squareSize);
+            vec3 C(squareX + squareSize, 0.0f, squareZ + squareSize);
+            vec3 D(squareX + squareSize, 0.0f, squareZ);
+
+            mesh.addPosition(A);
+            mesh.addNormal(0.0f, 1.0f, 0.0f);
+
+            mesh.addPosition(B);
+            mesh.addNormal(0.0f, 1.0f, 0.0f);
+
+            mesh.addPosition(C);
+            mesh.addNormal(0.0f, 1.0f, 0.0f);
+
+            mesh.addPosition(D);
+            mesh.addNormal(0.0f, 1.0f, 0.0f);
+
+            squareX += squareSize;
+        }
+
+        squareX = halfSize;
+        squareZ += squareSize;
+    }
+
+    return mesh;
+}
+
+Mesh planeMesh(float size) {
+    Mesh mesh(GL_PATCHES);
+
+    size /= 2.0f;
+
+    mesh.addPosition(-size, 0.0f, size);
+    mesh.addPosition(size, 0.0f, size);
+    mesh.addPosition(size, 0.0f, -size);
+    mesh.addPosition(-size, 0.0f, -size);
+
+    mesh.addFace(0, 1, 2, 3);
+
+    return mesh;
+}
+
 void Application::run() {
     struct Terrain {
         float size = 25.0f;
-        int divisions = 1000.0f;
+        float tesselationLevel = 16.0f;
 
         float deltaNormal = 0.01f;
 
@@ -110,14 +161,16 @@ void Application::run() {
     } terrain;
 
     Mesh sphere = Meshes::sphere(8, 16);
-    Mesh plane = Meshes::planeGrid(terrain.size, terrain.divisions);
-
-    shader->setUniform("squareSize", terrain.size / terrain.divisions);
+    Mesh plane = planeTess(10.0f, 2);
+//    Mesh plane = planeMesh(10.0f);
 
     vec3 lightPos(terrain.size);
     shader->setUniform("lightPos", lightPos);
+    sTerrain->setUniform("lightPos", lightPos);
 
     const mat4 IDENTITY(1.0f);
+
+    glPatchParameteri(GL_PATCH_VERTICES, 4);
 
     /**** Main Loop ****/
     while(!glfwWindowShouldClose(window)) {
@@ -135,20 +188,22 @@ void Application::run() {
 
         shader->use();
         updateUniforms();
-        shader->setUniform("deltaNormal", terrain.deltaNormal);
-        shader->setUniform("frequency", terrain.frequency);
-        shader->setUniform("amplitude", terrain.amplitude);
-        shader->setUniform("octave", terrain.octave);
 
         calculateMVP(translate(scale(IDENTITY, vec3(0.25f)), lightPos));
         shader->setUniform("isLight", true);
         sphere.draw();
         shader->setUniform("isLight", false);
 
-        calculateMVP(IDENTITY);
-        shader->setUniform("isTerrain", true);
+        sTerrain->use();
+        sTerrain->setUniform("cameraPos", camera.getPosition());
+        sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
+        sTerrain->setUniform("deltaNormal", terrain.deltaNormal);
+        sTerrain->setUniform("frequency", terrain.frequency);
+        sTerrain->setUniform("amplitude", terrain.amplitude);
+        sTerrain->setUniform("octave", terrain.octave);
+        sTerrain->setUniform("tesselationLevel", terrain.tesselationLevel);
+
         plane.draw();
-        shader->setUniform("isTerrain", false);
 
         ImGui::Begin("Test");
         ImGui::InputFloat("Frequency", &terrain.frequency, 0.1f, 1.0f);
@@ -158,65 +213,11 @@ void Application::run() {
         ImGui::InputFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.01f);
         ImGui::NewLine();
         ImGui::InputFloat("Terrain Size", &terrain.size, 10.0f, 100.0f);
-        ImGui::InputInt("Terrain Divisions", &terrain.divisions, 10, 25);
-        if(ImGui::Button("Generate Mesh")) {
-            plane = Meshes::planeGrid(terrain.size, terrain.divisions);
-            shader->setUniform("squareSize", terrain.size / terrain.divisions);
-        }
+        ImGui::InputFloat("Tesselation Level", &terrain.tesselationLevel, 2.0f, 8.0f);
         ImGui::End();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
-    }
-}
-
-void Application::run2() {
-    float size = 20.0f / 2.0f;
-    float vertices[] = {
-        -size, 0.0f, size,
-        size, 0.0f, size,
-        size, 0.0f, -size,
-        -size, 0.0f, -size,
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,  // First triangle
-        2, 3, 0   // Second triangle
-    };
-
-    unsigned int VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    glPatchParameteri(GL_PATCH_VERTICES, 4);
-    /**** Main Loop ****/
-    while(!glfwWindowShouldClose(window)) {
-        handleEvents();
-
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        delta = glfwGetTime() - time;
-        time = glfwGetTime();
-
-        sTerrain->use();
-        sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
-        glBindVertexArray(VAO);
-        glDrawElements(GL_PATCHES, 6, GL_UNSIGNED_INT, nullptr);
-
         glfwSwapBuffers(window);
     }
 }
