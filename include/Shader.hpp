@@ -65,7 +65,7 @@ public:
             int location = uniforms.at(uniform);
             setUniform(location, value...);
         } catch(const std::exception&) {
-//            std::cout << "The uniform named '" << uniform << "' is unknown.\n";
+            std::cout << "The uniform named '" << uniform << "' is unknown.\n";
         }
     }
 

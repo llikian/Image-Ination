@@ -96,16 +96,28 @@ vec3 getNormal(in vec2 pos) {
     return normalize(cross(tangentZ, tangentX));
 }
 
-void main() {
+vec3 getPosition(in vec2 offset) {
     vec3 p0 = gl_in[0].gl_Position.xyz;
     vec3 p1 = gl_in[1].gl_Position.xyz;
     vec3 p2 = gl_in[2].gl_Position.xyz;
     vec3 p3 = gl_in[3].gl_Position.xyz;
 
-    position = mix(mix(p0, p1, gl_TessCoord.x), mix(p3, p2, gl_TessCoord.x), gl_TessCoord.y);
-//    position.y = getHeight(position.xz);
+    vec3 pos = mix(mix(p0, p1, gl_TessCoord.x), mix(p3, p2, gl_TessCoord.x), gl_TessCoord.y);
+    pos.xz += offset;
 
-    normal = getNormal(position.xz);
+    return vec3(pos.x, getHeight(pos.xz), pos.z);
+}
+
+void main() {
+    position = getPosition(vec2(0.0f));
+    maxHeight = 1.0f;
+
+    vec3 p0 = getPosition(vec2(-deltaNormal, 0.0f));
+    vec3 p1 = getPosition(vec2(deltaNormal, 0.0f));
+    vec3 p2 = getPosition(vec2(0.0f, -deltaNormal));
+    vec3 p3 = getPosition(vec2(0.0f, deltaNormal));
+
+    normal = normalize(cross(p1 - p2, p3 - p1));
 
     gl_Position = vpMatrix * vec4(position, 1.0f);
 }

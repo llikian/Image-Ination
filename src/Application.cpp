@@ -97,53 +97,13 @@ Application::~Application() {
     glfwTerminate();
 }
 
-Mesh planeTess(float size, int divisions) {
+Mesh planeMesh() {
     Mesh mesh(GL_PATCHES);
 
-    const float halfSize = -size / 2.0f;
-    const float squareSize = size / divisions;
-    float squareX = halfSize, squareZ = halfSize;
-
-    for(int i = 0 ; i < divisions ; ++i) {
-        for(int j = 0 ; j < divisions ; ++j) {
-            vec3 A(squareX, 0.0f, squareZ);
-            vec3 B(squareX, 0.0f, squareZ + squareSize);
-            vec3 C(squareX + squareSize, 0.0f, squareZ + squareSize);
-            vec3 D(squareX + squareSize, 0.0f, squareZ);
-
-            mesh.addPosition(A);
-            mesh.addNormal(0.0f, 1.0f, 0.0f);
-
-            mesh.addPosition(B);
-            mesh.addNormal(0.0f, 1.0f, 0.0f);
-
-            mesh.addPosition(C);
-            mesh.addNormal(0.0f, 1.0f, 0.0f);
-
-            mesh.addPosition(D);
-            mesh.addNormal(0.0f, 1.0f, 0.0f);
-
-            squareX += squareSize;
-        }
-
-        squareX = halfSize;
-        squareZ += squareSize;
-    }
-
-    return mesh;
-}
-
-Mesh planeMesh(float size) {
-    Mesh mesh(GL_PATCHES);
-
-    size /= 2.0f;
-
-    mesh.addPosition(-size, 0.0f, size);
-    mesh.addPosition(size, 0.0f, size);
-    mesh.addPosition(size, 0.0f, -size);
-    mesh.addPosition(-size, 0.0f, -size);
-
-    mesh.addFace(0, 1, 2, 3);
+    mesh.addPosition(-0.5f, 0.0f, 0.5f);
+    mesh.addPosition(0.5f, 0.0f, 0.5f);
+    mesh.addPosition(0.5f, 0.0f, -0.5f);
+    mesh.addPosition(-0.5f, 0.0f, -0.5f);
 
     return mesh;
 }
@@ -151,7 +111,7 @@ Mesh planeMesh(float size) {
 void Application::run() {
     struct Terrain {
         float size = 25.0f;
-        float tesselationLevel = 16.0f;
+        float tesselationLevel = 64.0f;
 
         float deltaNormal = 0.01f;
 
@@ -161,10 +121,9 @@ void Application::run() {
     } terrain;
 
     Mesh sphere = Meshes::sphere(8, 16);
-    Mesh plane = planeTess(10.0f, 2);
-//    Mesh plane = planeMesh(10.0f);
+    Mesh plane = planeMesh();
 
-    vec3 lightPos(terrain.size);
+    vec3 lightPos(0.0f, terrain.size, 0.0f);
     shader->setUniform("lightPos", lightPos);
     sTerrain->setUniform("lightPos", lightPos);
 
@@ -201,6 +160,7 @@ void Application::run() {
         sTerrain->setUniform("frequency", terrain.frequency);
         sTerrain->setUniform("amplitude", terrain.amplitude);
         sTerrain->setUniform("octave", terrain.octave);
+        sTerrain->setUniform("terrainSize", terrain.size);
         sTerrain->setUniform("tesselationLevel", terrain.tesselationLevel);
 
         plane.draw();

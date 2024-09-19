@@ -20,7 +20,7 @@ vec3 phongLighting();
 
 void main() {
     fragColor = vec4(phongLighting(), 1.0f);
-    fragColor = vec4(1.0f);
+//    fragColor = vec4(1.0f);
 
     const int n = 4;
     float height = position.y / maxHeight;
