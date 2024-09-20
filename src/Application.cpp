@@ -17,7 +17,7 @@ Application::Application()
       time(0.0f), delta(0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
       shader(nullptr),
-      projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 100.0f)),
+      projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
       camera(vec3(0.0f, 2.0f, 5.0f)) {
 
     /**** GLFW ****/
@@ -110,22 +110,28 @@ Mesh planeMesh() {
 
 void Application::run() {
     struct Terrain {
-        float size = 25.0f;
+        float size = 4.0f;
         float tesselationLevel = 64.0f;
 
         float deltaNormal = 0.01f;
 
-        float frequency = 1.0f;
-        float amplitude = 0.75f;
+        float frequency = 0.1f;
+        float amplitude = 4.0f;
         int octave = 8;
+
+        int chunks = 50;
     } terrain;
 
     Mesh sphere = Meshes::sphere(8, 16);
     Mesh plane = planeMesh();
 
-    vec3 lightPos(0.0f, terrain.size, 0.0f);
-    shader->setUniform("lightPos", lightPos);
-    sTerrain->setUniform("lightPos", lightPos);
+    auto drawChunk = [&](int chunkX, int chunkZ) {
+        sTerrain->setUniform("chunkX", chunkX);
+        sTerrain->setUniform("chunkZ", chunkZ);
+        plane.draw();
+    };
+
+    vec3 lightPos(0.0f, 10.0f, 0.0f);
 
     const mat4 IDENTITY(1.0f);
 
@@ -147,6 +153,7 @@ void Application::run() {
 
         shader->use();
         updateUniforms();
+        shader->setUniform("lightPos", lightPos);
 
         calculateMVP(translate(scale(IDENTITY, vec3(0.25f)), lightPos));
         shader->setUniform("isLight", true);
@@ -162,8 +169,13 @@ void Application::run() {
         sTerrain->setUniform("octave", terrain.octave);
         sTerrain->setUniform("terrainSize", terrain.size);
         sTerrain->setUniform("tesselationLevel", terrain.tesselationLevel);
+        sTerrain->setUniform("lightPos", lightPos);
 
-        plane.draw();
+        for(int x = 0 ; x <= terrain.chunks ; ++x) {
+            for(int z = 0 ; z <= terrain.chunks ; ++z) {
+                drawChunk(x - terrain.chunks / 2.0f, z - terrain.chunks / 2.0f);
+            }
+        }
 
         ImGui::Begin("Test");
         ImGui::InputFloat("Frequency", &terrain.frequency, 0.1f, 1.0f);
@@ -174,6 +186,10 @@ void Application::run() {
         ImGui::NewLine();
         ImGui::InputFloat("Terrain Size", &terrain.size, 10.0f, 100.0f);
         ImGui::InputFloat("Tesselation Level", &terrain.tesselationLevel, 2.0f, 8.0f);
+        ImGui::NewLine();
+        ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
+        ImGui::NewLine();
+        ImGui::InputFloat3("Light Pos", &lightPos.x);
         ImGui::End();
 
         ImGui::Render();

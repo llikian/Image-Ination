@@ -17,6 +17,7 @@ uniform float deltaNormal;
 uniform float frequency;
 uniform float amplitude;
 uniform int octave;
+uniform float terrainSize;
 
 float simple_interpolate(in float a, in float b, in float x) {
     return a + smoothstep(0.0,1.0,x) * (b-a);
@@ -85,39 +86,27 @@ float getHeight(in vec2 pos) {
     return noise(pos);
 }
 
-vec3 getNormal(in vec2 pos) {
-    float height = getHeight(pos);
-    float heightX = getHeight(pos + vec2(deltaNormal, 0.0f));
-    float heightZ = getHeight(pos + vec2(0.0f, deltaNormal));
+vec3 getPosition(in vec2 uv) {
+    vec3 pos;
 
-    vec3 tangentX = vec3(1.0f, (heightX - height) / deltaNormal, 0.0f);
-    vec3 tangentZ = vec3(0.0f, (heightZ - height) / deltaNormal, 1.0f);
-
-    return normalize(cross(tangentZ, tangentX));
-}
-
-vec3 getPosition(in vec2 offset) {
     vec3 p0 = gl_in[0].gl_Position.xyz;
     vec3 p1 = gl_in[1].gl_Position.xyz;
     vec3 p2 = gl_in[2].gl_Position.xyz;
     vec3 p3 = gl_in[3].gl_Position.xyz;
 
-    vec3 pos = mix(mix(p0, p1, gl_TessCoord.x), mix(p3, p2, gl_TessCoord.x), gl_TessCoord.y);
-    pos.xz += offset;
+    pos = mix(mix(p0, p1, uv.x), mix(p3, p2, uv.x), uv.y);
 
-    return vec3(pos.x, getHeight(pos.xz), pos.z);
+    pos.y = getHeight(pos.xz);
+    return pos;
 }
 
 void main() {
-    position = getPosition(vec2(0.0f));
-    maxHeight = 1.0f;
+    position = getPosition(gl_TessCoord.xy);
 
-    vec3 p0 = getPosition(vec2(-deltaNormal, 0.0f));
-    vec3 p1 = getPosition(vec2(deltaNormal, 0.0f));
-    vec3 p2 = getPosition(vec2(0.0f, -deltaNormal));
-    vec3 p3 = getPosition(vec2(0.0f, deltaNormal));
-
-    normal = normalize(cross(p1 - p2, p3 - p1));
+    vec2 delta = vec2(deltaNormal, 0.0);
+    vec3 p1 = getPosition(gl_TessCoord.xy + delta.xy);
+    vec3 p2 = getPosition(gl_TessCoord.xy + delta.yx);
+    normal = normalize(cross(p1 - position, p2 - p1));
 
     gl_Position = vpMatrix * vec4(position, 1.0f);
 }

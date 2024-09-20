@@ -40,7 +40,6 @@ public:
      * @brief Contains the main loop.
      */
     void run();
-    void run2();
 
     /**
      * @brief Sets the width and height of the GLFW window.

@@ -8,7 +8,10 @@
 in vec3 aPos;
 
 uniform float terrainSize;
+uniform int chunkX;
+uniform int chunkZ;
 
 void main() {
-    gl_Position = vec4(aPos * terrainSize, 1.0f);
+    vec3 pos = vec3(aPos.x + float(chunkX), 0.0f, aPos.z + float(chunkZ)) * terrainSize;
+    gl_Position = vec4(pos, 1.0f);
 }
