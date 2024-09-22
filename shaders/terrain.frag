@@ -11,8 +11,14 @@ in float maxHeight;
 
 out vec4 fragColor;
 
+struct Light {
+    vec3 position;
+    vec3 direction;
+    bool isGlobal;
+};
+
+uniform Light light;
 uniform vec3 cameraPos;
-uniform vec3 lightPos;
 
 const vec3 LIGHT_COLOR = vec3(1.0f);
 
@@ -47,7 +53,7 @@ vec3 phongLighting() {
     float ambient = 0.1f;
 
     /* Diffuse */
-    vec3 lightDirection = normalize(lightPos - position);
+    vec3 lightDirection = normalize(light.isGlobal ? light.direction : light.position - position);
     float diffuse = max(dot(normal, lightDirection), 0.0f);
 
     /* Specular */

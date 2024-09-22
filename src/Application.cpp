@@ -9,6 +9,7 @@
 #include "callbacks.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
@@ -37,6 +38,7 @@ Application::Application()
     glfwMakeContextCurrent(window);
     glfwMaximizeWindow(window);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSwapInterval(0);
 
     mousePos.x = width / 2.0f;
     mousePos.y = height / 2.0f;
@@ -67,6 +69,7 @@ Application::Application()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glActiveTexture(GL_TEXTURE0);
+    glPatchParameteri(GL_PATCH_VERTICES, 4);
 
     // Sets the default diffuse and specular maps to a plain white color
     const unsigned char white[3]{255, 255, 255};
@@ -122,6 +125,15 @@ void Application::run() {
         int chunks = 50;
     } terrain;
 
+    struct Light {
+        vec3 position{0.0f, 10.0f, 0.0f};
+        vec3 direction{2.0f, 2.0f, 0.0f};
+
+        bool isGlobal = true;
+    } light;
+
+    const mat4 IDENTITY(1.0f);
+
     Mesh sphere = Meshes::sphere(8, 16);
     Mesh plane = planeMesh();
 
@@ -130,12 +142,6 @@ void Application::run() {
         sTerrain->setUniform("chunkZ", chunkZ);
         plane.draw();
     };
-
-    vec3 lightPos(0.0f, 10.0f, 0.0f);
-
-    const mat4 IDENTITY(1.0f);
-
-    glPatchParameteri(GL_PATCH_VERTICES, 4);
 
     /**** Main Loop ****/
     while(!glfwWindowShouldClose(window)) {
@@ -153,12 +159,14 @@ void Application::run() {
 
         shader->use();
         updateUniforms();
-        shader->setUniform("lightPos", lightPos);
+        shader->setUniform("lightPos", light.position);
 
-        calculateMVP(translate(scale(IDENTITY, vec3(0.25f)), lightPos));
-        shader->setUniform("isLight", true);
-        sphere.draw();
-        shader->setUniform("isLight", false);
+        if(!light.isGlobal) {
+            calculateMVP(translate(scale(IDENTITY, vec3(0.25f)), light.position));
+            shader->setUniform("isLight", true);
+            sphere.draw();
+            shader->setUniform("isLight", false);
+        }
 
         sTerrain->use();
         sTerrain->setUniform("cameraPos", camera.getPosition());
@@ -169,27 +177,40 @@ void Application::run() {
         sTerrain->setUniform("octave", terrain.octave);
         sTerrain->setUniform("terrainSize", terrain.size);
         sTerrain->setUniform("tesselationLevel", terrain.tesselationLevel);
-        sTerrain->setUniform("lightPos", lightPos);
+        sTerrain->setUniform("light.position", light.position);
+        sTerrain->setUniform("light.direction", light.direction);
+        sTerrain->setUniform("light.isGlobal", light.isGlobal);
 
         for(int x = 0 ; x <= terrain.chunks ; ++x) {
             for(int z = 0 ; z <= terrain.chunks ; ++z) {
-                drawChunk(x - terrain.chunks / 2.0f, z - terrain.chunks / 2.0f);
+                drawChunk(x - (terrain.chunks >> 1), z - (terrain.chunks >> 1));
             }
         }
 
-        ImGui::Begin("Test");
-        ImGui::InputFloat("Frequency", &terrain.frequency, 0.1f, 1.0f);
-        ImGui::InputFloat("Amplitude", &terrain.amplitude, 0.1f, 1.0f);
-        ImGui::InputInt("Octaves", &terrain.octave, 1, 8);
-        ImGui::NewLine();
-        ImGui::InputFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.01f);
-        ImGui::NewLine();
-        ImGui::InputFloat("Terrain Size", &terrain.size, 10.0f, 100.0f);
-        ImGui::InputFloat("Tesselation Level", &terrain.tesselationLevel, 2.0f, 8.0f);
-        ImGui::NewLine();
-        ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
-        ImGui::NewLine();
-        ImGui::InputFloat3("Light Pos", &lightPos.x);
+        if(isCursorVisible) {
+            ImGui::Begin("Test");
+            ImGui::InputFloat("Frequency", &terrain.frequency, 0.1f, 1.0f);
+            ImGui::InputFloat("Amplitude", &terrain.amplitude, 0.1f, 1.0f);
+            ImGui::InputInt("Octaves", &terrain.octave, 1, 8);
+            ImGui::NewLine();
+            ImGui::InputFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.01f);
+            ImGui::NewLine();
+            ImGui::InputFloat("Terrain Size", &terrain.size, 1.0f, 10.0f);
+            ImGui::InputFloat("Tesselation Level", &terrain.tesselationLevel, 2.0f, 8.0f);
+            ImGui::NewLine();
+            ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
+            ImGui::NewLine();
+            ImGui::Checkbox("Global Lighting", &light.isGlobal);
+            if(light.isGlobal) {
+                ImGui::InputFloat3("Light Direction", &light.direction.x);
+            } else {
+                ImGui::InputFloat3("Light Position", &light.position.x);
+            }
+            ImGui::End();
+        }
+
+        ImGui::Begin("Debug");
+        ImGui::Text("%d FPS | %.2fms", static_cast<int>(1.0f / delta), 1000.0f * delta);
         ImGui::End();
 
         ImGui::Render();
