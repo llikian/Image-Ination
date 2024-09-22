@@ -210,7 +210,8 @@ void Application::run() {
         }
 
         ImGui::Begin("Debug");
-        ImGui::Text("%d FPS | %.2fms", static_cast<int>(1.0f / delta), 1000.0f * delta);
+        ImGui::Text("%d FPS | %.2fms/frame"
+                    "", static_cast<int>(1.0f / delta), 1000.0f * delta);
         ImGui::End();
 
         ImGui::Render();

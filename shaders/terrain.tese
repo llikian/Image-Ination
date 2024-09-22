@@ -20,15 +20,11 @@ uniform int octave;
 uniform float terrainSize;
 
 float simple_interpolate(in float a, in float b, in float x) {
-    return a + smoothstep(0.0,1.0,x) * (b-a);
-}
-
-float rand2D(in vec2 co) {
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+    return a + smoothstep(0.0f, 1.0f, x) * (b - a);
 }
 
 float rand3D(in vec3 co) {
-    return fract(sin(dot(co.xyz ,vec3(12.9898,78.233,144.7272))) * 43758.5453);
+    return fract(sin(dot(co.xyz, vec3(12.9898f, 78.233f, 144.7272f))) * 43758.5453f);
 }
 
 float interpolatedNoise3D(in vec3 pos) {
@@ -100,13 +96,18 @@ vec3 getPosition(in vec2 uv) {
     return pos;
 }
 
-void main() {
-    position = getPosition(gl_TessCoord.xy);
-
+vec3 getNormal(in vec3 position) {
     vec2 delta = vec2(deltaNormal, 0.0);
+
     vec3 p1 = getPosition(gl_TessCoord.xy + delta.xy);
     vec3 p2 = getPosition(gl_TessCoord.xy + delta.yx);
-    normal = normalize(cross(p1 - position, p2 - p1));
+
+    return normalize(cross(p1 - position, p2 - p1));
+}
+
+void main() {
+    position = getPosition(gl_TessCoord.xy);
+    normal = getNormal(position);
 
     gl_Position = vpMatrix * vec4(position, 1.0f);
 }
