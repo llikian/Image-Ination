@@ -157,6 +157,10 @@ void Application::run() {
         delta = glfwGetTime() - time;
         time = glfwGetTime();
 
+        ImGui::Begin("Debug");
+        ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
+        ImGui::End();
+
         shader->use();
         updateUniforms();
         shader->setUniform("lightPos", light.position);
@@ -188,12 +192,12 @@ void Application::run() {
         }
 
         if(isCursorVisible) {
-            ImGui::Begin("Test");
-            ImGui::InputFloat("Frequency", &terrain.frequency, 0.1f, 1.0f);
-            ImGui::InputFloat("Amplitude", &terrain.amplitude, 0.1f, 1.0f);
-            ImGui::InputInt("Octaves", &terrain.octave, 1, 8);
+            ImGui::Begin("Terrain Options");
+            ImGui::SliderFloat("Frequency", &terrain.frequency, 0.0f, 1.0f);
+            ImGui::SliderFloat("Amplitude", &terrain.amplitude, 0.0f, 100.0f);
+            ImGui::SliderInt("Octaves", &terrain.octave, 1, 8);
             ImGui::NewLine();
-            ImGui::InputFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.01f);
+            ImGui::SliderFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.1f);
             ImGui::NewLine();
             ImGui::InputFloat("Terrain Size", &terrain.size, 1.0f, 10.0f);
             ImGui::InputFloat("Tesselation Level", &terrain.tesselationLevel, 2.0f, 8.0f);
@@ -204,15 +208,10 @@ void Application::run() {
             if(light.isGlobal) {
                 ImGui::InputFloat3("Light Direction", &light.direction.x);
             } else {
-                ImGui::InputFloat3("Light Position", &light.position.x);
+                ImGui::SliderFloat3("Light Position", &light.position.x, 0.0f, 100.0f);
             }
             ImGui::End();
         }
-
-        ImGui::Begin("Debug");
-        ImGui::Text("%d FPS | %.2fms/frame"
-                    "", static_cast<int>(1.0f / delta), 1000.0f * delta);
-        ImGui::End();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
