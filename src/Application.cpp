@@ -122,7 +122,7 @@ void Application::run() {
         float amplitude = 4.0f;
         int octave = 8;
 
-        int chunks = 50;
+        int chunks = 10;
     } terrain;
 
     struct Light {
@@ -208,7 +208,7 @@ void Application::run() {
             if(light.isGlobal) {
                 ImGui::InputFloat3("Light Direction", &light.direction.x);
             } else {
-                ImGui::SliderFloat3("Light Position", &light.position.x, 0.0f, 100.0f);
+                ImGui::SliderFloat3("Light Position", &light.position.x, -terrain.size * terrain.chunks, terrain.size * terrain.chunks);
             }
             ImGui::End();
         }
