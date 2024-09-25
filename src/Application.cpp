@@ -19,7 +19,7 @@ Application::Application()
       wireframe(false), cullface(true), isCursorVisible(false),
       shader(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
-      camera(vec3(0.0f, 2.0f, 5.0f)) {
+      camera(vec3(0.0f, 20.0f, 5.0f)) {
 
     /**** GLFW ****/
     if(!glfwInit()) {
