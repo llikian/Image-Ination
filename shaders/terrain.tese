@@ -5,18 +5,16 @@
 
 #version 460 core
 
+#define IN_POS(i) gl_in[i].gl_Position.xz
+
 layout(quads, fractional_even_spacing, ccw) in;
 
 out vec3 position;
 out vec3 normal;
-
 out float maxHeight;
 
 uniform mat4 vpMatrix;
-
 uniform float deltaNormal;
-
-#define IN_POS(i) gl_in[i].gl_Position.xz
 
 float simple_interpolate(in float a, in float b, in float x) {
     return a + smoothstep(0.0f, 1.0f, x) * (b - a);
@@ -44,7 +42,7 @@ float perlinNoise(in vec2 pos) {
     return simple_interpolate(i1, i2, fractional_x);
 }
 
-float noise(in vec2 pos, float freq, float amp, uint oct) {
+float noise(in vec2 pos, in float freq, in float amp, in uint oct) {
     float total = 0.0f;
 
     maxHeight = 0.0f;
@@ -61,7 +59,7 @@ float noise(in vec2 pos, float freq, float amp, uint oct) {
 }
 
 float getHeight(in vec2 pos) {
-    return noise(pos, 0.1f, 4.0f, 8u);
+    return noise(pos, 0.1f, 8.0f, 8u);
 }
 
 vec3 getPosition(in vec2 uv) {
@@ -73,13 +71,19 @@ vec3 getPosition(in vec2 uv) {
     return pos;
 }
 
-void main() {
+vec3 getNormal() {
     vec2 delta = vec2(deltaNormal, 0.0f);
     vec3 p1 = getPosition(gl_TessCoord.xy + delta.xy);
-    vec3 p2 = getPosition(gl_TessCoord.xy + delta.yx);
+    vec3 p2 = getPosition(gl_TessCoord.xy - delta.xy);
+    vec3 p3 = getPosition(gl_TessCoord.xy + delta.yx);
+    vec3 p4 = getPosition(gl_TessCoord.xy - delta.yx);
 
+    return normalize(cross(p1 - p2, p3 - p4));
+}
+
+void main() {
     position = getPosition(gl_TessCoord.xy);
-    normal = normalize(cross(p1 - position, p2 - p1));
+    normal = getNormal();
 
     gl_Position = vpMatrix * vec4(position, 1.0f);
 }
