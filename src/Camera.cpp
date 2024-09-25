@@ -41,7 +41,7 @@ vec3 Camera::getUp() const {
 }
 
 void Camera::move(CameraControls direction, float deltaTime) {
-    const float speed = 5.0f * deltaTime;
+    const float speed = 20.0f * deltaTime;
 
     switch(direction) {
         case CameraControls::forward:
