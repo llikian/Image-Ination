@@ -17,7 +17,6 @@ uniform float deltaNormal;
 uniform float frequency;
 uniform float amplitude;
 uniform int octave;
-uniform float terrainSize;
 
 float simple_interpolate(in float a, in float b, in float x) {
     return a + smoothstep(0.0f, 1.0f, x) * (b - a);
