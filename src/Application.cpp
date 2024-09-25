@@ -151,7 +151,7 @@ void Application::run() {
 
         handleEvents();
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.306f, 0.706f, 0.89f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         delta = glfwGetTime() - time;
@@ -208,7 +208,8 @@ void Application::run() {
             if(light.isGlobal) {
                 ImGui::InputFloat3("Light Direction", &light.direction.x);
             } else {
-                ImGui::SliderFloat3("Light Position", &light.position.x, -terrain.size * terrain.chunks, terrain.size * terrain.chunks);
+                ImGui::SliderFloat3("Light Position", &light.position.x,
+                                    -terrain.size * terrain.chunks, terrain.size * terrain.chunks);
             }
             ImGui::End();
         }
