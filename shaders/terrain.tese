@@ -23,56 +23,41 @@ float simple_interpolate(in float a, in float b, in float x) {
     return a + smoothstep(0.0f, 1.0f, x) * (b - a);
 }
 
-float rand3D(in vec3 co) {
-    return fract(sin(dot(co.xyz, vec3(12.9898f, 78.233f, 144.7272f))) * 43758.5453f);
+float rand2D(in vec2 co){
+    return fract(sin(dot(co, vec2(12.9898f, 78.233f))) * 43758.5453f);
 }
 
-float interpolatedNoise3D(in vec3 pos) {
-    float integer_x = pos.x - fract(pos.x);
-    float fractional_x = pos.x - integer_x;
+float perlinNoise(in vec2 pos) {
+    float integer_x = floor(pos.x);
+    float fractional_x = fract(pos.x);
 
-    float integer_y = pos.y - fract(pos.y);
-    float fractional_y = pos.y - integer_y;
+    float integer_z = floor(pos.y);
+    float fractional_z = fract(pos.y);
 
-    float integer_z = pos.z - fract(pos.z);
-    float fractional_z = pos.z - integer_z;
+    float v1 = rand2D(vec2(integer_x, integer_z));
+    float v2 = rand2D(vec2(integer_x + 1.0f, integer_z));
+    float v3 = rand2D(vec2(integer_x, integer_z + 1.0f));
+    float v4 = rand2D(vec2(integer_x + 1.0f, integer_z + 1.0f));
 
-    float v1 = rand3D(vec3(integer_x, integer_y, integer_z));
-    float v2 = rand3D(vec3(integer_x + 1.0f, integer_y, integer_z));
-    float v3 = rand3D(vec3(integer_x, integer_y + 1.0f, integer_z));
-    float v4 = rand3D(vec3(integer_x + 1.0f, integer_y + 1.0f, integer_z));
+    float i1 = simple_interpolate(v1, v3, fractional_z);
+    float i2 = simple_interpolate(v2, v4, fractional_z);
 
-    float v5 = rand3D(vec3(integer_x, integer_y, integer_z + 1.0f));
-    float v6 = rand3D(vec3(integer_x + 1.0f, integer_y, integer_z + 1.0f));
-    float v7 = rand3D(vec3(integer_x, integer_y + 1.0f, integer_z + 1.0f));
-    float v8 = rand3D(vec3(integer_x + 1.0f, integer_y + 1.0f, integer_z + 1.0f));
-
-    float i1 = simple_interpolate(v1, v5, fractional_z);
-    float i2 = simple_interpolate(v2, v6, fractional_z);
-    float i3 = simple_interpolate(v3, v7, fractional_z);
-    float i4 = simple_interpolate(v4, v8, fractional_z);
-
-    float ii1 = simple_interpolate(i1, i2, fractional_x);
-    float ii2 = simple_interpolate(i3, i4, fractional_x);
-
-    return simple_interpolate(ii1, ii2, fractional_y);
+    return simple_interpolate(i1, i2, fractional_x);
 }
 
 float noise(in vec2 pos) {
-    const vec3 POS = vec3(pos.x, 0.0f, pos.y);
     float total = 0.0f;
     float amp = amplitude;
-    float freq = frequency;
+    pos *= frequency;
 
-    maxHeight = 0.0f;
+    maxHeight = amp;
 
     for(int i = 0 ; i < octave ; ++i) {
-        maxHeight += amp;
+        total += perlinNoise(pos) * amp;
 
-        total += interpolatedNoise3D(POS * freq) * amp;
-        freq *= 2.0f;
+        pos *= 2.0f;
         amp /= 2.0f;
-
+        maxHeight += amp;
     }
 
     return total;
