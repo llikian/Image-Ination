@@ -113,15 +113,13 @@ Mesh planeMesh() {
 
 void Application::run() {
     struct Terrain {
-        float size = 4.0f;
-        float tesselationLevel = 64.0f;
-
         float deltaNormal = 0.01f;
 
         float frequency = 0.1f;
         float amplitude = 4.0f;
         int octave = 8;
 
+        float chunkSize = 4.0f;
         int chunks = 10;
     } terrain;
 
@@ -179,8 +177,7 @@ void Application::run() {
         sTerrain->setUniform("frequency", terrain.frequency);
         sTerrain->setUniform("amplitude", terrain.amplitude);
         sTerrain->setUniform("octave", terrain.octave);
-        sTerrain->setUniform("terrainSize", terrain.size);
-        sTerrain->setUniform("tesselationLevel", terrain.tesselationLevel);
+        sTerrain->setUniform("chunkSize", terrain.chunkSize);
         sTerrain->setUniform("light.position", light.position);
         sTerrain->setUniform("light.direction", light.direction);
         sTerrain->setUniform("light.isGlobal", light.isGlobal);
@@ -199,8 +196,7 @@ void Application::run() {
             ImGui::NewLine();
             ImGui::SliderFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.1f);
             ImGui::NewLine();
-            ImGui::InputFloat("Terrain Size", &terrain.size, 1.0f, 10.0f);
-            ImGui::InputFloat("Tesselation Level", &terrain.tesselationLevel, 2.0f, 8.0f);
+            ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
             ImGui::NewLine();
             ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
             ImGui::NewLine();
@@ -209,7 +205,8 @@ void Application::run() {
                 ImGui::InputFloat3("Light Direction", &light.direction.x);
             } else {
                 ImGui::SliderFloat3("Light Position", &light.position.x,
-                                    -terrain.size * terrain.chunks, terrain.size * terrain.chunks);
+                                    -terrain.chunkSize * terrain.chunks,
+                                    terrain.chunkSize * terrain.chunks);
             }
             ImGui::End();
         }
