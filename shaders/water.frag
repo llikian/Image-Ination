@@ -8,7 +8,6 @@
 in vec3 position;
 in vec3 normal;
 
-in float minHeight;
 in float maxHeight;
 
 out vec4 fragColor;
