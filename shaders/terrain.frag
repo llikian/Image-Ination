@@ -10,6 +10,7 @@ in vec3 normal;
 in float maxHeight;
 in flat uint biome1;
 in flat uint biome2;
+in float blendFactor;
 
 out vec4 fragColor;
 
@@ -22,17 +23,57 @@ struct Light {
 uniform Light light;
 uniform vec3 cameraPos;
 
-
 float phongLighting();
+void getBiomeColorRamp(out vec3 colors[4], out float weights[4]);
 vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t);
 
 void main() {
-    float weights[4];
-    vec3 colors[4];
+    vec3 colors1[4];
+    float weights1[4];
+    getBiomeColorRamp(colors1, weights1);
 
+    vec3 colors2[4];
+    float weights2[4];
+    getBiomeColorRamp(colors2, weights2);
+
+    vec3 colors[4] = {
+        mix(colors1[0], colors2[0], blendFactor),
+        mix(colors1[1], colors2[1], blendFactor),
+        mix(colors1[2], colors2[2], blendFactor),
+        mix(colors1[3], colors2[3], blendFactor)
+    };
+
+    float weights[4] = {
+        0.0f,
+        mix(weights1[1], weights2[1], blendFactor),
+        mix(weights1[2], weights2[2], blendFactor),
+        1.0f
+    };
+
+    fragColor.rgb = phongLighting() * colorRamp4(colors, weights, position.y / maxHeight);
+    fragColor.a = 1.0f;
+}
+
+float phongLighting() {
+    /* Ambient */
+    float ambient = 0.1f;
+
+    /* Diffuse */
+    vec3 lightDirection = normalize(light.isGlobal ? light.direction : light.position - position);
+    float diffuse = max(dot(normal, lightDirection), 0.0f);
+
+    /* Specular */
+    vec3 viewDirection = normalize(cameraPos - position);
+    vec3 reflectionDir = reflect(-lightDirection, normal);
+    float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
+
+    return ambient + diffuse + specular;
+}
+
+void getBiomeColorRamp(out vec3 colors[4], out float weights[4]) {
     weights[0] = 0.0f;
     weights[3] = 1.0f;
-    switch(biome1) {
+    switch (biome1) {
         case 0: // Mountains
             colors[0] = vec3(0.522f, 0.4f, 0.318f);
             colors[1] = vec3(0.71f);
@@ -58,25 +99,6 @@ void main() {
             weights[2] = 0.3f;
             break;
     }
-
-    fragColor.rgb = phongLighting() * colorRamp4(colors, weights, position.y / maxHeight);
-    fragColor.a = 1.0f;
-}
-
-float phongLighting() {
-    /* Ambient */
-    float ambient = 0.1f;
-
-    /* Diffuse */
-    vec3 lightDirection = normalize(light.isGlobal ? light.direction : light.position - position);
-    float diffuse = max(dot(normal, lightDirection), 0.0f);
-
-    /* Specular */
-    vec3 viewDirection = normalize(cameraPos - position);
-    vec3 reflectionDir = reflect(-lightDirection, normal);
-    float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
-
-    return ambient + diffuse + specular;
 }
 
 vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
