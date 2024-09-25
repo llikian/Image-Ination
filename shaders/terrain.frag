@@ -17,23 +17,18 @@ struct Light {
     bool isGlobal;
 };
 
-struct RampColor {
-    vec3 color;
-    float weight;
-};
-
 uniform Light light;
 uniform vec3 cameraPos;
 
-vec3 phongLighting();
-vec3 colorRamp4(in vec3 colors[4], in float weights[2], in float t);
+float phongLighting();
+vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t);
 
 void main() {
-    float weights[2] = {0.2f, 0.5f};
+    float weights[4] = {0.0f, 0.2f, 0.5f, 1.0f};
     vec3 colors[4] = {
         vec3(0.184f, 0.694f, 0.831f),
         vec3(0.357f, 0.6f, 0.369f),
-        vec3(0.631f, 0.545f, 0.467f),
+        vec3(0.58f, 0.49f, 0.388f),
         vec3(0.969f, 1.0f, 0.996f)
     };
 
@@ -41,7 +36,7 @@ void main() {
     fragColor.a = 1.0f;
 }
 
-vec3 phongLighting() {
+float phongLighting() {
     /* Ambient */
     float ambient = 0.1f;
 
@@ -54,15 +49,16 @@ vec3 phongLighting() {
     vec3 reflectionDir = reflect(-lightDirection, normal);
     float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
 
-    return vec3(ambient + diffuse + specular);
+    return ambient + diffuse + specular;
 }
 
-vec3 colorRamp4(in vec3 colors[4], in float weights[2], in float t) {
-    if(t >= weights[1]) {
-        return mix(colors[2], colors[3], (t - weights[1]) / (1.0f - weights[1]));
-    } else if(t >= weights[0]) {
-        return mix(colors[1], colors[2], (t - weights[0]) / (weights[1] - weights[0]));
-    } else {
-        return mix(colors[0], colors[1], t / weights[0]);
+vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
+    vec3 color = vec3(0.0f);
+
+    for (int i = 0; i < 3; ++i) {
+        float w = clamp((t - weights[i]) / (weights[i+1] - weights[i]), 0.0f, 1.0f);
+        color += (step(weights[i], t) - step(weights[i+1], t)) * mix(colors[i], colors[i+1], w);
     }
+
+    return color;
 }
