@@ -55,9 +55,9 @@ Application::Application()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
+    ImGui::GetIO().IniFilename = "lib/imgui/imgui.ini";
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
-    ImGui::GetIO().IniFilename = "lib/imgui/imgui.ini";
 
     /**** GLAD ****/
     if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
@@ -71,7 +71,7 @@ Application::Application()
     glActiveTexture(GL_TEXTURE0);
     glPatchParameteri(GL_PATCH_VERTICES, 4);
 
-    // Sets the default diffuse and specular maps to a plain white color
+    // Sets the default texture to a plain white color
     const unsigned char white[3]{255, 255, 255};
     glBindTexture(GL_TEXTURE_2D, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, white);
