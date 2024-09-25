@@ -7,20 +7,20 @@
 
 layout(vertices = 4) out;
 
-uniform float tesselationLevel;
-
 uniform vec3 cameraPos;
-uniform float terrainSize;
+uniform float chunkSize;
 uniform int chunkX;
 uniform int chunkZ;
+
+const float TESSELATION_LEVEL = 64.0f;
 
 void main() {
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 
-    vec2 currentChunk = floor(cameraPos.xz / terrainSize);
+    vec2 currentChunk = floor(cameraPos.xz / chunkSize);
     float dist = floor(distance(currentChunk, vec2(float(chunkX), float(chunkZ))));
 
-    float level = clamp(8.0f * tesselationLevel / dist, 1.0f, 64.0f);
+    float level = clamp(8.0f * TESSELATION_LEVEL / dist, 1.0f, 64.0f);
 
     gl_TessLevelInner[0] = level;
     gl_TessLevelInner[1] = level;
