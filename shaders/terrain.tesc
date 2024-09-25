@@ -20,7 +20,7 @@ void main() {
     vec2 currentChunk = floor(cameraPos.xz / chunkSize);
     float distance = floor(distance(currentChunk, vec2(float(chunkX), float(chunkZ))));
 
-    float level = clamp(8.0f * TESSELATION_LEVEL / distance, 1.0f, 64.0f);
+    float level = clamp(16.0f * TESSELATION_LEVEL / distance, 1.0f, 64.0f);
 
     gl_TessLevelInner[0] = level;
     gl_TessLevelInner[1] = level;
