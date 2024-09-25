@@ -114,13 +114,8 @@ Mesh planeMesh() {
 void Application::run() {
     struct Terrain {
         float deltaNormal = 0.01f;
-
-        float frequency = 0.1f;
-        float amplitude = 4.0f;
-        int octave = 8;
-
         float chunkSize = 4.0f;
-        int chunks = 10;
+        int chunks = 100;
     } terrain;
 
     struct Light {
@@ -131,6 +126,7 @@ void Application::run() {
     } light;
 
     const mat4 IDENTITY(1.0f);
+    const vec3 skyColor(0.306f, 0.706f, 0.89f);
 
     Mesh sphere = Meshes::sphere(8, 16);
     Mesh plane = planeMesh();
@@ -149,7 +145,7 @@ void Application::run() {
 
         handleEvents();
 
-        glClearColor(0.306f, 0.706f, 0.89f, 1.0f);
+        glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         delta = glfwGetTime() - time;
@@ -174,9 +170,6 @@ void Application::run() {
         sTerrain->setUniform("cameraPos", camera.getPosition());
         sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
         sTerrain->setUniform("deltaNormal", terrain.deltaNormal);
-        sTerrain->setUniform("frequency", terrain.frequency);
-        sTerrain->setUniform("amplitude", terrain.amplitude);
-        sTerrain->setUniform("octave", terrain.octave);
         sTerrain->setUniform("chunkSize", terrain.chunkSize);
         sTerrain->setUniform("light.position", light.position);
         sTerrain->setUniform("light.direction", light.direction);
@@ -190,14 +183,8 @@ void Application::run() {
 
         if(isCursorVisible) {
             ImGui::Begin("Terrain Options");
-            ImGui::SliderFloat("Frequency", &terrain.frequency, 0.0f, 1.0f);
-            ImGui::SliderFloat("Amplitude", &terrain.amplitude, 0.0f, 100.0f);
-            ImGui::SliderInt("Octaves", &terrain.octave, 1, 8);
-            ImGui::NewLine();
             ImGui::SliderFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.1f);
-            ImGui::NewLine();
             ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
-            ImGui::NewLine();
             ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
             ImGui::NewLine();
             ImGui::Checkbox("Global Lighting", &light.isGlobal);

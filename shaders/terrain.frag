@@ -8,6 +8,8 @@
 in vec3 position;
 in vec3 normal;
 in float maxHeight;
+in flat uint biome1;
+in flat uint biome2;
 
 out vec4 fragColor;
 
@@ -20,17 +22,42 @@ struct Light {
 uniform Light light;
 uniform vec3 cameraPos;
 
+
 float phongLighting();
 vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t);
 
 void main() {
-    float weights[4] = {0.0f, 0.2f, 0.5f, 1.0f};
-    vec3 colors[4] = {
-        vec3(0.184f, 0.694f, 0.831f),
-        vec3(0.357f, 0.6f, 0.369f),
-        vec3(0.58f, 0.49f, 0.388f),
-        vec3(0.969f, 1.0f, 0.996f)
-    };
+    float weights[4];
+    vec3 colors[4];
+
+    weights[0] = 0.0f;
+    weights[3] = 1.0f;
+    switch(biome1) {
+        case 0: // Mountains
+            colors[0] = vec3(0.522f, 0.4f, 0.318f);
+            colors[1] = vec3(0.71f);
+            colors[2] = vec3(0.902f);
+            colors[3] = vec3(1.0f);
+            weights[1] = 0.33f;
+            weights[2] = 0.66f;
+            break;
+        case 1: // Plains
+            colors[0] = vec3(0.396f, 0.71f, 1.0f);
+            colors[1] = vec3(0.788f, 0.643f, 0.345f);
+            colors[2] = vec3(0.325f, 0.522f, 0.318f);
+            colors[3] = vec3(0.345f, 0.788f, 0.353f);
+            weights[1] = 0.4f;
+            weights[2] = 0.66f;
+            break;
+        case 2: // Desert
+            colors[0] = vec3(0.396f, 0.71f, 1.0f);
+            colors[1] = vec3(0.396f, 0.71f, 1.0f);
+            colors[2] = vec3(0.98f, 0.851f, 0.361f);
+            colors[3] = vec3(1.0f, 0.929f, 0.396f);
+            weights[1] = 0.2f;
+            weights[2] = 0.3f;
+            break;
+    }
 
     fragColor.rgb = phongLighting() * colorRamp4(colors, weights, position.y / maxHeight);
     fragColor.a = 1.0f;
