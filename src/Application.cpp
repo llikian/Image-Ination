@@ -70,6 +70,8 @@ Application::Application()
     glEnable(GL_CULL_FACE);
     glActiveTexture(GL_TEXTURE0);
     glPatchParameteri(GL_PATCH_VERTICES, 4);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 
     // Sets the default texture to a plain white color
     const unsigned char white[3]{255, 255, 255};
@@ -120,15 +122,21 @@ void Application::runMinas() {
         int chunks = 10;
     } water;
 
+    struct Terrain {
+        float deltaNormal = 0.01f;
+        float chunkSize = 4.0f;
+        int chunks = 10;
+    } terrain;
+
     const mat4 IDENTITY(1.0f);
     const vec3 skyColor(0.306f, 0.706f, 0.89f);
     vec3 lightDirection(2.0f, 2.0f, 0.0f);
 
     Mesh plane = planeMesh();
 
-    auto drawChunk = [&](int chunkX, int chunkZ) {
-        sWater->setUniform("chunkX", chunkX);
-        sWater->setUniform("chunkZ", chunkZ);
+    auto drawChunk = [&](Shader* shader, int chunkX, int chunkZ) {
+        shader->setUniform("chunkX", chunkX);
+        shader->setUniform("chunkZ", chunkZ);
         plane.draw();
     };
 
@@ -150,6 +158,19 @@ void Application::runMinas() {
         ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
         ImGui::End();
 
+        sTerrain->use();
+        sTerrain->setUniform("cameraPos", camera.getPosition());
+        sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
+        sTerrain->setUniform("deltaNormal", terrain.deltaNormal);
+        sTerrain->setUniform("chunkSize", terrain.chunkSize);
+        sTerrain->setUniform("lightDirection", lightDirection);
+
+        for(int x = 0 ; x <= terrain.chunks ; ++x) {
+            for(int z = 0 ; z <= terrain.chunks ; ++z) {
+                drawChunk(sTerrain, x - (terrain.chunks >> 1), z - (terrain.chunks >> 1));
+            }
+        }
+
         sWater->use();
         sWater->setUniform("cameraPos", camera.getPosition());
         sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
@@ -157,9 +178,11 @@ void Application::runMinas() {
         sWater->setUniform("chunkSize", water.chunkSize);
         sWater->setUniform("lightDirection", lightDirection);
 
+        sWater->setUniform("time", time);
+
         for(int x = 0 ; x <= water.chunks ; ++x) {
             for(int z = 0 ; z <= water.chunks ; ++z) {
-                drawChunk(x - (water.chunks >> 1), z - (water.chunks >> 1));
+                drawChunk(sWater, x - (water.chunks >> 1), z - (water.chunks >> 1));
             }
         }
 
@@ -168,6 +191,16 @@ void Application::runMinas() {
             ImGui::SliderFloat("Delta Normal", &water.deltaNormal, 0.001f, 0.1f);
             ImGui::InputFloat("Chunk Size", &water.chunkSize, 1.0f, 10.0f);
             ImGui::InputInt("Chunks", &water.chunks, 2, 10);
+            ImGui::NewLine();
+            ImGui::InputFloat3("Light Direction", &lightDirection.x);
+            ImGui::End();
+        }
+
+        if(isCursorVisible) {
+            ImGui::Begin("Terrain Options");
+            ImGui::SliderFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.1f);
+            ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
+            ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
             ImGui::NewLine();
             ImGui::InputFloat3("Light Direction", &lightDirection.x);
             ImGui::End();
