@@ -12,13 +12,7 @@ in float maxHeight;
 
 out vec4 fragColor;
 
-struct Light {
-    vec3 position;
-    vec3 direction;
-    bool isGlobal;
-};
-
-uniform Light light;
+uniform vec3 lightDirection;
 uniform vec3 cameraPos;
 
 float phongLighting();
@@ -42,12 +36,12 @@ float phongLighting() {
     float ambient = 0.1f;
 
     /* Diffuse */
-    vec3 lightDirection = normalize(light.isGlobal ? light.direction : light.position - position);
-    float diffuse = max(dot(normal, lightDirection), 0.0f);
+    vec3 lightDir = normalize(lightDirection);
+    float diffuse = max(dot(normal, lightDir), 0.0f);
 
     /* Specular */
     vec3 viewDirection = normalize(cameraPos - position);
-    vec3 reflectionDir = reflect(-lightDirection, normal);
+    vec3 reflectionDir = reflect(-lightDir, normal);
     float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
 
     return ambient + diffuse + specular;

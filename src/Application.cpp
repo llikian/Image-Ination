@@ -17,7 +17,7 @@ Application::Application()
     : window(nullptr), width(1600), height(900),
       time(0.0f), delta(0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
-      shader(nullptr),
+      sTerrain(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
       camera(vec3(0.0f, 2.0f, 5.0f)) {
 
@@ -77,20 +77,17 @@ Application::Application()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, white);
 
     /**** Shaders ****/
-    std::string paths[4]{"shaders/default.vert", "shaders/default.frag", "", ""};
-    shader = new Shader(paths, 2);
-    shader->use();
-    initUniforms();
-
-    paths[0] = "shaders/terrain.vert";
-    paths[1] = "shaders/terrain.frag";
-    paths[2] = "shaders/terrain.tesc";
-    paths[3] = "shaders/terrain.tese";
+    std::string paths[4]{
+        "shaders/terrain.vert",
+        "shaders/terrain.frag",
+        "shaders/terrain.tesc",
+        "shaders/terrain.tese"
+    };
     sTerrain = new Shader(paths, 4);
 }
 
 Application::~Application() {
-    delete shader;
+    delete sTerrain;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -118,17 +115,10 @@ void Application::run() {
         int chunks = 10;
     } terrain;
 
-    struct Light {
-        vec3 position{0.0f, 10.0f, 0.0f};
-        vec3 direction{2.0f, 2.0f, 0.0f};
-
-        bool isGlobal = true;
-    } light;
-
     const mat4 IDENTITY(1.0f);
     const vec3 skyColor(0.306f, 0.706f, 0.89f);
+    vec3 lightDirection(2.0f, 2.0f, 0.0f);
 
-    Mesh sphere = Meshes::sphere(8, 16);
     Mesh plane = planeMesh();
 
     auto drawChunk = [&](int chunkX, int chunkZ) {
@@ -155,25 +145,12 @@ void Application::run() {
         ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
         ImGui::End();
 
-        shader->use();
-        updateUniforms();
-        shader->setUniform("lightPos", light.position);
-
-        if(!light.isGlobal) {
-            calculateMVP(translate(scale(IDENTITY, vec3(0.25f)), light.position));
-            shader->setUniform("isLight", true);
-            sphere.draw();
-            shader->setUniform("isLight", false);
-        }
-
         sTerrain->use();
         sTerrain->setUniform("cameraPos", camera.getPosition());
         sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
         sTerrain->setUniform("deltaNormal", terrain.deltaNormal);
         sTerrain->setUniform("chunkSize", terrain.chunkSize);
-        sTerrain->setUniform("light.position", light.position);
-        sTerrain->setUniform("light.direction", light.direction);
-        sTerrain->setUniform("light.isGlobal", light.isGlobal);
+        sTerrain->setUniform("lightDirection", lightDirection);
 
         for(int x = 0 ; x <= terrain.chunks ; ++x) {
             for(int z = 0 ; z <= terrain.chunks ; ++z) {
@@ -187,14 +164,7 @@ void Application::run() {
             ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
             ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
             ImGui::NewLine();
-            ImGui::Checkbox("Global Lighting", &light.isGlobal);
-            if(light.isGlobal) {
-                ImGui::InputFloat3("Light Direction", &light.direction.x);
-            } else {
-                ImGui::SliderFloat3("Light Position", &light.position.x,
-                                    -terrain.chunkSize * terrain.chunks,
-                                    terrain.chunkSize * terrain.chunks);
-            }
+            ImGui::InputFloat3("Light Direction", &lightDirection.x);
             ImGui::End();
         }
 
@@ -280,17 +250,4 @@ void Application::handleKeyboardEvents() {
             }
         }
     }
-}
-
-void Application::initUniforms() {
-    calculateMVP(mat4(1.0f));
-}
-
-void Application::updateUniforms() {
-    shader->setUniform("cameraPos", camera.getPosition());
-}
-
-void Application::calculateMVP(const mat4& model) {
-    shader->setUniform("mvp", camera.getVPmatrix(projection) * model);
-    shader->setUniform("model", model);
 }
