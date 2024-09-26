@@ -14,8 +14,13 @@ out float maxHeight;
 uniform mat4 vpMatrix;
 uniform float deltaNormal;
 
-float simple_interpolate(in float a, in float b, in float x) {
-    return a + smoothstep(0.0f, 1.0f, x) * (b - a);
+float fade(in float x) {
+    float x3 = x * x * x;
+    return 6.0f * x3 * x * x - 15.0f * x3 * x + 10.0f * x3;
+}
+
+float smoothLerp(in float a, in float b, in float t) {
+    return a + fade(t) * (b - a);
 }
 
 float rand2D(in vec2 co) {
@@ -23,21 +28,18 @@ float rand2D(in vec2 co) {
 }
 
 float perlinNoise(in vec2 pos) {
-    float integer_x = floor(pos.x);
-    float fractional_x = fract(pos.x);
+    vec2 floorPos = floor(pos);
+    vec2 fractPos = fract(pos);
 
-    float integer_z = floor(pos.y);
-    float fractional_z = fract(pos.y);
+    float g00 = rand2D(vec2(floorPos.x, floorPos.y));
+    float g01 = rand2D(vec2(floorPos.x, floorPos.y + 1.0f));
+    float g10 = rand2D(vec2(floorPos.x + 1.0f, floorPos.y));
+    float g11 = rand2D(vec2(floorPos.x + 1.0f, floorPos.y + 1.0f));
 
-    float v1 = rand2D(vec2(integer_x, integer_z));
-    float v2 = rand2D(vec2(integer_x + 1.0f, integer_z));
-    float v3 = rand2D(vec2(integer_x, integer_z + 1.0f));
-    float v4 = rand2D(vec2(integer_x + 1.0f, integer_z + 1.0f));
+    float nx = smoothLerp(g00, g10, fractPos.x);
+    float ny = smoothLerp(g01, g11, fractPos.x);
 
-    float i1 = simple_interpolate(v1, v3, fractional_z);
-    float i2 = simple_interpolate(v2, v4, fractional_z);
-
-    return simple_interpolate(i1, i2, fractional_x);
+    return smoothLerp(nx, ny, fractPos.y);
 }
 
 float noise(in vec2 pos, in float freq, in float amp, in uint oct) {
