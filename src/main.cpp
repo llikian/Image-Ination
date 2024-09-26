@@ -4,6 +4,7 @@
  **************************************************************************************************/
 
 #include "Application.hpp"
+#include "WhoAmI.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -12,7 +13,13 @@ Application app;
 
 int main() {
     try {
-        app.run();
+        #ifdef I_AM_MINAS
+            app.runMinas();
+        #elifdef I_AM_KILLIAN
+            app.runKillian();
+        #else
+            app.runRaph();
+        #endif
     } catch(const std::exception& exception) {
         std::cerr << "ERROR : " << exception.what() << '\n';
         return -1;

@@ -37,9 +37,19 @@ public:
     /**** Public Methods ****/
 
     /**
-     * @brief Contains the main loop.
+     * @brief Contains the main loop for Minas.
      */
-    void run();
+    void runMinas();
+
+    /**
+     * @brief Contains the main loop for Killian.
+     */
+    void runKillian();
+
+    /**
+     * @brief Contains the main loop for Raph.
+     */
+    void runRaph();
 
     /**
      * @brief Sets the width and height of the GLFW window.
