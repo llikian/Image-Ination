@@ -13,9 +13,9 @@ Application app;
 
 int main() {
     try {
-        #ifdef I_AM_MINAS
+        #if defined I_AM_MINAS
             app.runMinas();
-        #elifdef I_AM_KILLIAN
+        #elif defined I_AM_KILLIAN
             app.runKillian();
         #else
             app.runRaph();
