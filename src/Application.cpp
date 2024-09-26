@@ -85,10 +85,8 @@ Application::Application()
     };
     sTerrain = new Shader(paths, 4);
 
-    paths[0] = "shaders/water.vert";
-    paths[1] =   "shaders/water.frag";
-    paths[2] =    "shaders/water.tesc";
-    paths[3] =    "shaders/water.tese";
+    paths[1] = "shaders/water.frag";
+    paths[3] = "shaders/water.tese";
     sWater = new Shader(paths, 4);
 }
 

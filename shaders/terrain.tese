@@ -75,6 +75,7 @@ vec3 getPosition(in vec2 uv) {
 
 vec3 getNormal() {
     vec2 delta = vec2(deltaNormal, 0.0f);
+
     vec3 p1 = getPosition(gl_TessCoord.xy + delta.xy);
     vec3 p2 = getPosition(gl_TessCoord.xy - delta.xy);
     vec3 p3 = getPosition(gl_TessCoord.xy + delta.yx);
