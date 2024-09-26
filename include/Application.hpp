@@ -93,6 +93,7 @@ private:
     bool isCursorVisible; ///< Whether the cursor is currently visible.
 
     Shader* sTerrain; ///< The shader program for rendering the terrain.
+    Shader* sWater; ///< The shader program for rendering the water.
 
     mat4 projection; ///< The projection matrix.
 

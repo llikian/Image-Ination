@@ -84,10 +84,17 @@ Application::Application()
         "shaders/terrain.tese"
     };
     sTerrain = new Shader(paths, 4);
+
+    paths[0] = "shaders/water.vert";
+    paths[1] =   "shaders/water.frag";
+    paths[2] =    "shaders/water.tesc";
+    paths[3] =    "shaders/water.tese";
+    sWater = new Shader(paths, 4);
 }
 
 Application::~Application() {
     delete sTerrain;
+    delete sWater;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -115,15 +122,21 @@ void Application::run() {
         int chunks = 10;
     } terrain;
 
+    struct Water {
+        float deltaNormal = 0.01f;
+        float chunkSize = 4.0f;
+        int chunks = 10;
+    } water;
+
     const mat4 IDENTITY(1.0f);
     const vec3 skyColor(0.306f, 0.706f, 0.89f);
     vec3 lightDirection(2.0f, 2.0f, 0.0f);
 
     Mesh plane = planeMesh();
 
-    auto drawChunk = [&](int chunkX, int chunkZ) {
-        sTerrain->setUniform("chunkX", chunkX);
-        sTerrain->setUniform("chunkZ", chunkZ);
+    auto drawChunk = [&](Shader* shader, int chunkX, int chunkZ) {
+        shader->setUniform("chunkX", chunkX);
+        shader->setUniform("chunkZ", chunkZ);
         plane.draw();
     };
 
@@ -145,6 +158,7 @@ void Application::run() {
         ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
         ImGui::End();
 
+        /*
         sTerrain->use();
         sTerrain->setUniform("cameraPos", camera.getPosition());
         sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
@@ -154,7 +168,21 @@ void Application::run() {
 
         for(int x = 0 ; x <= terrain.chunks ; ++x) {
             for(int z = 0 ; z <= terrain.chunks ; ++z) {
-                drawChunk(x - (terrain.chunks >> 1), z - (terrain.chunks >> 1));
+                drawChunk(sTerrain, x - (terrain.chunks >> 1), z - (terrain.chunks >> 1));
+            }
+        }
+        */
+
+        sWater->use();
+        sWater->setUniform("cameraPos", camera.getPosition());
+        sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
+        sWater->setUniform("deltaNormal", water.deltaNormal);
+        sWater->setUniform("chunkSize", water.chunkSize);
+        sWater->setUniform("lightDirection", lightDirection);
+
+        for(int x = 0 ; x <= water.chunks ; ++x) {
+            for(int z = 0 ; z <= water.chunks ; ++z) {
+                drawChunk(sWater, x - (water.chunks >> 1), z - (water.chunks >> 1));
             }
         }
 
@@ -163,6 +191,16 @@ void Application::run() {
             ImGui::SliderFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.1f);
             ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
             ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
+            ImGui::NewLine();
+            ImGui::InputFloat3("Light Direction", &lightDirection.x);
+            ImGui::End();
+        }
+
+        if(isCursorVisible) {
+            ImGui::Begin("Water Options");
+            ImGui::SliderFloat("Delta Normal", &water.deltaNormal, 0.001f, 0.1f);
+            ImGui::InputFloat("Chunk Size", &water.chunkSize, 1.0f, 10.0f);
+            ImGui::InputInt("Chunks", &water.chunks, 2, 10);
             ImGui::NewLine();
             ImGui::InputFloat3("Light Direction", &lightDirection.x);
             ImGui::End();
