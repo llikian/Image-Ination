@@ -133,6 +133,18 @@ void Shader::setUniform(int location, int value) const {
     glUniform1i(location, value);
 }
 
+void Shader::setUniform(int location, int x, int y) const {
+    glUniform2i(location, x, y);
+}
+
+void Shader::setUniform(int location, int x, int y, int z) const {
+    glUniform3i(location, x, y, z);
+}
+
+void Shader::setUniform(int location, int x, int y, int z, int w) const {
+    glUniform4i(location, x, y, z, w);
+}
+
 void Shader::setUniform(int location, unsigned int value) const {
     glUniform1ui(location, value);
 }

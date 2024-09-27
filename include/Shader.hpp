@@ -79,6 +79,33 @@ private:
     void setUniform(int location, int value) const;
 
     /**
+     * @brief Sets the value of an uniform of type ivec2.
+     * @param location The uniform's location.
+     * @param x The new x value of the uniform.
+     * @param y The new y value of the uniform.
+     */
+    void setUniform(int location, int x, int y) const;
+
+    /**
+     * @brief Sets the value of an uniform of type ivec3.
+     * @param location The uniform's location.
+     * @param x The new x value of the uniform.
+     * @param y The new y value of the uniform.
+     * @param z The new z value of the uniform.
+     */
+    void setUniform(int location, int x, int y, int z) const;
+
+    /**
+     * @brief Sets the value of an uniform of type ivec4.
+     * @param location The uniform's location.
+     * @param x The new x value of the uniform.
+     * @param y The new y value of the uniform.
+     * @param z The new z value of the uniform.
+     * @param w The new w value of the uniform.
+     */
+    void setUniform(int location, int x, int y, int z, int w) const;
+
+    /**
      * @brief Sets the value of an uniform of type unsigned int.
      * @param location The uniform's location.
      * @param value The new value of the uniform.
