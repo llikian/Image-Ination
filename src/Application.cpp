@@ -19,7 +19,7 @@ Application::Application()
       wireframe(false), cullface(true), isCursorVisible(false),
       sTerrain(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
-      camera(vec3(0.0f, 2.0f, 5.0f)) {
+      camera(vec3(0.0f, 20.0f, 0.0f)) {
 
     /**** GLFW ****/
     if(!glfwInit()) {
@@ -131,12 +131,12 @@ void Application::runMinas() {
     const mat4 IDENTITY(1.0f);
     const vec3 skyColor(0.306f, 0.706f, 0.89f);
     vec3 lightDirection(2.0f, 2.0f, 0.0f);
+    vec3 cameraPos;
 
     Mesh plane = planeMesh();
 
     auto drawChunk = [&](Shader* shader, int chunkX, int chunkZ) {
-        shader->setUniform("chunkX", chunkX);
-        shader->setUniform("chunkZ", chunkZ);
+        shader->setUniform("chunk", chunkX, chunkZ);
         plane.draw();
     };
 
@@ -153,17 +153,22 @@ void Application::runMinas() {
 
         delta = glfwGetTime() - time;
         time = glfwGetTime();
+        cameraPos = camera.getPosition();
 
         ImGui::Begin("Debug");
         ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
+        ImGui::Text("Position: (%.2f ; %.2f ; %.2f)", cameraPos.x, cameraPos.y, cameraPos.z);
         ImGui::End();
 
         sTerrain->use();
-        sTerrain->setUniform("cameraPos", camera.getPosition());
+        sTerrain->setUniform("cameraPos", cameraPos);
         sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
         sTerrain->setUniform("deltaNormal", terrain.deltaNormal);
         sTerrain->setUniform("chunkSize", terrain.chunkSize);
         sTerrain->setUniform("lightDirection", lightDirection);
+        sTerrain->setUniform("cameraChunk",
+                             static_cast<int>(cameraPos.x / terrain.chunkSize + 0.5f),
+                             static_cast<int>(cameraPos.z / terrain.chunkSize + 0.5f));
 
         for(int x = 0 ; x <= terrain.chunks ; ++x) {
             for(int z = 0 ; z <= terrain.chunks ; ++z) {
@@ -172,11 +177,14 @@ void Application::runMinas() {
         }
 
         sWater->use();
-        sWater->setUniform("cameraPos", camera.getPosition());
+        sWater->setUniform("cameraPos", cameraPos);
         sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
         sWater->setUniform("deltaNormal", water.deltaNormal);
         sWater->setUniform("chunkSize", water.chunkSize);
         sWater->setUniform("lightDirection", lightDirection);
+        sWater->setUniform("cameraChunk",
+                           static_cast<int>(cameraPos.x / terrain.chunkSize + 0.5f),
+                           static_cast<int>(cameraPos.z / terrain.chunkSize + 0.5f));
 
         sWater->setUniform("time", time);
 
@@ -216,18 +224,18 @@ void Application::runKillian() {
     struct Terrain {
         float deltaNormal = 0.01f;
         float chunkSize = 4.0f;
-        int chunks = 10;
+        int chunks = 100;
     } terrain;
 
     const mat4 IDENTITY(1.0f);
     const vec3 skyColor(0.306f, 0.706f, 0.89f);
     vec3 lightDirection(2.0f, 2.0f, 0.0f);
+    vec3 cameraPos;
 
     Mesh plane = planeMesh();
 
     auto drawChunk = [&](int chunkX, int chunkZ) {
-        sTerrain->setUniform("chunkX", chunkX);
-        sTerrain->setUniform("chunkZ", chunkZ);
+        sTerrain->setUniform("chunk", chunkX, chunkZ);
         plane.draw();
     };
 
@@ -244,17 +252,22 @@ void Application::runKillian() {
 
         delta = glfwGetTime() - time;
         time = glfwGetTime();
+        cameraPos = camera.getPosition();
 
         ImGui::Begin("Debug");
         ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
+        ImGui::Text("Position: (%.2f ; %.2f ; %.2f)", cameraPos.x, cameraPos.y, cameraPos.z);
         ImGui::End();
 
         sTerrain->use();
-        sTerrain->setUniform("cameraPos", camera.getPosition());
+        sTerrain->setUniform("cameraPos", cameraPos);
         sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
         sTerrain->setUniform("deltaNormal", terrain.deltaNormal);
         sTerrain->setUniform("chunkSize", terrain.chunkSize);
         sTerrain->setUniform("lightDirection", lightDirection);
+        sTerrain->setUniform("cameraChunk",
+                             static_cast<int>(cameraPos.x / terrain.chunkSize + 0.5f),
+                             static_cast<int>(cameraPos.z / terrain.chunkSize + 0.5f));
 
         for(int x = 0 ; x <= terrain.chunks ; ++x) {
             for(int z = 0 ; z <= terrain.chunks ; ++z) {

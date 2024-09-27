@@ -8,10 +8,12 @@
 in vec3 aPos;
 
 uniform float chunkSize;
-uniform int chunkX;
-uniform int chunkZ;
+uniform ivec2 chunk;
+uniform ivec2 cameraChunk;
 
 void main() {
-    vec3 pos = vec3(aPos.x + float(chunkX), 0.0f, aPos.z + float(chunkZ)) * chunkSize;
-    gl_Position = vec4(pos, 1.0f);
+    gl_Position.x = chunkSize * (aPos.x + float(chunk.x + cameraChunk.x));
+    gl_Position.y = 0.0f;
+    gl_Position.z = chunkSize * (aPos.z + float(chunk.y + cameraChunk.y));
+    gl_Position.w = 1.0f;
 }
