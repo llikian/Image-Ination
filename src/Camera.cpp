@@ -13,9 +13,8 @@ Camera::Camera(const vec3& position)
       worldUp(0.0f, 1.0f, 0.0f),
       view(1.0f) {
 
-    const vec3 direction = -1.0f * normalize(position);
-    pitch = asinf(direction.y);
-    yaw = asinf(direction.z / cosf(pitch));
+    pitch = 0.0f;
+    yaw = M_PIf;
 
     look(vec2());
 }
