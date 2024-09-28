@@ -12,7 +12,7 @@ out vec3 normal;
 out float maxHeight;
 
 uniform mat4 vpMatrix;
-uniform float deltaNormal;
+uniform float chunkSize;
 
 float fade(in float x) {
     float x3 = x * x * x;
@@ -74,7 +74,7 @@ vec3 getPosition(in vec2 uv) {
 }
 
 vec3 getNormal() {
-    vec2 delta = vec2(deltaNormal, 0.0f);
+    vec2 delta = vec2(0.5f * chunkSize / gl_TessLevelInner[0], 0.0f);
 
     vec3 p1 = getPosition(gl_TessCoord.xy + delta.xy);
     vec3 p2 = getPosition(gl_TessCoord.xy - delta.xy);

@@ -12,24 +12,14 @@ in float maxHeight;
 
 out vec4 fragColor;
 
-uniform vec3 lightDirection;
 uniform vec3 cameraPos;
+uniform vec3 lightDirection;
 
-float phongLighting();
-vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t);
+uniform vec3 skyColor;
+uniform float totalTerrainWidth;
 
-void main() {
-    float weights[4] = {0.0f, 0.2f, 0.5f, 1.0f};
-    vec3 colors[4] = {
-        vec3(0.184f, 0.694f, 0.831f),
-        vec3(0.357f, 0.6f, 0.369f),
-        vec3(0.58f, 0.49f, 0.388f),
-        vec3(0.969f, 1.0f, 0.996f)
-    };
-
-    fragColor.rgb = phongLighting() * colorRamp4(colors, weights, position.y / maxHeight);
-    fragColor.a = 1.0f;
-}
+uniform vec3 u_colors[4];
+uniform float u_weights[4];
 
 float phongLighting() {
     /* Ambient */
@@ -47,13 +37,25 @@ float phongLighting() {
     return ambient + diffuse + specular;
 }
 
+float fogFactor(float minDistance, float maxDistance) {
+    float fogFactor = (maxDistance - distance(position, cameraPos)) / (maxDistance - minDistance);
+    return clamp(exp(fogFactor), 0.0f, 1.0f);
+}
+
 vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
     vec3 color = vec3(0.0f);
 
     for (int i = 0; i < 3; ++i) {
-        float w = clamp((t - weights[i]) / (weights[i+1] - weights[i]), 0.0f, 1.0f);
-        color += (step(weights[i], t) - step(weights[i+1], t)) * mix(colors[i], colors[i+1], w);
+        float w = clamp((t - weights[i]) / (weights[i + 1] - weights[i]), 0.0f, 1.0f);
+        color += (step(weights[i], t) - step(weights[i + 1], t)) * mix(colors[i], colors[i + 1], w);
     }
 
     return color;
+}
+
+void main() {
+    fragColor.rgb = phongLighting() * colorRamp4(u_colors, u_weights, position.y / maxHeight);
+    fragColor.rgb = mix(skyColor, fragColor.rgb, fogFactor(totalTerrainWidth * 0.5f,
+                                                           totalTerrainWidth * 0.9f));
+    fragColor.a = 1.0f;
 }

@@ -222,22 +222,42 @@ void Application::runMinas() {
 
 void Application::runKillian() {
     struct Terrain {
-        float deltaNormal = 0.01f;
-        float chunkSize = 4.0f;
-        int chunks = 100;
+        float chunkSize = 8.0f;
+        int chunks = 200;
+        float tesselationFactor = 8.0f;
+
+        float weights[4] = {0.0f, 0.2f, 0.5f, 1.0f};
+        vec3 colors[4]{
+            vec3(0.184f, 0.694f, 0.831f),
+            vec3(0.357f, 0.6f, 0.369f),
+            vec3(0.58f, 0.49f, 0.388f),
+            vec3(0.969f, 1.0f, 0.996f)
+        };
     } terrain;
 
     const mat4 IDENTITY(1.0f);
     const vec3 skyColor(0.306f, 0.706f, 0.89f);
     vec3 lightDirection(2.0f, 2.0f, 0.0f);
+
     vec3 cameraPos;
+    vec2 cameraChunk;
 
     Mesh plane = planeMesh();
 
     auto drawChunk = [&](int chunkX, int chunkZ) {
-        sTerrain->setUniform("chunk", chunkX, chunkZ);
+        sTerrain->setUniform("chunk", chunkX + cameraChunk.x, chunkZ + cameraChunk.y);
         plane.draw();
     };
+
+    auto drawTerrain = [&]() {
+        for(int x = 0 ; x <= terrain.chunks ; ++x) {
+            for(int z = 0 ; z <= terrain.chunks ; ++z) {
+                drawChunk(x - (terrain.chunks >> 1), z - (terrain.chunks >> 1));
+            }
+        }
+    };
+
+    bool autoMove = false;
 
     /**** Main Loop ****/
     while(!glfwWindowShouldClose(window)) {
@@ -253,6 +273,8 @@ void Application::runKillian() {
         delta = glfwGetTime() - time;
         time = glfwGetTime();
         cameraPos = camera.getPosition();
+        cameraChunk.x = floor(cameraPos.x / terrain.chunkSize + 0.5f);
+        cameraChunk.y = floor(cameraPos.z / terrain.chunkSize + 0.5f);
 
         ImGui::Begin("Debug");
         ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
@@ -260,26 +282,40 @@ void Application::runKillian() {
         ImGui::End();
 
         sTerrain->use();
-        sTerrain->setUniform("cameraPos", cameraPos);
         sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
-        sTerrain->setUniform("deltaNormal", terrain.deltaNormal);
+        sTerrain->setUniform("cameraPos", cameraPos);
+        sTerrain->setUniform("cameraChunk", cameraChunk);
         sTerrain->setUniform("chunkSize", terrain.chunkSize);
-        sTerrain->setUniform("lightDirection", lightDirection);
-        sTerrain->setUniform("cameraChunk",
-                             static_cast<int>(cameraPos.x / terrain.chunkSize + 0.5f),
-                             static_cast<int>(cameraPos.z / terrain.chunkSize + 0.5f));
+        sTerrain->setUniform("tesselationFactor", terrain.tesselationFactor);
 
-        for(int x = 0 ; x <= terrain.chunks ; ++x) {
-            for(int z = 0 ; z <= terrain.chunks ; ++z) {
-                drawChunk(x - (terrain.chunks >> 1), z - (terrain.chunks >> 1));
-            }
-        }
+        sTerrain->setUniform("u_weights[0]", terrain.weights[0]);
+        sTerrain->setUniform("u_weights[1]", terrain.weights[1]);
+        sTerrain->setUniform("u_weights[2]", terrain.weights[2]);
+        sTerrain->setUniform("u_weights[3]", terrain.weights[3]);
+        sTerrain->setUniform("u_colors[0]", terrain.colors[0]);
+        sTerrain->setUniform("u_colors[1]", terrain.colors[1]);
+        sTerrain->setUniform("u_colors[2]", terrain.colors[2]);
+        sTerrain->setUniform("u_colors[3]", terrain.colors[3]);
+
+        sTerrain->setUniform("skyColor", skyColor);
+        sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize / 4.0f);
+
+        sTerrain->setUniform("lightDirection", lightDirection);
+
+        drawTerrain();
 
         if(isCursorVisible) {
             ImGui::Begin("Terrain Options");
-            ImGui::SliderFloat("Delta Normal", &terrain.deltaNormal, 0.001f, 0.1f);
             ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
             ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
+            ImGui::SliderFloat("Tesselation Factor", &terrain.tesselationFactor, 1.0f, 64.0f);
+            ImGui::NewLine();
+            ImGui::ColorEdit3("Color 1", &terrain.colors[0].x);
+            ImGui::ColorEdit3("Color 2", &terrain.colors[1].x);
+            ImGui::SliderFloat("Weight 2", &terrain.weights[1], 0.0f, terrain.weights[2]);
+            ImGui::ColorEdit3("Color 3", &terrain.colors[2].x);
+            ImGui::SliderFloat("Weight 3", &terrain.weights[2], terrain.weights[1], 1.0f);
+            ImGui::ColorEdit3("Color 4", &terrain.colors[3].x);
             ImGui::NewLine();
             ImGui::InputFloat3("Light Direction", &lightDirection.x);
             ImGui::End();
