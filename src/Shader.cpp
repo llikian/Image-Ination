@@ -129,9 +129,12 @@ void Shader::getUniforms() {
         if(size == 1) {
             uniforms.emplace(name, glGetUniformLocation(id, name));
         } else {
+            std::string nameIndex;
             for(unsigned int j = 0 ; j < static_cast<unsigned int>(size) ; ++j) {
-                name[length - 2] = '0' + j;
-                uniforms.emplace(name, glGetUniformLocation(id, name));
+                name[length - 2] = '\0';
+                nameIndex = name;
+                nameIndex += std::to_string(j) + ']';
+                uniforms.emplace(nameIndex, glGetUniformLocation(id, nameIndex.c_str()));
             }
         }
     }
