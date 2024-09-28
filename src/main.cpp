@@ -9,7 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 
-Application app;
+Application app(initLibraries());
 
 int main() {
     try {

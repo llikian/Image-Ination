@@ -15,6 +15,24 @@
 
 #include "Camera.hpp"
 #include "Shader.hpp"
+#include "mesh/meshes.hpp"
+#include "Terrain.hpp"
+
+/**
+ * @struct Window
+ * @brief Contains the data about a window.
+ */
+struct Window {
+    GLFWwindow* window;  ///< The GLFW window.
+    unsigned int width;  ///< The window's width.
+    unsigned int height; ///< The window's height.
+};
+
+/**
+ * @brief Initializes GLFW, GLAD, OpenGL and ImGui.
+ * @return A Window struct containing a pointer to a GLFW window, its width and its height.
+ */
+Window initLibraries();
 
 /**
  * @class Application
@@ -26,8 +44,11 @@ public:
 
     /**
      * @brief Sets the default value of all member variables and constants.
+     * @param window The GLFW window
+     * @param width
+     * @param height
      */
-    Application();
+    Application(Window window);
 
     /**
      * @brief Frees all allocated memory.
@@ -86,6 +107,46 @@ private:
      */
     void handleKeyboardEvents();
 
+    /**
+     * @brief Updates the member variables that change every frame.
+     */
+    void updateVariables();
+
+    /**
+     * @brief Configures the ImGui window to show debug information.
+     */
+    void debugWindow();
+
+    /**
+     * @brief Configures the ImGui window to tweak the terrain's parameters.
+     */
+    void terrainWindow();
+
+    /**
+     * @brief Draws the terrain.
+     */
+    void drawTerrain();
+
+    /**
+     * @brief Updates all of the terrain's shader program's uniforms.
+     */
+    void updateTerrainUniforms();
+
+    /**
+     * @brief Configures the ImGui window to tweak the water's parameters.
+     */
+    void waterWindow();
+
+    /**
+     * @brief Draws the water.
+     */
+    void drawWater();
+
+    /**
+     * @brief Updates all of the water's shader program's uniforms.
+     */
+    void updateWaterUniforms();
+
     /**** Variables & Constants ****/
     GLFWwindow* window;  ///< GLFW window.
     unsigned int width;  ///< The width of the window in pixels.
@@ -93,10 +154,13 @@ private:
 
     std::unordered_map<int, bool> keys; ///< Map of the current state of keys.
 
-    glm::vec2 mousePos; ///< The position of the mouse on the screen.
+    vec2 mousePos; ///< The position of the mouse on the screen.
 
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
+
+    vec3 backgroundColor; ///< The background's color.
+    vec3 lightDirection; ///< The direction of the global lighting.
 
     bool wireframe;       ///< Whether to display in wireframe mode.
     bool cullface;        ///< Whether face culling is activated.
@@ -108,4 +172,16 @@ private:
     mat4 projection; ///< The projection matrix.
 
     Camera camera; ///< A first person camera to move around the scene.
+    const vec3& cameraPos; ///< The camera's position.
+    vec2 cameraChunk; ///< The chunk the camera is in.
+
+    Mesh plane; ///< Mesh for a plane. Used to render a chunk.
+
+    Terrain terrain; ///< Contains all the data needed to render the terrain.
+
+    struct Water {
+        float deltaNormal = 0.01f;
+        float chunkSize = 4.0f;
+        int chunks = 10;
+    } water;
 };
