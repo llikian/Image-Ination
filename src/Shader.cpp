@@ -110,6 +110,8 @@ void Shader::use() {
 }
 
 void Shader::getUniforms() {
+    use();
+
     int MAX_CHAR;
     glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &MAX_CHAR);
 
@@ -118,12 +120,20 @@ void Shader::getUniforms() {
     int size;
     char* name = new char[MAX_CHAR];
 
-    int count;
-    glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count);
+    unsigned int count;
+    glGetProgramiv(id, GL_ACTIVE_UNIFORMS, reinterpret_cast<int*>(&count));
 
-    for(unsigned int i = 0u ; i < static_cast<unsigned int>(count) ; ++i) {
+    for(unsigned int i = 0u ; i < count ; ++i) {
         glGetActiveUniform(id, i, MAX_CHAR, &length, &size, &type, name);
-        uniforms.emplace(name, i);
+
+        if(size == 1) {
+            uniforms.emplace(name, glGetUniformLocation(id, name));
+        } else {
+            for(unsigned int j = 0 ; j < static_cast<unsigned int>(size) ; ++j) {
+                name[length - 2] = '0' + j;
+                uniforms.emplace(name, glGetUniformLocation(id, name));
+            }
+        }
     }
 
     delete[] name;
