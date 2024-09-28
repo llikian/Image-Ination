@@ -52,6 +52,12 @@ public:
     vec3 getPosition() const;
 
     /**
+     * @brief Getter for the position member.
+     * @return A const reference to the camera's position.
+     */
+    const vec3& getPositionReference() const;
+
+    /**
      * @brief Getter for the front member.
      * @return The direction of the camera.
      */

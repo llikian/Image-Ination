@@ -27,6 +27,10 @@ vec3 Camera::getPosition() const {
     return position;
 }
 
+const vec3& Camera::getPositionReference() const {
+    return position;
+}
+
 vec3 Camera::getDirection() const {
     return front;
 }
