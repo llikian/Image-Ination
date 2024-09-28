@@ -486,6 +486,17 @@ Mesh Meshes::plane(float size) {
     return mesh;
 }
 
+Mesh Meshes::chunk() {
+    Mesh mesh(GL_PATCHES);
+
+    mesh.addPosition(-0.5f, 0.0f, 0.5f);
+    mesh.addPosition(0.5f, 0.0f, 0.5f);
+    mesh.addPosition(0.5f, 0.0f, -0.5f);
+    mesh.addPosition(-0.5f, 0.0f, -0.5f);
+
+    return mesh;
+}
+
 Mesh Meshes::nplane(float size) {
     Mesh mesh(GL_TRIANGLES);
 

@@ -73,6 +73,11 @@ namespace Meshes {
     Mesh plane(float size);
 
     /**
+     * @brief Creates the mesh for a chunk. Uses the GL_PATCHES primitive.
+     */
+    Mesh chunk();
+
+    /**
      * @brief Creates the mesh for a plane of a certain size with normals. The plane will be a cut
      * of the XZ plane and will be centered at the origin.
      * @param size The size of the plane, its dimensions will be (size ; 0 ; size).
