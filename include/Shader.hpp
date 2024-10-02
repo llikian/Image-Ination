@@ -55,7 +55,7 @@ public:
     void getUniforms();
 
     /**
-     * @brief Sets the value of an uniform of type int.
+     * @brief Sets the value of a uniform of any of the available types.
      * @param uniform The uniform's name.
      * @param value The new value of the uniform.
      */
@@ -71,14 +71,14 @@ public:
 private:
 
     /**
-     * @brief Sets the value of an uniform of type int.
+     * @brief Sets the value of a uniform of type int.
      * @param location The uniform's location.
      * @param value The new value of the uniform.
      */
     void setUniform(int location, int value) const;
 
     /**
-     * @brief Sets the value of an uniform of type ivec2.
+     * @brief Sets the value of a uniform of type ivec2.
      * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
@@ -86,7 +86,7 @@ private:
     void setUniform(int location, int x, int y) const;
 
     /**
-     * @brief Sets the value of an uniform of type ivec3.
+     * @brief Sets the value of a uniform of type ivec3.
      * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
@@ -95,7 +95,7 @@ private:
     void setUniform(int location, int x, int y, int z) const;
 
     /**
-     * @brief Sets the value of an uniform of type ivec4.
+     * @brief Sets the value of a uniform of type ivec4.
      * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
@@ -105,28 +105,28 @@ private:
     void setUniform(int location, int x, int y, int z, int w) const;
 
     /**
-     * @brief Sets the value of an uniform of type unsigned int.
+     * @brief Sets the value of a uniform of type unsigned int.
      * @param location The uniform's location.
      * @param value The new value of the uniform.
      */
     void setUniform(int location, unsigned int value) const;
 
     /**
-     * @brief Sets the value of an uniform of type bool.
+     * @brief Sets the value of a uniform of type bool.
      * @param location The uniform's location.
      * @param value The new value of the uniform.
      */
     void setUniform(int location, bool value) const;
 
     /**
-     * @brief Sets the value of an uniform of type float.
+     * @brief Sets the value of a uniform of type float.
      * @param location The uniform's location.
      * @param value The new value of the uniform.
      */
     void setUniform(int location, float value) const;
 
     /**
-     * @brief Sets the value of an uniform of type vec2.
+     * @brief Sets the value of a uniform of type vec2.
      * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
@@ -134,7 +134,7 @@ private:
     void setUniform(int location, float x, float y) const;
 
     /**
-     * @brief Sets the value of an uniform of type vec3.
+     * @brief Sets the value of a uniform of type vec3.
      * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
@@ -143,7 +143,7 @@ private:
     void setUniform(int location, float x, float y, float z) const;
 
     /**
-     * @brief Sets the value of an uniform of type vec4.
+     * @brief Sets the value of a uniform of type vec4.
      * @param location The uniform's location.
      * @param x The new x value of the uniform.
      * @param y The new y value of the uniform.
@@ -153,28 +153,28 @@ private:
     void setUniform(int location, float x, float y, float z, float w) const;
 
     /**
-     * @brief Sets the value of an uniform of type vec2.
+     * @brief Sets the value of a uniform of type vec2.
      * @param location The uniform's location.
      * @param vec The new value of the uniform.
      */
     void setUniform(int location, const vec2& vec) const;
 
     /**
-     * @brief Sets the value of an uniform of type vec3.
+     * @brief Sets the value of a uniform of type vec3.
      * @param location The uniform's location.
      * @param vec The new value of the uniform.
      */
     void setUniform(int location, const vec3& vec) const;
 
     /**
-     * @brief Sets the value of an uniform of type vec4.
+     * @brief Sets the value of a uniform of type vec4.
      * @param location The uniform's location.
      * @param vec The new value of the uniform.
      */
     void setUniform(int location, const vec4& vec) const;
 
     /**
-     * @brief Sets the value of an uniform of type mat4.
+     * @brief Sets the value of a uniform of type mat4.
      * @param location The uniform's location.
      * @param matrix The new value of the uniform.
      */
