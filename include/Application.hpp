@@ -160,7 +160,7 @@ private:
     float delta; ///< The time difference between this frame and the previous in seconds.
 
     vec3 backgroundColor; ///< The background's color.
-    vec3 lightDirection; ///< The direction of the global lighting.
+    vec3 lightDirection;  ///< The direction of the global lighting.
 
     bool wireframe;       ///< Whether to display in wireframe mode.
     bool cullface;        ///< Whether face culling is activated.
