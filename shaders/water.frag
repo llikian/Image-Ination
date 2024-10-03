@@ -19,16 +19,16 @@ float phongLighting();
 vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t);
 
 void main() {
-    float weights[4] = {-1.0f, -0.5f, 0.5f, 1.f};
+    float weights[4] = {-1.f, 0.3f, 0.5f, 1.f};
     vec3 colors[4] = {
-        vec3(0, 0.234, 0.453),
-        vec3(0, 0.463, 0.649),
-        vec3(0.25, 0.482, 0.828),
-        vec3(0.54, 0.625, 0.956)
+        vec3(0.157, 0.127, 0.812),
+        vec3(0.294, 0.273, 0.871),
+        vec3(0.361, 0.575, 0.949),
+        vec3(0.761, 0.727, 0.988)
     };
 
     fragColor.rgb = phongLighting() * colorRamp4(colors, weights, position.y / maxHeight);
-    fragColor.a = 0.6f;
+    fragColor.a = 0.8f;
 }
 
 float phongLighting() {

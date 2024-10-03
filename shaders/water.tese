@@ -78,24 +78,28 @@ float noise(in vec2 pos, in float freq, in float amp, in uint oct) {
     maxHeight = 0.0f;
 
     for(uint i = 0u ; i < oct ; ++i) {
-    //total += perlinNoise3D(vec3(pos, sin(time)) * freq * time) * amp;
-    total += perlinNoise2D(pos* freq + 0.62 * time ) * 0.5 * amp;
-    total += perlinNoise2D(pos* freq - 0.29 * time ) * 0.5 * amp;
-    total += perlinNoise2D(pos* freq + 0.5 * time ) * 0.2 * amp;
-    total /= 3;
+
+        total += perlinNoise2D(pos* freq + 0.62 * time ) * 0.75 * amp;
+        total += perlinNoise2D(pos* freq - 0.12 * time ) * 0.6 * amp;
+
+        total += perlinNoise2D(vec2(pos.x* freq + 0.39 * time, pos.y* freq - 0.59 * time)) * 0.125 * amp;
+        total += perlinNoise2D(vec2(pos.x* freq - 0.69 * time, pos.y* freq + 0.29 * time)) * 0.25 * amp;
+
+        total /= 4;
 
         maxHeight += amp;
         freq *= 2.0f;
         amp /= 2.0f;
     }
-    maxHeight += 3;
-    total += 3;
+
+    maxHeight += 7;
+    total += 7;
 
     return total;
 }
 
 float getHeight(in vec2 pos) {
-    return noise(pos, 0.1f, 4.0f, 1u);
+    return noise(pos, 0.1f, 8.0f, 2u);
 }
 
 vec3 getPosition(in vec2 uv) {
