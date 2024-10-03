@@ -167,13 +167,13 @@ private:
     bool isCursorVisible; ///< Whether the cursor is currently visible.
 
     Shader* sTerrain; ///< The shader program for rendering the terrain.
-    Shader* sWater; ///< The shader program for rendering the water.
+    Shader* sWater;   ///< The shader program for rendering the water.
 
     mat4 projection; ///< The projection matrix.
 
-    Camera camera; ///< A first person camera to move around the scene.
+    Camera camera;         ///< A first person camera to move around the scene.
     const vec3& cameraPos; ///< The camera's position.
-    vec2 cameraChunk; ///< The chunk the camera is in.
+    vec2 cameraChunk;      ///< The chunk the camera is in.
 
     Mesh plane; ///< Mesh for a plane. Used to render a chunk.
 
