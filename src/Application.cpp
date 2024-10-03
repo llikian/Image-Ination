@@ -302,33 +302,35 @@ void Application::debugWindow() {
 void Application::terrainWindow() {
     ImGui::Begin("Terrain Options");
 
-    ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
-    ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
-    ImGui::SliderFloat("Tesselation Factor", &terrain.tesselationFactor, 1.0f, 64.0f);
+    if(ImGui::CollapsingHeader("Terrain")) {
+        ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
+        ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
+        ImGui::SliderFloat("Tesselation Factor", &terrain.tesselationFactor, 1.0f, 64.0f);
+    }
 
-    ImGui::NewLine();
+    if(ImGui::CollapsingHeader("Terrain Gradient")) {
+        ImGui::ColorEdit3("Color 1", &terrain.colors[0].x);
+        ImGui::ColorEdit3("Color 2", &terrain.colors[1].x);
+        ImGui::SliderFloat("Weight 2", &terrain.weights[1], 0.0f, terrain.weights[2]);
+        ImGui::ColorEdit3("Color 3", &terrain.colors[2].x);
+        ImGui::SliderFloat("Weight 3", &terrain.weights[2], terrain.weights[1], 1.0f);
+        ImGui::ColorEdit3("Color 4", &terrain.colors[3].x);
+    }
 
-    ImGui::ColorEdit3("Color 1", &terrain.colors[0].x);
-    ImGui::ColorEdit3("Color 2", &terrain.colors[1].x);
-    ImGui::SliderFloat("Weight 2", &terrain.weights[1], 0.0f, terrain.weights[2]);
-    ImGui::ColorEdit3("Color 3", &terrain.colors[2].x);
-    ImGui::SliderFloat("Weight 3", &terrain.weights[2], terrain.weights[1], 1.0f);
-    ImGui::ColorEdit3("Color 4", &terrain.colors[3].x);
+    if(ImGui::CollapsingHeader("Light")) {
+        ImGui::InputFloat3("Light Direction", &lightDirection.x);
+    }
 
-    ImGui::NewLine();
-
-    ImGui::InputFloat3("Light Direction", &lightDirection.x);
-
-    ImGui::NewLine();
-
-    ImGui::SliderFloat("freqFnoise", &terrain.freqFnoise, 0.0001f, 0.1f, "%.5f");
-    ImGui::SliderFloat("ampFnoise", &terrain.ampFnoise, 0.001f, 0.1f, "%.5f");
-    ImGui::SliderInt("octFnoise", &terrain.octFnoise, 1, 8);
-    ImGui::InputInt("seedFnoise", &terrain.seedFnoise);
-    ImGui::SliderFloat("freqAnoise", &terrain.freqAnoise, 0.0001f, 0.1f, "%.5f");
-    ImGui::SliderFloat("ampAnoise", &terrain.ampAnoise, 1.0f, 100.0f);
-    ImGui::SliderInt("octAnoise", &terrain.octAnoise, 1, 8);
-    ImGui::InputInt("seedAnoise", &terrain.seedAnoise);
+    if(ImGui::CollapsingHeader("Noise")) {
+        ImGui::SliderFloat("freqFnoise", &terrain.freqFnoise, 0.0001f, 0.1f, "%.5f");
+        ImGui::SliderFloat("ampFnoise", &terrain.ampFnoise, 0.001f, 0.1f, "%.5f");
+        ImGui::SliderInt("octFnoise", &terrain.octFnoise, 1, 8);
+        ImGui::InputInt("seedFnoise", &terrain.seedFnoise);
+        ImGui::SliderFloat("freqAnoise", &terrain.freqAnoise, 0.0001f, 0.1f, "%.5f");
+        ImGui::SliderFloat("ampAnoise", &terrain.ampAnoise, 1.0f, 100.0f);
+        ImGui::SliderInt("octAnoise", &terrain.octAnoise, 1, 8);
+        ImGui::InputInt("seedAnoise", &terrain.seedAnoise);
+    }
 
     ImGui::End();
 }
