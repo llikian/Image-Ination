@@ -305,7 +305,6 @@ void Application::terrainWindow() {
     if(ImGui::CollapsingHeader("Terrain")) {
         ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
         ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
-        ImGui::SliderFloat("Tesselation Factor", &terrain.tesselationFactor, 1.0f, 64.0f);
     }
 
     if(ImGui::CollapsingHeader("Terrain Gradient")) {
@@ -350,9 +349,7 @@ void Application::drawTerrain() {
 void Application::updateTerrainUniforms() {
     sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
     sTerrain->setUniform("cameraPos", cameraPos);
-    sTerrain->setUniform("cameraChunk", cameraChunk);
     sTerrain->setUniform("chunkSize", terrain.chunkSize);
-    sTerrain->setUniform("tesselationFactor", terrain.tesselationFactor);
 
     sTerrain->setUniform("u_weights[0]", terrain.weights[0]);
     sTerrain->setUniform("u_weights[1]", terrain.weights[1]);
