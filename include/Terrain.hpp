@@ -24,7 +24,8 @@ struct Terrain {
                vec3(0.58f, 0.49f, 0.388f),
                vec3(0.969f, 1.0f, 0.996f)),
         freqFnoise(0.001f), ampFnoise(0.025f), octFnoise(1), seedFnoise(123),
-        freqAnoise(0.01f), ampAnoise(50.0f), octAnoise(1), seedAnoise(789) { }
+        freqAnoise(0.01f), ampAnoise(50.0f), octAnoise(1), seedAnoise(789),
+        isFogActive(true) { }
 
     float chunkSize;
     int chunks;
@@ -42,4 +43,6 @@ struct Terrain {
     float ampAnoise;
     int octAnoise;
     int seedAnoise;
+
+    bool isFogActive;
 };

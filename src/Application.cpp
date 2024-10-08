@@ -319,6 +319,7 @@ void Application::terrainWindow() {
 
     if(ImGui::CollapsingHeader("Light")) {
         ImGui::InputFloat3("Light Direction", &lightDirection.x);
+        ImGui::Checkbox("Fog", &terrain.isFogActive);
     }
 
     if(ImGui::CollapsingHeader("Noise")) {
@@ -376,6 +377,8 @@ void Application::updateTerrainUniforms() {
     sTerrain->setUniform("ampAnoise", terrain.ampAnoise);
     sTerrain->setUniform("octAnoise", static_cast<unsigned int>(terrain.octAnoise));
     sTerrain->setUniform("seedAnoise", terrain.seedAnoise);
+
+    sTerrain->setUniform("isFogActive", terrain.isFogActive);
 }
 
 void Application::waterWindow() {

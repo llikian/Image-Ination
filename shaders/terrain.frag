@@ -17,6 +17,7 @@ uniform vec3 lightDirection;
 
 uniform vec3 skyColor;
 uniform float totalTerrainWidth;
+uniform bool isFogActive;
 
 uniform vec3 u_colors[4];
 uniform float u_weights[4];
@@ -55,7 +56,9 @@ vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
 
 void main() {
     fragColor.rgb = phongLighting() * colorRamp4(u_colors, u_weights, position.y / maxHeight);
-    fragColor.rgb = mix(skyColor, fragColor.rgb, fogFactor(totalTerrainWidth * 0.5f,
-                                                           totalTerrainWidth * 0.9f));
+    if(isFogActive) {
+        float fog = fogFactor(totalTerrainWidth * 0.5f, totalTerrainWidth * 0.9f);
+        fragColor.rgb = mix(skyColor, fragColor.rgb, fog);
+    }
     fragColor.a = 1.0f;
 }
