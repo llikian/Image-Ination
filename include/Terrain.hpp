@@ -16,7 +16,7 @@ using namespace glm;
 struct Terrain {
     Terrain() :
         chunkSize(32.0f),
-        chunks(50),
+        chunks(100),
         weights(0.0f, 0.2f, 0.5f, 1.0f),
         colors(vec3(0.184f, 0.694f, 0.831f),
                vec3(0.357f, 0.6f, 0.369f),
