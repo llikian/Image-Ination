@@ -5,7 +5,7 @@
 
 #version 460 core
 
-layout (quads, fractional_even_spacing, ccw) in;
+layout (quads) in;
 
 out vec3 position;
 out vec3 normal;
