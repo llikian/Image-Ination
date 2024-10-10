@@ -304,12 +304,12 @@ Mesh Meshes::cubemap() {
      */
 
     unsigned int faces[6][4]{
-        {0, 3, 2, 1},
-        {0, 4, 7, 3},
-        {3, 7, 6, 2},
-        {2, 6, 5, 1},
-        {1, 5, 4, 0},
-        {7, 4, 5, 6}
+        {1, 2, 3, 0},
+        {3, 7, 4, 0},
+        {2, 6, 7, 3},
+        {1, 5, 6, 2},
+        {0, 4, 5, 1},
+        {6, 5, 4, 7}
     };
 
     vec3 positions[8]{
@@ -323,30 +323,11 @@ Mesh Meshes::cubemap() {
         {-1.0f, -1.0f, 1.0f}
     };
 
-    constexpr float n1_3 = 1.0f / 3.0f;
-    constexpr float n2_3 = 2.0f / 3.0f;
-
-    vec2 texCoords[6]{
-        {0.25f, 1.0f},
-        {0.00f, n2_3},
-        {0.25f, n2_3},
-        {0.50f, n2_3},
-        {0.75f, n2_3},
-        {0.25f, n1_3}
-    };
-
     for(int i = 0 ; i < 6 ; ++i) {
-        mesh.addPosition(positions[faces[i][3]]);
-        mesh.addTexCoord(texCoords[i].x + 0.25f, texCoords[i].y);
-
-        mesh.addPosition(positions[faces[i][2]]);
-        mesh.addTexCoord(texCoords[i].x + 0.25f, texCoords[i].y - n1_3);
-
-        mesh.addPosition(positions[faces[i][1]]);
-        mesh.addTexCoord(texCoords[i].x, texCoords[i].y - n1_3);
-
         mesh.addPosition(positions[faces[i][0]]);
-        mesh.addTexCoord(texCoords[i]);
+        mesh.addPosition(positions[faces[i][1]]);
+        mesh.addPosition(positions[faces[i][2]]);
+        mesh.addPosition(positions[faces[i][3]]);
 
         mesh.addFace((i * 4), (i * 4) + 1, (i * 4) + 2, (i * 4) + 3);
     }
