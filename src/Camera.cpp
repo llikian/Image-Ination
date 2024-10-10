@@ -20,8 +20,12 @@ Camera::Camera(const vec3& position)
     look(vec2());
 }
 
-mat4 Camera::getVPmatrix(const mat4& projection) {
+mat4 Camera::getVPmatrix(const mat4& projection) const {
     return projection * view;
+}
+
+const mat4& Camera::getViewMatrix() const {
+    return view;
 }
 
 vec3 Camera::getPosition() const {
