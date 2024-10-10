@@ -82,7 +82,6 @@ Application::Application(Window window)
     : window(window.window), width(window.width), height(window.height),
       mousePos(width / 2.0f, height / 2.0f),
       time(0.0f), delta(0.0f),
-      backgroundColor(0.306f, 0.706f, 0.89f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
       sTerrain(nullptr), sWater(nullptr), sSky(nullptr),
@@ -131,7 +130,7 @@ void Application::runMinas() {
         handleEvents();
         updateVariables();
 
-        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         /**** Skymap ****/
@@ -139,7 +138,9 @@ void Application::runMinas() {
         glDisable(GL_DEPTH_TEST);
 
         sSky->use();
-        sSky->setUniform("vpMatrix", vpMatrix);
+        sSky->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+        sSky->setUniform("cameraPos", cameraPos);
+        sSky->setUniform("cameraDir", camera.getDirection());
         cubemap.draw();
 
         glEnable(GL_DEPTH_TEST);
@@ -176,7 +177,7 @@ void Application::runKillian() {
         handleEvents();
         updateVariables();
 
-        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         /**** Skymap ****/
@@ -185,6 +186,7 @@ void Application::runKillian() {
 
         sSky->use();
         sSky->setUniform("vpMatrix", vpMatrix);
+        sSky->setUniform("cameraPos", cameraPos);
         cubemap.draw();
 
         glEnable(GL_DEPTH_TEST);
@@ -208,7 +210,6 @@ void Application::runKillian() {
 
 void Application::runRaph() {
     const mat4 IDENTITY(1.0f);
-    const vec3 skyColor(0.306f, 0.706f, 0.89f);
 
     /**** Main Loop ****/
     while(!glfwWindowShouldClose(window)) {
@@ -218,7 +219,7 @@ void Application::runRaph() {
 
         handleEvents();
 
-        glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         delta = glfwGetTime() - time;
@@ -392,7 +393,6 @@ void Application::updateTerrainUniforms() {
     sTerrain->setUniform("u_colors[2]", terrain.colors[2]);
     sTerrain->setUniform("u_colors[3]", terrain.colors[3]);
 
-    sTerrain->setUniform("skyColor", backgroundColor);
     sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize / 4.0f);
 
     sTerrain->setUniform("lightDirection", lightDirection);
