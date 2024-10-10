@@ -88,6 +88,8 @@ public:
      */
     void look(vec2 mouseOffset);
 
+    float movementSpeed; ///< The speed at which the camera moves.
+
 private:
     vec3 position; ///< The camera's position.
 
