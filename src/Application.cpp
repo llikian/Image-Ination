@@ -85,11 +85,11 @@ Application::Application(Window window)
       backgroundColor(0.306f, 0.706f, 0.89f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
-      sTerrain(nullptr),
+      sTerrain(nullptr), sWater(nullptr), sSky(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
-      plane(Meshes::chunk()) {
+      plane(Meshes::chunk()), cubemap(Meshes::cubemap()) {
 
     /**** Shaders ****/
     std::string paths[4]{
@@ -103,11 +103,16 @@ Application::Application(Window window)
     paths[2] = "shaders/water.tese";
     paths[3] = "shaders/water.frag";
     sWater = new Shader(paths, 4);
+
+    paths[0] = "shaders/sky.vert";
+    paths[1] = "shaders/sky.frag";
+    sSky = new Shader(paths, 2);
 }
 
 Application::~Application() {
     delete sTerrain;
     delete sWater;
+    delete sSky;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -129,10 +134,23 @@ void Application::runMinas() {
         glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        /**** Skymap ****/
+        glDepthMask(GL_FALSE);
+        glDisable(GL_DEPTH_TEST);
+
+        sSky->use();
+        sSky->setUniform("vpMatrix", vpMatrix);
+        cubemap.draw();
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+
+        /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
         drawTerrain();
 
+        /**** Water ****/
         sWater->use();
         updateWaterUniforms();
         drawWater();
@@ -161,6 +179,18 @@ void Application::runKillian() {
         glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        /**** Skymap ****/
+        glDepthMask(GL_FALSE);
+        glDisable(GL_DEPTH_TEST);
+
+        sSky->use();
+        sSky->setUniform("vpMatrix", vpMatrix);
+        cubemap.draw();
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+
+        /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
         drawTerrain();
@@ -287,6 +317,7 @@ void Application::handleKeyboardEvents() {
 void Application::updateVariables() {
     delta = glfwGetTime() - time;
     time = glfwGetTime();
+    vpMatrix = projection * camera.getViewMatrix();
     cameraChunk.x = floor(cameraPos.x / terrain.chunkSize + 0.5f);
     cameraChunk.y = floor(cameraPos.z / terrain.chunkSize + 0.5f);
 }
