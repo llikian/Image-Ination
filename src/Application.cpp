@@ -187,6 +187,7 @@ void Application::runKillian() {
         sSky->use();
         sSky->setUniform("vpMatrix", vpMatrix);
         sSky->setUniform("cameraPos", cameraPos);
+        sSky->setUniform("time", time);
         cubemap.draw();
 
         glEnable(GL_DEPTH_TEST);
@@ -209,9 +210,6 @@ void Application::runKillian() {
 }
 
 void Application::runRaph() {
-    const mat4 IDENTITY(1.0f);
-
-    /**** Main Loop ****/
     while(!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -326,6 +324,7 @@ void Application::updateVariables() {
 void Application::debugWindow() {
     ImGui::Begin("Debug");
     ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
+    ImGui::Text("Time: %.4fs", time);
     ImGui::Text("Position: (%.2f ; %.2f ; %.2f)", cameraPos.x, cameraPos.y, cameraPos.z);
     ImGui::Text("Chunk: (%.0f ; %.0f)", cameraChunk.x, cameraChunk.y);
     ImGui::InputFloat("Camera Speed", &camera.movementSpeed);
@@ -355,14 +354,13 @@ void Application::terrainWindow() {
     }
 
     if(ImGui::CollapsingHeader("Noise")) {
-        ImGui::SliderFloat("freqFnoise", &terrain.freqFnoise, 0.0001f, 0.1f, "%.5f");
-        ImGui::SliderFloat("ampFnoise", &terrain.ampFnoise, 0.001f, 0.1f, "%.5f");
-        ImGui::SliderInt("octFnoise", &terrain.octFnoise, 1, 8);
-        ImGui::InputInt("seedFnoise", &terrain.seedFnoise);
-        ImGui::SliderFloat("freqAnoise", &terrain.freqAnoise, 0.0001f, 0.1f, "%.5f");
-        ImGui::SliderFloat("ampAnoise", &terrain.ampAnoise, 1.0f, 100.0f);
-        ImGui::SliderInt("octAnoise", &terrain.octAnoise, 1, 8);
-        ImGui::InputInt("seedAnoise", &terrain.seedAnoise);
+        ImGui::InputInt("Seed", &terrain.seed);
+
+        ImGui::Text("Amplitude Noise");
+        ImGui::SliderFloat("Frequency", &terrain.freqAnoise, 0.0001f, 0.1f, "%.5f");
+        ImGui::SliderFloat("Amplitude", &terrain.ampAnoise, 1.0f, 100.0f);
+        ImGui::SliderInt("Octaves", &terrain.octAnoise, 1, 8);
+        ImGui::InputInt("Amplitude Seed", &terrain.seedAnoise);
     }
 
     ImGui::End();
@@ -382,6 +380,7 @@ void Application::drawTerrain() {
 void Application::updateTerrainUniforms() {
     sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
     sTerrain->setUniform("cameraPos", cameraPos);
+    sTerrain->setUniform("cameraChunk", cameraChunk);
     sTerrain->setUniform("chunkSize", terrain.chunkSize);
 
     sTerrain->setUniform("u_weights[0]", terrain.weights[0]);
@@ -397,10 +396,7 @@ void Application::updateTerrainUniforms() {
 
     sTerrain->setUniform("lightDirection", lightDirection);
 
-    sTerrain->setUniform("freqFnoise", terrain.freqFnoise);
-    sTerrain->setUniform("ampFnoise", terrain.ampFnoise);
-    sTerrain->setUniform("octFnoise", static_cast<unsigned int>(terrain.octFnoise));
-    sTerrain->setUniform("seedFnoise", terrain.seedFnoise);
+    sTerrain->setUniform("terrainSeed", terrain.seed);
 
     sTerrain->setUniform("freqAnoise", terrain.freqAnoise);
     sTerrain->setUniform("ampAnoise", terrain.ampAnoise);
