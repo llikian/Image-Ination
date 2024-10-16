@@ -9,7 +9,8 @@
 #include <glm/trigonometric.hpp>
 
 Camera::Camera(const vec3& position)
-    : position(position),
+    : movementSpeed(20.0f),
+      position(position),
       worldUp(0.0f, 1.0f, 0.0f),
       view(1.0f) {
 
@@ -19,8 +20,12 @@ Camera::Camera(const vec3& position)
     look(vec2());
 }
 
-mat4 Camera::getVPmatrix(const mat4& projection) {
+mat4 Camera::getVPmatrix(const mat4& projection) const {
     return projection * view;
+}
+
+const mat4& Camera::getViewMatrix() const {
+    return view;
 }
 
 vec3 Camera::getPosition() const {
@@ -44,7 +49,7 @@ vec3 Camera::getUp() const {
 }
 
 void Camera::move(CameraControls direction, float deltaTime) {
-    const float speed = 20.0f * deltaTime;
+    const float speed = movementSpeed * deltaTime;
 
     switch(direction) {
         case CameraControls::forward:
@@ -97,17 +102,17 @@ void Camera::look(vec2 mouseOffset) {
 
     right = normalize(cross(front, worldUp));
     up = normalize(cross(right, front));
-    
+
     view[0][0] = right.x;
     view[1][0] = right.y;
     view[2][0] = right.z;
     view[3][0] = -dot(right, position);
-    
+
     view[0][1] = up.x;
     view[1][1] = up.y;
     view[2][1] = up.z;
     view[3][1] = -dot(up, position);
-    
+
     view[0][2] = -front.x;
     view[1][2] = -front.y;
     view[2][2] = -front.z;

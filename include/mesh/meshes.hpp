@@ -31,6 +31,11 @@ namespace Meshes {
     Mesh plainCube();
 
     /**
+     * @brief Creates the mesh for a cubemap.
+     */
+    Mesh cubemap();
+
+    /**
      * @brief Creates the mesh for a grid made up of lines on the XZ plane.
      * @param size Size of one line of the grid.
      * @param divisions Number of divisions on the grid.

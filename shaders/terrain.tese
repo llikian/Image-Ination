@@ -14,9 +14,11 @@ out float maxHeight;
 uniform mat4 vpMatrix;
 uniform float chunkSize;
 
-uniform float ampFnoise, ampAnoise, freqFnoise, freqAnoise;
-uniform uint octFnoise, octAnoise;
-uniform int seedFnoise, seedAnoise;
+uniform int terrainSeed;
+uniform float ampAnoise;
+uniform float freqAnoise;
+uniform uint octAnoise;
+uniform int seedAnoise;
 
 float fade(in float x) {
     float x3 = x * x * x;
@@ -63,11 +65,10 @@ float noise(in vec2 pos, in float freq, in float amp, in uint oct, in int seed) 
 float getHeight(in vec2 pos) {
     maxHeight = 0.0f;
 
-    float freqNoise = noise(pos, freqFnoise, ampFnoise, octFnoise, seedFnoise);
-    maxHeight = 0.0f;
     float ampNoise = noise(pos, freqAnoise, ampAnoise, octAnoise, seedAnoise);
+    maxHeight = 0.0f;
 
-    return noise(pos, freqNoise, ampNoise, 8u, 0);
+    return noise(pos, 0.01f, ampNoise, 8u, terrainSeed);
 }
 
 vec3 getPosition(in vec2 uv) {

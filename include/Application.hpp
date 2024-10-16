@@ -159,7 +159,6 @@ private:
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
 
-    vec3 backgroundColor; ///< The background's color.
     vec3 lightDirection;  ///< The direction of the global lighting.
 
     bool wireframe;       ///< Whether to display in wireframe mode.
@@ -168,14 +167,17 @@ private:
 
     Shader* sTerrain; ///< The shader program for rendering the terrain.
     Shader* sWater;   ///< The shader program for rendering the water.
+    Shader* sSky;     ///< The shader program for rendering the sky.
 
     mat4 projection; ///< The projection matrix.
+    mat4 vpMatrix;   ///< The view/projection matrix.
 
     Camera camera;         ///< A first person camera to move around the scene.
     const vec3& cameraPos; ///< The camera's position.
     vec2 cameraChunk;      ///< The chunk the camera is in.
 
-    Mesh plane; ///< Mesh for a plane. Used to render a chunk.
+    Mesh plane;   ///< Mesh for a plane. Used to render a chunk.
+    Mesh cubemap; ///< Mesh for a cubemap. Used to render the sky.
 
     Terrain terrain; ///< Contains all the data needed to render the terrain.
 

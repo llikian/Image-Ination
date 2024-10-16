@@ -22,7 +22,7 @@ struct Terrain {
                vec3(0.357f, 0.6f, 0.369f),
                vec3(0.58f, 0.49f, 0.388f),
                vec3(0.969f, 1.0f, 0.996f)),
-        freqFnoise(0.001f), ampFnoise(0.025f), octFnoise(1), seedFnoise(123),
+        seed(0),
         freqAnoise(0.01f), ampAnoise(50.0f), octAnoise(1), seedAnoise(789),
         isFogActive(true) { }
 
@@ -32,10 +32,7 @@ struct Terrain {
     float weights[4];
     vec3 colors[4];
 
-    float freqFnoise;
-    float ampFnoise;
-    int octFnoise;
-    int seedFnoise;
+    int seed;
 
     float freqAnoise;
     float ampAnoise;

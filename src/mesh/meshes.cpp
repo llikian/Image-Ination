@@ -279,6 +279,62 @@ Mesh Meshes::plainCube() {
     return mesh;
 }
 
+Mesh Meshes::cubemap() {
+    Mesh mesh(GL_TRIANGLES);
+
+    /* Vertices' index
+     *  0───1
+     *  │╲  │╲
+     *  │ 3───2
+     *  4─│─5 │
+     *   ╲│  ╲│
+     *    7───6
+     *
+     * Faces & Template
+     *      0┌─────┐1
+     *       │  0  │
+     * 0    3│ TOP │2    1     0
+     * ┌─────┼─────┼─────┬─────┐
+     * │  1  │  2  │  3  │  4  │
+     * │ LEF │ FRO │ RIG │ BAC │
+     * └─────┼─────┼─────┴─────┘
+     * 4    7│  5  │6    5     4
+     *       │ BOT │
+     *      4└─────┘5
+     */
+
+    unsigned int faces[6][4]{
+        {1, 2, 3, 0},
+        {3, 7, 4, 0},
+        {2, 6, 7, 3},
+        {1, 5, 6, 2},
+        {0, 4, 5, 1},
+        {6, 5, 4, 7}
+    };
+
+    vec3 positions[8]{
+        {-1.0f, 1.0f,  -1.0f},
+        {1.0f,  1.0f,  -1.0f},
+        {1.0f,  1.0f,  1.0f},
+        {-1.0f, 1.0f,  1.0f},
+        {-1.0f, -1.0f, -1.0f},
+        {1.0f,  -1.0f, -1.0f},
+        {1.0f,  -1.0f, 1.0f},
+        {-1.0f, -1.0f, 1.0f}
+    };
+
+    for(int i = 0 ; i < 6 ; ++i) {
+        mesh.addPosition(positions[faces[i][0]]);
+        mesh.addPosition(positions[faces[i][1]]);
+        mesh.addPosition(positions[faces[i][2]]);
+        mesh.addPosition(positions[faces[i][3]]);
+
+        mesh.addFace((i * 4), (i * 4) + 1, (i * 4) + 2, (i * 4) + 3);
+    }
+
+    return mesh;
+}
+
 Mesh Meshes::grid(float size, int divisions) {
     Mesh mesh(GL_LINES);
 

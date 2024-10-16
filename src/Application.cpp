@@ -82,14 +82,13 @@ Application::Application(Window window)
     : window(window.window), width(window.width), height(window.height),
       mousePos(width / 2.0f, height / 2.0f),
       time(0.0f), delta(0.0f),
-      backgroundColor(0.306f, 0.706f, 0.89f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
-      sTerrain(nullptr),
+      sTerrain(nullptr), sWater(nullptr), sSky(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
-      plane(Meshes::chunk()) {
+      plane(Meshes::chunk()), cubemap(Meshes::cubemap()) {
 
     /**** Shaders ****/
     std::string paths[4]{
@@ -103,11 +102,16 @@ Application::Application(Window window)
     paths[2] = "shaders/water.tese";
     paths[3] = "shaders/water.frag";
     sWater = new Shader(paths, 4);
+
+    paths[0] = "shaders/sky.vert";
+    paths[1] = "shaders/sky.frag";
+    sSky = new Shader(paths, 2);
 }
 
 Application::~Application() {
     delete sTerrain;
     delete sWater;
+    delete sSky;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -126,13 +130,28 @@ void Application::runMinas() {
         handleEvents();
         updateVariables();
 
-        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        /**** Skymap ****/
+        glDepthMask(GL_FALSE);
+        glDisable(GL_DEPTH_TEST);
+
+        sSky->use();
+        sSky->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+        sSky->setUniform("cameraPos", cameraPos);
+        sSky->setUniform("cameraDir", camera.getDirection());
+        cubemap.draw();
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+
+        /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
         drawTerrain();
 
+        /**** Water ****/
         sWater->use();
         updateWaterUniforms();
         drawWater();
@@ -158,9 +177,23 @@ void Application::runKillian() {
         handleEvents();
         updateVariables();
 
-        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        /**** Skymap ****/
+        glDepthMask(GL_FALSE);
+        glDisable(GL_DEPTH_TEST);
+
+        sSky->use();
+        sSky->setUniform("vpMatrix", vpMatrix);
+        sSky->setUniform("cameraPos", cameraPos);
+        sSky->setUniform("time", time);
+        cubemap.draw();
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+
+        /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
         drawTerrain();
@@ -177,10 +210,6 @@ void Application::runKillian() {
 }
 
 void Application::runRaph() {
-    const mat4 IDENTITY(1.0f);
-    const vec3 skyColor(0.306f, 0.706f, 0.89f);
-
-    /**** Main Loop ****/
     while(!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -188,7 +217,7 @@ void Application::runRaph() {
 
         handleEvents();
 
-        glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         delta = glfwGetTime() - time;
@@ -287,6 +316,7 @@ void Application::handleKeyboardEvents() {
 void Application::updateVariables() {
     delta = glfwGetTime() - time;
     time = glfwGetTime();
+    vpMatrix = projection * camera.getViewMatrix();
     cameraChunk.x = floor(cameraPos.x / terrain.chunkSize + 0.5f);
     cameraChunk.y = floor(cameraPos.z / terrain.chunkSize + 0.5f);
 }
@@ -294,8 +324,10 @@ void Application::updateVariables() {
 void Application::debugWindow() {
     ImGui::Begin("Debug");
     ImGui::Text("%d FPS | %.2fms/frame", static_cast<int>(1.0f / delta), 1000.0f * delta);
+    ImGui::Text("Time: %.4fs", time);
     ImGui::Text("Position: (%.2f ; %.2f ; %.2f)", cameraPos.x, cameraPos.y, cameraPos.z);
     ImGui::Text("Chunk: (%.0f ; %.0f)", cameraChunk.x, cameraChunk.y);
+    ImGui::InputFloat("Camera Speed", &camera.movementSpeed);
     ImGui::End();
 }
 
@@ -322,14 +354,13 @@ void Application::terrainWindow() {
     }
 
     if(ImGui::CollapsingHeader("Noise")) {
-        ImGui::SliderFloat("freqFnoise", &terrain.freqFnoise, 0.0001f, 0.1f, "%.5f");
-        ImGui::SliderFloat("ampFnoise", &terrain.ampFnoise, 0.001f, 0.1f, "%.5f");
-        ImGui::SliderInt("octFnoise", &terrain.octFnoise, 1, 8);
-        ImGui::InputInt("seedFnoise", &terrain.seedFnoise);
-        ImGui::SliderFloat("freqAnoise", &terrain.freqAnoise, 0.0001f, 0.1f, "%.5f");
-        ImGui::SliderFloat("ampAnoise", &terrain.ampAnoise, 1.0f, 100.0f);
-        ImGui::SliderInt("octAnoise", &terrain.octAnoise, 1, 8);
-        ImGui::InputInt("seedAnoise", &terrain.seedAnoise);
+        ImGui::InputInt("Seed", &terrain.seed);
+
+        ImGui::Text("Amplitude Noise");
+        ImGui::SliderFloat("Frequency", &terrain.freqAnoise, 0.0001f, 0.1f, "%.5f");
+        ImGui::SliderFloat("Amplitude", &terrain.ampAnoise, 1.0f, 100.0f);
+        ImGui::SliderInt("Octaves", &terrain.octAnoise, 1, 8);
+        ImGui::InputInt("Amplitude Seed", &terrain.seedAnoise);
     }
 
     ImGui::End();
@@ -349,6 +380,7 @@ void Application::drawTerrain() {
 void Application::updateTerrainUniforms() {
     sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
     sTerrain->setUniform("cameraPos", cameraPos);
+    sTerrain->setUniform("cameraChunk", cameraChunk);
     sTerrain->setUniform("chunkSize", terrain.chunkSize);
 
     sTerrain->setUniform("u_weights[0]", terrain.weights[0]);
@@ -360,15 +392,11 @@ void Application::updateTerrainUniforms() {
     sTerrain->setUniform("u_colors[2]", terrain.colors[2]);
     sTerrain->setUniform("u_colors[3]", terrain.colors[3]);
 
-    sTerrain->setUniform("skyColor", backgroundColor);
     sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize / 4.0f);
 
     sTerrain->setUniform("lightDirection", lightDirection);
 
-    sTerrain->setUniform("freqFnoise", terrain.freqFnoise);
-    sTerrain->setUniform("ampFnoise", terrain.ampFnoise);
-    sTerrain->setUniform("octFnoise", static_cast<unsigned int>(terrain.octFnoise));
-    sTerrain->setUniform("seedFnoise", terrain.seedFnoise);
+    sTerrain->setUniform("terrainSeed", terrain.seed);
 
     sTerrain->setUniform("freqAnoise", terrain.freqAnoise);
     sTerrain->setUniform("ampAnoise", terrain.ampAnoise);

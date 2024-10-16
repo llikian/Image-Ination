@@ -32,7 +32,7 @@ enum class CameraControls {
 class Camera {
 public:
     /**
-     * @brief
+     * @brief Constructor.
      * @param position
      */
     Camera(const vec3& position);
@@ -43,7 +43,13 @@ public:
      * @return The product of the projection matrix with the view (or look-at) matrix corresponding
      * to the camera.
      */
-    mat4 getVPmatrix(const mat4& projection);
+    mat4 getVPmatrix(const mat4& projection) const;
+
+    /**
+     * @brief Getter for the view member.
+     * @return The view (or look-at) matrix corresponding to the camera.
+     */
+    const mat4& getViewMatrix() const;
 
     /**
      * @brief Getter for the position member.
@@ -87,6 +93,8 @@ public:
      * @param mouseOffset How much the mouse moved since the last frame in both directions.
      */
     void look(vec2 mouseOffset);
+
+    float movementSpeed; ///< The speed at which the camera moves.
 
 private:
     vec3 position; ///< The camera's position.
