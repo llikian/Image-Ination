@@ -123,11 +123,6 @@ private:
     void terrainWindow();
 
     /**
-     * @brief Draws the terrain.
-     */
-    void drawTerrain();
-
-    /**
      * @brief Updates all of the terrain's shader program's uniforms.
      */
     void updateTerrainUniforms();
@@ -146,6 +141,11 @@ private:
      * @brief Updates all of the water's shader program's uniforms.
      */
     void updateWaterUniforms();
+
+    /**
+     * @brief Draws the skybox.
+     */
+    void drawSkybox();
 
     /**** Variables & Constants ****/
     GLFWwindow* window;  ///< GLFW window.
@@ -176,10 +176,11 @@ private:
     const vec3& cameraPos; ///< The camera's position.
     vec2 cameraChunk;      ///< The chunk the camera is in.
 
+    Terrain terrain; ///< Contains all the data needed to render the terrain.
+
+    Mesh grid;    ///< Mesh for a grid. Used to render the terrain.
     Mesh plane;   ///< Mesh for a plane. Used to render a chunk.
     Mesh cubemap; ///< Mesh for a cubemap. Used to render the sky.
-
-    Terrain terrain; ///< Contains all the data needed to render the terrain.
 
     struct Water {
         float deltaNormal = 0.01f;

@@ -16,7 +16,7 @@ using namespace glm;
 struct Terrain {
     Terrain() :
         chunkSize(32.0f),
-        chunks(100),
+        chunks(64),
         weights(0.0f, 0.2f, 0.5f, 1.0f),
         colors(vec3(0.184f, 0.694f, 0.831f),
                vec3(0.357f, 0.6f, 0.369f),
@@ -26,8 +26,8 @@ struct Terrain {
         freqAnoise(0.01f), ampAnoise(50.0f), octAnoise(1), seedAnoise(789),
         isFogActive(true) { }
 
-    float chunkSize;
-    int chunks;
+    const float chunkSize;
+    const int chunks;
 
     float weights[4];
     vec3 colors[4];
