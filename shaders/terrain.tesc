@@ -24,8 +24,8 @@ void main() {
         chunk += gl_in[id + 2].gl_Position.xz + gl_in[id + 3].gl_Position.xz;
         chunk /= 4.0f;
 
-        chunk.x = floor(chunk.x / chunkSize + 0.5f);
-        chunk.y = floor(chunk.y / chunkSize + 0.5f);
+        chunk.x = floor(0.5f + chunk.x / chunkSize);
+        chunk.y = floor(0.5f + chunk.y / chunkSize);
 
         float level = (chunkSize * chunkSize * 0.5f) / nonZero(distance(chunk, cameraChunk));
         level = clamp(level, 1.0f, 64.0f);

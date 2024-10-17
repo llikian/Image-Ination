@@ -297,8 +297,8 @@ void Application::updateVariables() {
     delta = glfwGetTime() - time;
     time = glfwGetTime();
     vpMatrix = projection * camera.getViewMatrix();
-    cameraChunk.x = floor(cameraPos.x / terrain.chunkSize + 0.5f);
-    cameraChunk.y = floor(cameraPos.z / terrain.chunkSize + 0.5f);
+    cameraChunk.x = floor(0.5f + cameraPos.x / terrain.chunkSize);
+    cameraChunk.y = floor(0.5f + cameraPos.z / terrain.chunkSize);
 }
 
 void Application::debugWindow() {
