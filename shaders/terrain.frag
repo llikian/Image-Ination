@@ -56,9 +56,5 @@ vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
 
 void main() {
     fragColor.rgb = phongLighting() * colorRamp4(u_colors, u_weights, position.y / maxHeight);
-    if(isFogActive) {
-        fragColor.a = fogFactor(totalTerrainWidth * 0.5f, totalTerrainWidth * 0.9f);
-    } else {
-        fragColor.a = 1.0f;
-    }
+    fragColor.a = isFogActive ? fogFactor(totalTerrainWidth * 0.5f, totalTerrainWidth * 0.7f) : 1.0f;
 }
