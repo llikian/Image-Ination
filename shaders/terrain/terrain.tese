@@ -74,9 +74,10 @@ float getHeight(in vec2 pos) {
 vec3 getPosition(in vec2 uv) {
     vec3 pos;
 
-    #define IN_POS(i) gl_in[i].gl_Position.xz
+    pos.xz = mix(mix(gl_in[0].gl_Position.xz, gl_in[1].gl_Position.xz, uv.x),
+                 mix(gl_in[3].gl_Position.xz, gl_in[2].gl_Position.xz, uv.x),
+                 uv.y);
 
-    pos.xz = mix(mix(IN_POS(0), IN_POS(1), uv.x), mix(IN_POS(3), IN_POS(2), uv.x), uv.y);
     pos.y = getHeight(pos.xz);
 
     return pos;
