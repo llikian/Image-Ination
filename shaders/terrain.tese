@@ -82,18 +82,14 @@ vec3 getPosition(in vec2 uv) {
     return pos;
 }
 
-vec3 getNormal() {
-    vec2 delta = vec2(0.5f * chunkSize / gl_TessLevelInner[0], 0.0f);
+void main() {
+    vec2 delta = vec2(0.25f * chunkSize / gl_TessLevelInner[0], 0.0f);
 
     vec3 p1 = getPosition(gl_TessCoord.xy + delta.xy);
     vec3 p2 = getPosition(gl_TessCoord.xy + delta.yx);
+
     position = getPosition(gl_TessCoord.xy);
-
-    return normalize(cross(p1 - position, p2 - position));
-}
-
-void main() {
-    normal = getNormal();
+    normal = normalize(cross(p1 - position, p2 - position));
 
     gl_Position = vpMatrix * vec4(position, 1.0f);
 }

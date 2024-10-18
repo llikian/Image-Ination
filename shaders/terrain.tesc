@@ -5,9 +5,10 @@
 
 #version 460 core
 
+#define id gl_InvocationID
+
 layout (vertices = 4) out;
 
-uniform vec2 chunk;
 uniform vec2 cameraChunk;
 uniform float chunkSize;
 
@@ -16,9 +17,16 @@ float nonZero(in float value) {
 }
 
 void main() {
-    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+    gl_out[id].gl_Position = gl_in[id].gl_Position;
 
-    if (gl_InvocationID == 0) {
+    if (gl_InvocationID % 4 == 0) {
+        vec2 chunk = gl_in[id].gl_Position.xz + gl_in[id + 1].gl_Position.xz;
+        chunk += gl_in[id + 2].gl_Position.xz + gl_in[id + 3].gl_Position.xz;
+        chunk /= 4.0f;
+
+        chunk.x = floor(0.5f + chunk.x / chunkSize);
+        chunk.y = floor(0.5f + chunk.y / chunkSize);
+
         float level = (chunkSize * chunkSize * 0.5f) / nonZero(distance(chunk, cameraChunk));
         level = clamp(level, 1.0f, 64.0f);
 

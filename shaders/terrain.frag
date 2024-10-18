@@ -30,9 +30,10 @@ float phongLighting() {
     float diffuse = max(dot(normal, lightDir), 0.0f);
 
     /* Specular */
-    vec3 viewDirection = normalize(cameraPos - position);
-    vec3 reflectionDir = reflect(-lightDir, normal);
-    float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
+//    vec3 viewDirection = normalize(cameraPos - position);
+//    vec3 reflectionDir = reflect(-lightDir, normal);
+//    float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
+    float specular = 0.0f;
 
     return ambient + diffuse + specular;
 }
@@ -55,9 +56,5 @@ vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
 
 void main() {
     fragColor.rgb = phongLighting() * colorRamp4(u_colors, u_weights, position.y / maxHeight);
-    if(isFogActive) {
-        fragColor.a = fogFactor(totalTerrainWidth * 0.5f, totalTerrainWidth * 0.9f);
-    } else {
-        fragColor.a = 1.0f;
-    }
+    fragColor.a = isFogActive ? fogFactor(totalTerrainWidth * 0.5f, totalTerrainWidth * 0.7f) : 1.0f;
 }

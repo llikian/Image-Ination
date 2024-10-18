@@ -553,6 +553,40 @@ Mesh Meshes::chunk() {
     return mesh;
 }
 
+Mesh Meshes::tessGrid(float size, int divisions) {
+    Mesh mesh(GL_PATCHES);
+
+    const float halfSize = -size / 2.0f;
+    const float squareSize = size / divisions;
+    float squareX = halfSize, squareZ = halfSize;
+
+    for(int i = 0 ; i <= divisions ; ++i) {
+        for(int j = 0 ; j <= divisions ; ++j) {
+            mesh.addPosition(squareX, 0.0f, squareZ);
+
+            squareX += squareSize;
+        }
+
+        squareX = halfSize;
+        squareZ += squareSize;
+    }
+
+    auto index = [&](int x, int y) -> int {
+        return x + y * (divisions + 1);
+    };
+
+    for(int i = 0 ; i < divisions ; ++i) {
+        for(int j = 0 ; j < divisions ; ++j) {
+            mesh.addIndex(index(i, j));
+            mesh.addIndex(index(i, j + 1));
+            mesh.addIndex(index(i + 1, j + 1));
+            mesh.addIndex(index(i + 1, j));
+        }
+    }
+
+    return mesh;
+}
+
 Mesh Meshes::nplane(float size) {
     Mesh mesh(GL_TRIANGLES);
 

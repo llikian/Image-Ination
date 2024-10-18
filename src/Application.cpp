@@ -88,6 +88,7 @@ Application::Application(Window window)
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
+      grid(Meshes::tessGrid(terrain.chunkSize * terrain.chunks, terrain.chunks)),
       plane(Meshes::chunk()), cubemap(Meshes::cubemap()) {
 
     /**** Shaders ****/
@@ -133,23 +134,12 @@ void Application::runMinas() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /**** Skymap ****/
-        glDepthMask(GL_FALSE);
-        glDisable(GL_DEPTH_TEST);
-
-        sSky->use();
-        sSky->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
-        sSky->setUniform("cameraPos", cameraPos);
-        sSky->setUniform("cameraDir", camera.getDirection());
-        cubemap.draw();
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
+        /**** Skybox ****/
+        drawSkybox();
 
         /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
-        drawTerrain();
 
         /**** Water ****/
         sWater->use();
@@ -180,23 +170,13 @@ void Application::runKillian() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /**** Skymap ****/
-        glDepthMask(GL_FALSE);
-        glDisable(GL_DEPTH_TEST);
-
-        sSky->use();
-        sSky->setUniform("vpMatrix", vpMatrix);
-        sSky->setUniform("cameraPos", cameraPos);
-        sSky->setUniform("time", time);
-        cubemap.draw();
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
+        /**** Skybox ****/
+        drawSkybox();
 
         /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
-        drawTerrain();
+        grid.draw();
 
         debugWindow();
         if(isCursorVisible) {
@@ -317,8 +297,8 @@ void Application::updateVariables() {
     delta = glfwGetTime() - time;
     time = glfwGetTime();
     vpMatrix = projection * camera.getViewMatrix();
-    cameraChunk.x = floor(cameraPos.x / terrain.chunkSize + 0.5f);
-    cameraChunk.y = floor(cameraPos.z / terrain.chunkSize + 0.5f);
+    cameraChunk.x = floor(0.5f + cameraPos.x / terrain.chunkSize);
+    cameraChunk.y = floor(0.5f + cameraPos.z / terrain.chunkSize);
 }
 
 void Application::debugWindow() {
@@ -333,11 +313,6 @@ void Application::debugWindow() {
 
 void Application::terrainWindow() {
     ImGui::Begin("Terrain Options");
-
-    if(ImGui::CollapsingHeader("Terrain")) {
-        ImGui::InputFloat("Chunk Size", &terrain.chunkSize, 1.0f, 10.0f);
-        ImGui::InputInt("Chunks", &terrain.chunks, 2, 10);
-    }
 
     if(ImGui::CollapsingHeader("Terrain Gradient")) {
         ImGui::ColorEdit3("Color 1", &terrain.colors[0].x);
@@ -364,17 +339,6 @@ void Application::terrainWindow() {
     }
 
     ImGui::End();
-}
-
-void Application::drawTerrain() {
-    for(int x = 0 ; x <= terrain.chunks ; ++x) {
-        for(int z = 0 ; z <= terrain.chunks ; ++z) {
-            sTerrain->setUniform("chunk",
-                                 x - (terrain.chunks >> 1) + cameraChunk.x,
-                                 z - (terrain.chunks >> 1) + cameraChunk.y);
-            plane.draw();
-        }
-    }
 }
 
 void Application::updateTerrainUniforms() {
@@ -435,4 +399,19 @@ void Application::updateWaterUniforms() {
     sWater->setUniform("lightDirection", lightDirection);
     sWater->setUniform("cameraChunk", cameraChunk);
     sWater->setUniform("time", time);
+}
+
+void Application::drawSkybox() {
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+
+    sSky->use();
+    sSky->setUniform("vpMatrix", vpMatrix);
+    sSky->setUniform("cameraPos", cameraPos);
+    cubemap.draw();
+
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
 }
