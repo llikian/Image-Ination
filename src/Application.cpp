@@ -85,7 +85,7 @@ Application::Application(Window window)
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
       sTerrain(nullptr), sWater(nullptr), sClouds(nullptr), sSky(nullptr),
-      projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
+      projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 4096.0f)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
       grid(Meshes::tessGrid(terrain.chunkSize * terrain.chunks, terrain.chunks)),
