@@ -8,6 +8,7 @@
 in vec3 position;
 in vec3 normal;
 
+in float minHeight;
 in float maxHeight;
 
 out vec4 fragColor;
@@ -39,7 +40,8 @@ float phongLighting() {
 }
 
 float fogFactor(float minDistance, float maxDistance) {
-    float fogFactor = (maxDistance - distance(position, cameraPos)) / (maxDistance - minDistance);
+    float dist = distance(position.xz, cameraPos.xz);
+    float fogFactor = (maxDistance - dist) / (maxDistance - minDistance);
     return clamp(exp(fogFactor), 0.0f, 1.0f);
 }
 
@@ -55,6 +57,8 @@ vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
 }
 
 void main() {
-    fragColor.rgb = phongLighting() * colorRamp4(u_colors, u_weights, position.y / maxHeight);
-    fragColor.a = isFogActive ? fogFactor(totalTerrainWidth * 0.5f, totalTerrainWidth * 0.7f) : 1.0f;
+    float t = (position.y - minHeight) / (maxHeight - minHeight);
+
+    fragColor.rgb = phongLighting() * colorRamp4(u_colors, u_weights, t);
+    fragColor.a = isFogActive ? fogFactor(totalTerrainWidth * 0.8f, totalTerrainWidth * 0.9f) : 1.0f;
 }

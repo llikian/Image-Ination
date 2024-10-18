@@ -9,6 +9,7 @@ layout (quads) in;
 
 out vec3 position;
 out vec3 normal;
+out float minHeight;
 out float maxHeight;
 
 uniform mat4 vpMatrix;
@@ -52,9 +53,9 @@ float noise(in vec2 pos, in float freq, in float amp, in uint oct, in int seed) 
     float total = 0.0f;
 
     for (uint i = 0u; i < oct; ++i) {
-        total += perlinNoise(pos * freq, seed) * amp;
+        total += (perlinNoise(pos * freq, seed) * 2.0f - 1.0f) * amp * 0.5f;
 
-        maxHeight += amp;
+        maxHeight += amp * 0.5f;
         freq *= 2.0f;
         amp /= 2.0f;
     }
@@ -63,12 +64,22 @@ float noise(in vec2 pos, in float freq, in float amp, in uint oct, in int seed) 
 }
 
 float getHeight(in vec2 pos) {
+    minHeight = 0.0f;
     maxHeight = 0.0f;
 
-    float ampNoise = noise(pos, freqAnoise, ampAnoise, octAnoise, seedAnoise);
-    maxHeight = 0.0f;
+//    float ampNoise = noise(pos, freqAnoise, ampAnoise, octAnoise, seedAnoise);
+//    maxHeight = 0.0f;
 
-    return noise(pos, 0.01f, ampNoise, 8u, terrainSeed);
+//    float result = noise(pos, 0.001f, ampAnoise, 8u, terrainSeed);
+
+    float n1 = noise(pos, 0.01f, 25.0f, 8u, 0);
+    float n2 = noise(pos, 0.005f, 200.0f, 8u, 0) + 30.0f;
+    float result = max(n1, n2);
+
+    minHeight = -25.0f;
+    maxHeight = 230.0f;
+
+    return result;
 }
 
 vec3 getPosition(in vec2 uv) {
