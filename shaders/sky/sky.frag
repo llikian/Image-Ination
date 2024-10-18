@@ -1,16 +1,13 @@
 /***************************************************************************************************
  * @file  sky.frag
- * @brief Fragment shader for rendering sky
+ * @brief Fragment shader for rendering the sky
  **************************************************************************************************/
 
 #version 460 core
 
 in vec3 position;
+
 out vec4 fragColor;
-
-uniform vec2 resolution;
-
-const float timeSpeed = 0.25f;
 
 #define color fragColor.rgb
 #define alpha fragColor.a

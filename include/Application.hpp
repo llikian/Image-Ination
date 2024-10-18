@@ -143,6 +143,16 @@ private:
     void updateWaterUniforms();
 
     /**
+     * @brief Draws the clouds.
+     */
+    void drawClouds();
+
+    /**
+     * @brief Updates all of the clouds's shader program's uniforms.
+     */
+    void updateCloudsUniforms();
+
+    /**
      * @brief Draws the skybox.
      */
     void drawSkybox();
@@ -167,6 +177,7 @@ private:
 
     Shader* sTerrain; ///< The shader program for rendering the terrain.
     Shader* sWater;   ///< The shader program for rendering the water.
+    Shader* sClouds;  ///< The shader program for rendering the clouds.
     Shader* sSky;     ///< The shader program for rendering the sky.
 
     mat4 projection; ///< The projection matrix.
@@ -180,6 +191,7 @@ private:
 
     Mesh grid;    ///< Mesh for a grid. Used to render the terrain.
     Mesh plane;   ///< Mesh for a plane. Used to render a chunk.
+    Mesh screen;  ///< Mesh for a screen. Used to render the clouds.
     Mesh cubemap; ///< Mesh for a cubemap. Used to render the sky.
 
     struct Water {

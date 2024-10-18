@@ -84,28 +84,32 @@ Application::Application(Window window)
       time(0.0f), delta(0.0f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
-      sTerrain(nullptr), sWater(nullptr), sSky(nullptr),
+      sTerrain(nullptr), sWater(nullptr), sClouds(nullptr), sSky(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 1000.0f)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
       grid(Meshes::tessGrid(terrain.chunkSize * terrain.chunks, terrain.chunks)),
-      plane(Meshes::chunk()), cubemap(Meshes::cubemap()) {
+      plane(Meshes::chunk()), screen(Meshes::screen()), cubemap(Meshes::cubemap()) {
 
     /**** Shaders ****/
     std::string paths[4]{
-        "shaders/terrain.vert",
-        "shaders/terrain.tesc",
-        "shaders/terrain.tese",
-        "shaders/terrain.frag"
+        "shaders/terrain/terrain.vert",
+        "shaders/terrain/terrain.tesc",
+        "shaders/terrain/terrain.tese",
+        "shaders/terrain/terrain.frag"
     };
     sTerrain = new Shader(paths, 4);
 
-    paths[2] = "shaders/water.tese";
-    paths[3] = "shaders/water.frag";
+    paths[2] = "shaders/water/water.tese";
+    paths[3] = "shaders/water/water.frag";
     sWater = new Shader(paths, 4);
 
-    paths[0] = "shaders/sky.vert";
-    paths[1] = "shaders/sky.frag";
+    paths[0] = "shaders/clouds/clouds.vert";
+    paths[1] = "shaders/clouds/clouds.frag";
+    sClouds = new Shader(paths, 2);
+
+    paths[0] = "shaders/sky/sky.vert";
+    paths[1] = "shaders/sky/sky.frag";
     sSky = new Shader(paths, 2);
 }
 
@@ -135,6 +139,9 @@ void Application::runMinas() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         /**** Skybox ****/
+        sSky->use();
+        sSky->setUniform("vpMatrix", vpMatrix);
+        sSky->setUniform("cameraPos", cameraPos);
         drawSkybox();
 
         /**** Terrain ****/
@@ -171,6 +178,9 @@ void Application::runKillian() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         /**** Skybox ****/
+        sSky->use();
+        sSky->setUniform("vpMatrix", vpMatrix);
+        sSky->setUniform("cameraPos", cameraPos);
         drawSkybox();
 
         /**** Terrain ****/
@@ -203,11 +213,9 @@ void Application::runRaph() {
         delta = glfwGetTime() - time;
         time = glfwGetTime();
 
-        if(isCursorVisible) {
-            ImGui::Begin("Options");
-
-            ImGui::End();
-        }
+        sClouds->use();
+        updateCloudsUniforms();
+        drawClouds();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -252,8 +260,8 @@ void Application::handleKeyboardEvents() {
                     glfwSetWindowShouldClose(window, true);
                     break;
                 case GLFW_KEY_TAB:
-                    glfwSetInputMode(window, GLFW_CURSOR,
-                                     isCursorVisible ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+                    glfwSetInputMode(window, GLFW_CURSOR, isCursorVisible ? GLFW_CURSOR_DISABLED
+                                                                          : GLFW_CURSOR_NORMAL);
                     isCursorVisible = !isCursorVisible;
 
                     keys[key] = false;
@@ -401,14 +409,19 @@ void Application::updateWaterUniforms() {
     sWater->setUniform("time", time);
 }
 
+void Application::drawClouds() {
+    screen.draw();
+}
+
+void Application::updateCloudsUniforms() {
+    sClouds->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+}
+
 void Application::drawSkybox() {
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
     if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
-    sSky->use();
-    sSky->setUniform("vpMatrix", vpMatrix);
-    sSky->setUniform("cameraPos", cameraPos);
     cubemap.draw();
 
     if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
