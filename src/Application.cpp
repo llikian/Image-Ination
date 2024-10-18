@@ -116,6 +116,7 @@ Application::Application(Window window)
 Application::~Application() {
     delete sTerrain;
     delete sWater;
+    delete sClouds;
     delete sSky;
 
     ImGui_ImplOpenGL3_Shutdown();
