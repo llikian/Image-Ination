@@ -32,7 +32,7 @@ public:
      * @brief Constructs a 1*1px texture with a specific color.
      * @param color The color of the texture.
      */
-    Texture(const Color& color);
+    Texture(const vec3& color);
 
     /**
      * @brief Constructs a 1*1px texture with a specific color.
