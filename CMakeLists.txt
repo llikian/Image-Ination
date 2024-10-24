@@ -41,6 +41,8 @@ set(SOURCES
         lib/imgui/misc/cpp/imgui_stdlib.cpp
         lib/imgui/backends/imgui_impl_glfw.cpp
         lib/imgui/backends/imgui_impl_opengl3.cpp
+
+        lib/stb/stb_image.cpp
 )
 
 set(INCLUDES
