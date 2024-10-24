@@ -89,7 +89,9 @@ Application::Application(Window window)
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
       grid(Meshes::tessGrid(terrain.chunkSize * terrain.chunks, terrain.chunks)),
-      plane(Meshes::chunk()), screen(Meshes::screen()), cubemap(Meshes::cubemap()) {
+      plane(Meshes::chunk()), screen(Meshes::screen()), cubemap(Meshes::cubemap()),
+      texRock("data/rock.jpg"), texRockSmooth("data/rock_smooth.jpg"), texGrass("data/grass.jpg"),
+      texGrassDark("data/grass_dark.png"), texSnow("data/snow.png") {
 
     /**** Shaders ****/
     std::string paths[4]{
@@ -111,6 +113,20 @@ Application::Application(Window window)
     paths[0] = "shaders/sky/sky.vert";
     paths[1] = "shaders/sky/sky.frag";
     sSky = new Shader(paths, 2);
+
+    /**** Bind Textures ****/
+    sTerrain->use();
+
+    sTerrain->setUniform("texRock", 0);
+    texRock.bind(0);
+    sTerrain->setUniform("texRockSmooth", 1);
+    texRockSmooth.bind(1);
+    sTerrain->setUniform("texGrass", 2);
+    texGrass.bind(2);
+    sTerrain->setUniform("texGrassDark", 3);
+    texGrassDark.bind(3);
+    sTerrain->setUniform("texSnow", 4);
+    texSnow.bind(4);
 }
 
 Application::~Application() {
@@ -323,29 +339,8 @@ void Application::debugWindow() {
 void Application::terrainWindow() {
     ImGui::Begin("Terrain Options");
 
-    if(ImGui::CollapsingHeader("Terrain Gradient")) {
-        ImGui::ColorEdit3("Color 1", &terrain.colors[0].x);
-        ImGui::ColorEdit3("Color 2", &terrain.colors[1].x);
-        ImGui::SliderFloat("Weight 2", &terrain.weights[1], 0.0f, terrain.weights[2]);
-        ImGui::ColorEdit3("Color 3", &terrain.colors[2].x);
-        ImGui::SliderFloat("Weight 3", &terrain.weights[2], terrain.weights[1], 1.0f);
-        ImGui::ColorEdit3("Color 4", &terrain.colors[3].x);
-    }
-
-    if(ImGui::CollapsingHeader("Light")) {
-        ImGui::InputFloat3("Light Direction", &lightDirection.x);
-        ImGui::Checkbox("Fog", &terrain.isFogActive);
-    }
-
-    if(ImGui::CollapsingHeader("Noise")) {
-        ImGui::InputInt("Seed", &terrain.seed);
-
-        ImGui::Text("Amplitude Noise");
-        ImGui::SliderFloat("Frequency", &terrain.freqAnoise, 0.0001f, 0.1f, "%.5f");
-        ImGui::SliderFloat("Amplitude", &terrain.ampAnoise, 1.0f, 100.0f);
-        ImGui::SliderInt("Octaves", &terrain.octAnoise, 1, 8);
-        ImGui::InputInt("Amplitude Seed", &terrain.seedAnoise);
-    }
+    ImGui::InputFloat3("Light Direction", &lightDirection.x);
+    ImGui::Checkbox("Fog", &terrain.isFogActive);
 
     ImGui::End();
 }
@@ -355,27 +350,8 @@ void Application::updateTerrainUniforms() {
     sTerrain->setUniform("cameraPos", cameraPos);
     sTerrain->setUniform("cameraChunk", cameraChunk);
     sTerrain->setUniform("chunkSize", terrain.chunkSize);
-
-    sTerrain->setUniform("u_weights[0]", terrain.weights[0]);
-    sTerrain->setUniform("u_weights[1]", terrain.weights[1]);
-    sTerrain->setUniform("u_weights[2]", terrain.weights[2]);
-    sTerrain->setUniform("u_weights[3]", terrain.weights[3]);
-    sTerrain->setUniform("u_colors[0]", terrain.colors[0]);
-    sTerrain->setUniform("u_colors[1]", terrain.colors[1]);
-    sTerrain->setUniform("u_colors[2]", terrain.colors[2]);
-    sTerrain->setUniform("u_colors[3]", terrain.colors[3]);
-
-    sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize / 4.0f);
-
+    sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize);
     sTerrain->setUniform("lightDirection", lightDirection);
-
-    sTerrain->setUniform("terrainSeed", terrain.seed);
-
-    sTerrain->setUniform("freqAnoise", terrain.freqAnoise);
-    sTerrain->setUniform("ampAnoise", terrain.ampAnoise);
-    sTerrain->setUniform("octAnoise", static_cast<unsigned int>(terrain.octAnoise));
-    sTerrain->setUniform("seedAnoise", terrain.seedAnoise);
-
     sTerrain->setUniform("isFogActive", terrain.isFogActive);
 }
 
