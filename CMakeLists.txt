@@ -21,7 +21,9 @@ set(SOURCES
         # Classes
         src/Application.cpp
         src/Camera.cpp
+        src/Image.cpp
         src/Shader.cpp
+        src/Texture.cpp
 
         src/mesh/Mesh.cpp
         src/mesh/meshes.cpp
@@ -47,6 +49,7 @@ set(INCLUDES
         # Libraries
         lib/glad/include
         lib/imgui
+        lib/stb
 )
 
 set(LIBRARIES
