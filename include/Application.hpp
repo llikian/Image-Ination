@@ -17,6 +17,7 @@
 #include "Shader.hpp"
 #include "mesh/meshes.hpp"
 #include "Terrain.hpp"
+#include "Texture.hpp"
 
 /**
  * @struct Window
@@ -169,7 +170,7 @@ private:
     float time;  ///< The current time in seconds;
     float delta; ///< The time difference between this frame and the previous in seconds.
 
-    vec3 lightDirection;  ///< The direction of the global lighting.
+    vec3 lightDirection; ///< The direction of the global lighting.
 
     bool wireframe;       ///< Whether to display in wireframe mode.
     bool cullface;        ///< Whether face culling is activated.
@@ -193,6 +194,12 @@ private:
     Mesh plane;   ///< Mesh for a plane. Used to render a chunk.
     Mesh screen;  ///< Mesh for a screen. Used to render the clouds.
     Mesh cubemap; ///< Mesh for a cubemap. Used to render the sky.
+
+    Texture texRock;       ///< Tileable rocky texture.
+    Texture texRockSmooth; ///< Smoother tileable rocky texture.
+    Texture texGrass;      ///< Tileable grass texture.
+    Texture texGrassDark;  ///< Darker tileable grass texture.
+    Texture texSnow;       ///< Tileable snow texture.
 
     struct Water {
         float deltaNormal = 0.01f;
