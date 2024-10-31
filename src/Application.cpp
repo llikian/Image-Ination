@@ -103,9 +103,17 @@ Application::Application(Window window)
     };
     sTerrain = new Shader(paths, 4);
 
-    paths[2] = "shaders/water/water.tese";
-    paths[3] = "shaders/water/water.frag";
+    //water made with multiple noises
+    /*
+    paths[2] = "shaders/water/noise_water.tese";
+    paths[3] = "shaders/water/noise_water.frag";
     sWater = new Shader(paths, 4);
+    */
+
+    //water made with ray matching
+    paths[0] = "shaders/water/water.vert";
+    paths[1] = "shaders/water/water.frag";
+    sWater = new Shader(paths, 2);
 
     paths[0] = "shaders/clouds/clouds.vert";
     paths[1] = "shaders/clouds/clouds.frag";
@@ -162,10 +170,6 @@ void Application::runMinas() {
         sSky->setUniform("cameraPos", cameraPos);
         drawSkybox();
 
-        /**** Terrain ****/
-        sTerrain->use();
-        updateTerrainUniforms();
-
         /**** Water ****/
         sWater->use();
         updateWaterUniforms();
@@ -173,7 +177,6 @@ void Application::runMinas() {
 
         debugWindow();
         if(isCursorVisible) {
-            terrainWindow();
             waterWindow();
         }
 
@@ -366,7 +369,7 @@ void Application::waterWindow() {
     ImGui::End();
 }
 
-void Application::drawWater() {
+void Application::drawNoiseWater() {
     for(int x = 0 ; x <= water.chunks ; ++x) {
         for(int z = 0 ; z <= water.chunks ; ++z) {
             sWater->setUniform("chunk",
@@ -377,7 +380,12 @@ void Application::drawWater() {
     }
 }
 
-void Application::updateWaterUniforms() {
+void Application::drawWater() {
+    screen.draw();
+}
+
+
+void Application::updateNoiseWaterUniforms() {
     sWater->setUniform("cameraPos", cameraPos);
     sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
     sWater->setUniform("deltaNormal", water.deltaNormal);
@@ -386,6 +394,15 @@ void Application::updateWaterUniforms() {
     sWater->setUniform("cameraChunk", cameraChunk);
     sWater->setUniform("time", time);
 }
+
+void Application::updateWaterUniforms() {
+    sWater->setUniform("cameraPos", cameraPos);
+    sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
+    sWater->setUniform("time", time);
+    sWater->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+}
+
+
 
 void Application::drawClouds() {
     screen.draw();

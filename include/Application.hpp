@@ -133,10 +133,17 @@ private:
      */
     void waterWindow();
 
+    void drawNoiseWater();
+
     /**
      * @brief Draws the water.
      */
     void drawWater();
+
+    /**
+     * @brief Updates all of the noise water's shader program's uniforms.
+     */
+    void updateNoiseWaterUniforms();
 
     /**
      * @brief Updates all of the water's shader program's uniforms.
