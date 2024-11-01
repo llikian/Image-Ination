@@ -15,7 +15,7 @@ struct Ray {
 // Paramètres de couleur et de lumière
 vec3 skytop = vec3(0.0, 0.3, 0.5);
 vec3 light = normalize(vec3(0.1, 0.2, 0.9));
-vec2 cloudrange = vec2(0., -10000.);
+vec2 cloudrange = vec2(100., -10000.);
 mat3 m = mat3(0.00, 1.60, 1.20, -1.60, 0.72, -0.96, -1.20, -0.96, 1.28);
 
 // Uniformes 
@@ -60,7 +60,7 @@ void main() {
     for (float depth = 0.0; depth < 100000.0; depth += 200.0) {
         ray.position = cameraPos + ray.direction * depth;
         if (cloudrange.x > ray.position.y && ray.position.y > cloudrange.y) {
-            float alpha = smoothstep(0.2, 0.9, fbm(vec3(ray.position.x * 0.00008, 0.0, ray.position.z * 0.00008)));
+            float alpha = smoothstep(0.5, 0.9, fbm(ray.position * 0.000050)); //modifier densité nuage
             vec3 localcolor = mix(vec3(1.0, 1.0, 1.0), vec3(0.6, 0.6, 0.6), alpha);
             alpha = (1.0 - sum.a) * alpha;
             sum += vec4(localcolor * alpha, alpha);

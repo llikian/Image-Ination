@@ -9,7 +9,7 @@
 #include <glm/trigonometric.hpp>
 
 Camera::Camera(const vec3& position)
-    : movementSpeed(50.0f),
+    : movementSpeed(2000.0f),
       position(position),
       worldUp(0.0f, 1.0f, 0.0f),
       view(1.0f) {
