@@ -3,7 +3,7 @@
  * @brief Tesselation evaluation shader for rendering water
  **************************************************************************************************/
 
-#version 460 core
+#version 420 core
 
 layout(quads, fractional_even_spacing, ccw) in;
 

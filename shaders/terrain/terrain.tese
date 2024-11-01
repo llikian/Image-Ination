@@ -3,7 +3,7 @@
  * @brief Tesselation evaluation shader for rendering the terrain
  **************************************************************************************************/
 
-#version 460 core
+#version 420 core
 
 layout (quads) in;
 

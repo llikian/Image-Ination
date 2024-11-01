@@ -3,7 +3,7 @@
  * @brief Vertex shader for rendering the sky
  **************************************************************************************************/
 
-#version 460 core
+#version 420 core
 
 layout(location = 0) in vec3 aPos;
 

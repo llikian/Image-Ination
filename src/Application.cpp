@@ -22,7 +22,7 @@ Window initLibraries() {
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     window.window = glfwCreateWindow(window.width, window.height, "Image-Ination", nullptr,
@@ -73,7 +73,7 @@ Window initLibraries() {
     ImGui::StyleColorsDark();
     ImGui::GetIO().IniFilename = "lib/imgui/imgui.ini";
     ImGui_ImplGlfw_InitForOpenGL(window.window, true);
-    ImGui_ImplOpenGL3_Init("#version 460");
+    ImGui_ImplOpenGL3_Init("#version 420");
 
     return window;
 }
@@ -410,6 +410,11 @@ void Application::drawClouds() {
 
 void Application::updateCloudsUniforms() {
     sClouds->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+    sClouds->setUniform("cameraPos", cameraPos);
+    sClouds->setUniform("cameraFront", camera.getDirection());
+    sClouds->setUniform("cameraRight", camera.getRight());
+    sClouds->setUniform("cameraUp", camera.getUp());
+    
 }
 
 void Application::drawSkybox() {

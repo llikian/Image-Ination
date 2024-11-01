@@ -3,7 +3,7 @@
  * @brief Tesselation control shader for rendering the terrain
  **************************************************************************************************/
 
-#version 460 core
+#version 420 core
 
 layout (vertices = 4) out;
 
