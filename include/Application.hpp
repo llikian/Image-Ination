@@ -133,6 +133,9 @@ private:
      */
     void waterWindow();
 
+    /**
+     * @brief Draws the noise water.
+     */
     void drawNoiseWater();
 
     /**

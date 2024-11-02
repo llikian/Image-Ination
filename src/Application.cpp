@@ -381,9 +381,12 @@ void Application::drawNoiseWater() {
 }
 
 void Application::drawWater() {
-    screen.draw();
-}
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
+    screen.draw();
+
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
+}
 
 void Application::updateNoiseWaterUniforms() {
     sWater->setUniform("cameraPos", cameraPos);
@@ -402,10 +405,12 @@ void Application::updateWaterUniforms() {
     sWater->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
 }
 
-
-
 void Application::drawClouds() {
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+
     screen.draw();
+
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
 }
 
 void Application::updateCloudsUniforms() {
