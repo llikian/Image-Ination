@@ -3,7 +3,7 @@
  * @brief Fragment shader for rendering the sky
  **************************************************************************************************/
 
-#version 460 core
+#version 420 core
 
 in vec3 position;
 

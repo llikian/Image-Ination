@@ -3,7 +3,7 @@
  * @brief Fragment shader for rendering the terrain
  **************************************************************************************************/
 
-#version 460 core
+#version 420 core
 
 in vec3 position;
 in vec3 normal;
@@ -83,5 +83,5 @@ float fogFactor(float minDistance, float maxDistance) {
 
 void main() {
     fragColor.rgb = phongLighting() * getTextureColor();
-    fragColor.a = isFogActive ? fogFactor(totalTerrainWidth * 0.8f, totalTerrainWidth * 0.9f) : 1.0f;
+    fragColor.a = isFogActive ? fogFactor(totalTerrainWidth * 0.6f, totalTerrainWidth * 0.7f) : 1.0f;
 }

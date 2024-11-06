@@ -134,9 +134,19 @@ private:
     void waterWindow();
 
     /**
+     * @brief Draws the noise water.
+     */
+    void drawNoiseWater();
+
+    /**
      * @brief Draws the water.
      */
     void drawWater();
+
+    /**
+     * @brief Updates all of the noise water's shader program's uniforms.
+     */
+    void updateNoiseWaterUniforms();
 
     /**
      * @brief Updates all of the water's shader program's uniforms.
@@ -181,14 +191,14 @@ private:
     Shader* sClouds;  ///< The shader program for rendering the clouds.
     Shader* sSky;     ///< The shader program for rendering the sky.
 
+    Terrain terrain; ///< Contains all the data needed to render the terrain.
+
     mat4 projection; ///< The projection matrix.
     mat4 vpMatrix;   ///< The view/projection matrix.
 
     Camera camera;         ///< A first person camera to move around the scene.
     const vec3& cameraPos; ///< The camera's position.
     vec2 cameraChunk;      ///< The chunk the camera is in.
-
-    Terrain terrain; ///< Contains all the data needed to render the terrain.
 
     Mesh grid;    ///< Mesh for a grid. Used to render the terrain.
     Mesh plane;   ///< Mesh for a plane. Used to render a chunk.

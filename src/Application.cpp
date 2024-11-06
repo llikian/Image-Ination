@@ -22,7 +22,7 @@ Window initLibraries() {
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     window.window = glfwCreateWindow(window.width, window.height, "Image-Ination", nullptr,
@@ -73,7 +73,7 @@ Window initLibraries() {
     ImGui::StyleColorsDark();
     ImGui::GetIO().IniFilename = "lib/imgui/imgui.ini";
     ImGui_ImplGlfw_InitForOpenGL(window.window, true);
-    ImGui_ImplOpenGL3_Init("#version 460");
+    ImGui_ImplOpenGL3_Init("#version 420");
 
     return window;
 }
@@ -85,7 +85,8 @@ Application::Application(Window window)
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
       sTerrain(nullptr), sWater(nullptr), sClouds(nullptr), sSky(nullptr),
-      projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 4096.0f)),
+      projection(perspective(M_PI_4f, static_cast<float>(width) / height,
+                             0.1f, 2.0f * terrain.chunkSize * terrain.chunks)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
       grid(Meshes::tessGrid(terrain.chunkSize * terrain.chunks, terrain.chunks)),
@@ -102,9 +103,17 @@ Application::Application(Window window)
     };
     sTerrain = new Shader(paths, 4);
 
-    paths[2] = "shaders/water/water.tese";
-    paths[3] = "shaders/water/water.frag";
+    //water made with multiple noises
+    /*
+    paths[2] = "shaders/water/noise_water.tese";
+    paths[3] = "shaders/water/noise_water.frag";
     sWater = new Shader(paths, 4);
+    */
+
+    //water made with ray matching
+    paths[0] = "shaders/water/water.vert";
+    paths[1] = "shaders/water/water.frag";
+    sWater = new Shader(paths, 2);
 
     paths[0] = "shaders/clouds/clouds.vert";
     paths[1] = "shaders/clouds/clouds.frag";
@@ -161,10 +170,6 @@ void Application::runMinas() {
         sSky->setUniform("cameraPos", cameraPos);
         drawSkybox();
 
-        /**** Terrain ****/
-        sTerrain->use();
-        updateTerrainUniforms();
-
         /**** Water ****/
         sWater->use();
         updateWaterUniforms();
@@ -172,7 +177,6 @@ void Application::runMinas() {
 
         debugWindow();
         if(isCursorVisible) {
-            terrainWindow();
             waterWindow();
         }
 
@@ -350,7 +354,7 @@ void Application::updateTerrainUniforms() {
     sTerrain->setUniform("cameraPos", cameraPos);
     sTerrain->setUniform("cameraChunk", cameraChunk);
     sTerrain->setUniform("chunkSize", terrain.chunkSize);
-    sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize);
+    sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize / 2.0f);
     sTerrain->setUniform("lightDirection", lightDirection);
     sTerrain->setUniform("isFogActive", terrain.isFogActive);
 }
@@ -365,7 +369,7 @@ void Application::waterWindow() {
     ImGui::End();
 }
 
-void Application::drawWater() {
+void Application::drawNoiseWater() {
     for(int x = 0 ; x <= water.chunks ; ++x) {
         for(int z = 0 ; z <= water.chunks ; ++z) {
             sWater->setUniform("chunk",
@@ -376,7 +380,15 @@ void Application::drawWater() {
     }
 }
 
-void Application::updateWaterUniforms() {
+void Application::drawWater() {
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+
+    screen.draw();
+
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
+}
+
+void Application::updateNoiseWaterUniforms() {
     sWater->setUniform("cameraPos", cameraPos);
     sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
     sWater->setUniform("deltaNormal", water.deltaNormal);
@@ -386,12 +398,28 @@ void Application::updateWaterUniforms() {
     sWater->setUniform("time", time);
 }
 
+void Application::updateWaterUniforms() {
+    sWater->setUniform("cameraPos", cameraPos);
+    sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
+    sWater->setUniform("time", time);
+    sWater->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+}
+
 void Application::drawClouds() {
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+
     screen.draw();
+
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
 }
 
 void Application::updateCloudsUniforms() {
     sClouds->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+    sClouds->setUniform("cameraPos", cameraPos);
+    sClouds->setUniform("cameraFront", camera.getDirection());
+    sClouds->setUniform("cameraRight", camera.getRight());
+    sClouds->setUniform("cameraUp", camera.getUp());
+    
 }
 
 void Application::drawSkybox() {

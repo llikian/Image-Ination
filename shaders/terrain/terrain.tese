@@ -3,7 +3,7 @@
  * @brief Tesselation evaluation shader for rendering the terrain
  **************************************************************************************************/
 
-#version 460 core
+#version 420 core
 
 layout (quads) in;
 
@@ -16,7 +16,6 @@ out float maxHeight;
 
 uniform mat4 vpMatrix;
 uniform float chunkSize;
-uniform float totalTerrainWidth;
 
 float fade(in float x) {
     float x3 = x * x * x;
@@ -94,7 +93,7 @@ void main() {
 
     position = getPosition(gl_TessCoord.xy);
     normal = normalize(cross(p1 - position, p2 - position));
-    texCoords = mod(position.xz + totalTerrainWidth * 0.5f, chunkSize) / chunkSize;
+    texCoords = gl_TessCoord.xy;
 
     gl_Position = vpMatrix * vec4(position, 1.0f);
 }
