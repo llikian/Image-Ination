@@ -77,6 +77,7 @@ vec3 getTextureColor() {
 float fogFactor(float minDistance, float maxDistance) {
     float dist = distance(position.xz, cameraPos.xz);
     float fogFactor = (maxDistance - dist) / (maxDistance - minDistance);
+
     return clamp(exp(fogFactor), 0.0f, 1.0f);
 }
 

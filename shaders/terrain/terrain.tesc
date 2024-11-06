@@ -10,6 +10,8 @@ layout (vertices = 4) out;
 uniform vec2 cameraChunk;
 uniform float chunkSize;
 
+// TODO: Find a way to create faces that avoid gaps when two different tesselation levels are next to each other
+
 vec2 getChunk(int id) {
     vec2 chunk = gl_in[id].gl_Position.xz + gl_in[id + 1].gl_Position.xz;
     chunk += gl_in[id + 2].gl_Position.xz + gl_in[id + 3].gl_Position.xz;
