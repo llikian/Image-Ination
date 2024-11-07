@@ -63,12 +63,15 @@ vec3 getTextureColor() {
         vec3(0.500f, 0.720f, 1.000f)
     };
 
+    float t;
+    bool under;
     for (int i = 0; i < 4; i++) {
-        if (height < heights[i].y) {
-            color += textures[i] * clamp((height - heights[i].x) / (heights[i].y - heights[i].x), 0.0f, 1.0f);
-        } else {
-            color += textures[i] * clamp((heights[i].z - height) / (heights[i].z - heights[i].y), 0.0f, 1.0f);
-        }
+        under = height < heights[i].y;
+
+        t = float(under) * (height - heights[i].x) / (heights[i].y - heights[i].x);
+        t += float(!under) * (heights[i].z - height) / (heights[i].z - heights[i].y);
+
+        color += textures[i] * clamp(t, 0.0f, 1.0f);
     }
 
     return color;
