@@ -59,7 +59,7 @@ float noise(in vec2 pos, in float freq, in float amp, in uint oct) {
 }
 
 float getMaxAmplitude(in float amplitude, uint octaves) {
-    return amplitude * (1.0f - 1.0f / (2 << octaves));
+    return amplitude * (1.0f - 1.0f / (2u << octaves));
 }
 
 float getHeight(in vec2 pos) {
