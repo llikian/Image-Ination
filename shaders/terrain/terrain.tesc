@@ -7,9 +7,7 @@
 
 layout (vertices = 4) out;
 
-uniform vec2 cameraChunk;
 uniform vec3 cameraPos;
-uniform float chunkSize;
 uniform float totalTerrainWidth;
 
 const int MAX_TESS_LEVEL = 48;
