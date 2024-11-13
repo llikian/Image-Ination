@@ -62,7 +62,7 @@ void main() {
         ray.position = cameraPos + ray.direction * depth + cloudHeight;
         if (cloudrange.x > ray.position.y && ray.position.y > cloudrange.y) {
             float alpha = smoothstep(0.5, 0.9, fbm(ray.position * 0.000050) ); //modifier densité nuage
-            vec3 localcolor = mix(vec3(0., 1., 0.), vec3(1., 0., 0.), alpha);
+            vec3 localcolor = mix(vec3(1.0, 1.0, 1.0), vec3(0.6941, 0.6941, 0.6941), alpha);
             alpha = (1.0 - sum.a) * alpha;
             sum += vec4(localcolor * alpha, alpha);
         }
