@@ -33,7 +33,7 @@ class Camera {
 public:
     /**
      * @brief Constructor.
-     * @param position
+     * @param position The camera's position.
      */
     Camera(const vec3& position);
 
