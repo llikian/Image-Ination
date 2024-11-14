@@ -163,11 +163,6 @@ private:
      */
     void updateCloudsUniforms();
 
-    /**
-     * @brief Draws the skybox.
-     */
-    void drawSkybox();
-
     /**** Variables & Constants ****/
     GLFWwindow* window;  ///< GLFW window.
     unsigned int width;  ///< The width of the window in pixels.
@@ -189,7 +184,6 @@ private:
     Shader* sTerrain; ///< The shader program for rendering the terrain.
     Shader* sWater;   ///< The shader program for rendering the water.
     Shader* sClouds;  ///< The shader program for rendering the clouds.
-    Shader* sSky;     ///< The shader program for rendering the sky.
 
     Terrain terrain; ///< Contains all the data needed to render the terrain.
 
@@ -203,7 +197,6 @@ private:
     Mesh grid;    ///< Mesh for a grid. Used to render the terrain.
     Mesh plane;   ///< Mesh for a plane. Used to render a chunk.
     Mesh screen;  ///< Mesh for a screen. Used to render the clouds.
-    Mesh cubemap; ///< Mesh for a cubemap. Used to render the sky.
 
     Texture texRock;       ///< Tileable rocky texture.
     Texture texRockSmooth; ///< Smoother tileable rocky texture.

@@ -198,11 +198,10 @@ void Application::runKillian() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /**** Skybox ****/
-        sSky->use();
-        sSky->setUniform("vpMatrix", vpMatrix);
-        sSky->setUniform("cameraPos", cameraPos);
-        drawSkybox();
+        /**** Background & Clouds ****/
+        sClouds->use();
+        updateCloudsUniforms();
+        drawClouds();
 
         /**** Terrain ****/
         sTerrain->use();
@@ -344,7 +343,6 @@ void Application::terrainWindow() {
     ImGui::Begin("Terrain Options");
 
     ImGui::InputFloat3("Light Direction", &lightDirection.x);
-    ImGui::Checkbox("Fog", &terrain.isFogActive);
 
     ImGui::End();
 }
@@ -356,7 +354,6 @@ void Application::updateTerrainUniforms() {
     sTerrain->setUniform("chunkSize", terrain.chunkSize);
     sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize / 2.0f);
     sTerrain->setUniform("lightDirection", lightDirection);
-    sTerrain->setUniform("isFogActive", terrain.isFogActive);
 }
 
 void Application::waterWindow() {
@@ -406,30 +403,21 @@ void Application::updateWaterUniforms() {
 }
 
 void Application::drawClouds() {
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
     if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
     screen.draw();
 
     if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
 }
 
 void Application::updateCloudsUniforms() {
     sClouds->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
-    sClouds->setUniform("cameraPos", cameraPos);
+    sClouds->setUniform("cameraPosition", cameraPos);
     sClouds->setUniform("cameraFront", camera.getDirection());
     sClouds->setUniform("cameraRight", camera.getRight());
     sClouds->setUniform("cameraUp", camera.getUp());
-    
-}
-
-void Application::drawSkybox() {
-    glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
-    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
-
-    cubemap.draw();
-
-    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
 }
