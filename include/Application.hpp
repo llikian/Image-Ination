@@ -119,11 +119,6 @@ private:
     void debugWindow();
 
     /**
-     * @brief Configures the ImGui window to tweak the terrain's parameters.
-     */
-    void terrainWindow();
-
-    /**
      * @brief Updates all of the terrain's shader program's uniforms.
      */
     void updateTerrainUniforms();

@@ -159,10 +159,10 @@ void Application::runMinas() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /**** Background & Clouds ****/
-        sClouds->use();
-        updateCloudsUniforms();
-        drawClouds();
+//        /**** Background & Clouds ****/
+//        sClouds->use();
+//        updateCloudsUniforms();
+//        drawClouds();
 
         /**** Water ****/
         sWater->use();
@@ -202,10 +202,8 @@ void Application::runKillian() {
         updateTerrainUniforms();
         grid.draw();
 
+        /**** Debug ImGui Window ****/
         debugWindow();
-        if(isCursorVisible) {
-            terrainWindow();
-        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -330,14 +328,6 @@ void Application::debugWindow() {
     ImGui::Text("Position: (%.2f ; %.2f ; %.2f)", cameraPos.x, cameraPos.y, cameraPos.z);
     ImGui::Text("Chunk: (%.0f ; %.0f)", cameraChunk.x, cameraChunk.y);
     ImGui::InputFloat("Camera Speed", &camera.movementSpeed);
-    ImGui::End();
-}
-
-void Application::terrainWindow() {
-    ImGui::Begin("Terrain Options");
-
-    ImGui::InputFloat3("Light Direction", &lightDirection.x);
-
     ImGui::End();
 }
 
