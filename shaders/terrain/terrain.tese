@@ -17,6 +17,12 @@ out float maxHeight;
 uniform mat4 vpMatrix;
 uniform float chunkSize;
 
+struct Noise {
+    float frequency;
+    float amplitude;
+    float height;
+};
+
 float fade(in float x) {
     float x3 = x * x * x;
     return 6.0f * x3 * x * x - 15.0f * x3 * x + 10.0f * x3;
@@ -45,32 +51,41 @@ float perlinNoise(in vec2 pos) {
     return smoothLerp(nx, ny, fractPos.y);
 }
 
-float noise(in vec2 pos, in float freq, in float amp, in uint oct) {
-    float total = 0.0f;
-
-    for (uint i = 0u; i < oct; ++i) {
-        total += (perlinNoise(pos * freq) * 2.0f - 1.0f) * amp * 0.5f;
-
-        freq *= 2.0f;
-        amp /= 2.0f;
-    }
-
-    return total;
-}
-
-float getMaxAmplitude(in float amplitude, uint octaves) {
-    return amplitude * (1.0f - 1.0f / (2u << octaves));
+float noise(in vec2 pos, in float frequency, in float amplitude) {
+    return (perlinNoise(pos * frequency) * 2.0f - 1.0f) * amplitude * 0.5f;
 }
 
 float getHeight(in vec2 pos) {
-    float noisePlain = noise(pos, 0.01f, 25.0f, 8u) - 37.0f;
-    float noiseMiddle = noise(pos, 0.003f, 130.0f, 8u);
-    float noiseMountains = noise(pos, 0.004f, 250.0f, 8u) + 25.0f;
+    uint octaves = 8u;
 
-    minHeight = -getMaxAmplitude(25.0f, 8u) - 37.0f;
-    maxHeight = getMaxAmplitude(250.0f, 8u) + 25.0f;
+    Noise plains = Noise(0.01f, 25.0f, -37.0f);
+    Noise plateaux = Noise(0.003f, 130.0, 0.0f);
+    Noise mountains = Noise(0.004f, 250.0f, 25.0f);
 
-    return max(max(noisePlain, noiseMiddle), noiseMountains);
+    float heightPlain = plains.height;
+    float heightPlateau = plateaux.height;
+    float heightMountain = mountains.height;
+
+    minHeight = plains.height;
+    maxHeight = mountains.height;
+
+    for(uint i = 0 ; i < octaves ; ++i) {
+        heightPlain += noise(pos, plains.frequency, plains.amplitude);
+        plains.frequency *= 2.0f;
+        plains.amplitude /= 2.0f;
+        minHeight -= plains.amplitude;
+
+        heightPlateau += noise(pos, plateaux.frequency, plateaux.amplitude);
+        plateaux.frequency *= 2.0f;
+        plateaux.amplitude /= 2.0f;
+
+        heightMountain += noise(pos, mountains.frequency, mountains.amplitude);
+        mountains.frequency *= 2.0f;
+        mountains.amplitude /= 2.0f;
+        maxHeight += mountains.amplitude;
+    }
+
+    return max(max(heightPlain, heightPlateau), heightMountain);
 }
 
 vec3 getPosition(in vec2 uv) {
