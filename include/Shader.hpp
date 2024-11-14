@@ -188,7 +188,7 @@ private:
     void setUniform(int location, const mat4& matrix) const;
 
     unsigned int id; ///< The shader program's id.
+    std::string name; ///< The shader's name.
     std::unordered_map<std::string, int> uniforms; ///< Stores uniforms id's.
     std::unordered_map<std::string, bool> unknownUniforms; ///< Stores unknown uniforms.
-    std::string name; ///< The shader's name.
 };
