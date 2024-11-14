@@ -5,10 +5,6 @@
 
 #pragma once
 
-#include <glm/vec3.hpp>
-
-using namespace glm;
-
 /**
  * @struct Terrain
  * @brief Contains all the data needed to render the terrain.
