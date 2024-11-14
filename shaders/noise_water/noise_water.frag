@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * @file  noise_water.frag
- * @brief Fragment shader for rendering water
+ * @brief Fragment shader for rendering water with noise
  **************************************************************************************************/
 
 #version 420 core
@@ -14,22 +14,6 @@ out vec4 fragColor;
 
 uniform vec3 lightDirection;
 uniform vec3 cameraPos;
-
-float phongLighting();
-vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t);
-
-void main() {
-    float weights[4] = {-1.f, 0.3f, 0.5f, 1.f};
-    vec3 colors[4] = {
-        vec3(0.157, 0.127, 0.812),
-        vec3(0.294, 0.273, 0.871),
-        vec3(0.361, 0.575, 0.949),
-        vec3(0.761, 0.727, 0.988)
-    };
-
-    fragColor.rgb = phongLighting() * colorRamp4(colors, weights, position.y / maxHeight);
-    fragColor.a = 0.8f;
-}
 
 float phongLighting() {
     /* Ambient */
@@ -50,10 +34,24 @@ float phongLighting() {
 vec3 colorRamp4(in vec3 colors[4], in float weights[4], in float t) {
     vec3 color = vec3(0.0f);
 
-    for(int i = 0; i < 3; ++i) {
-        float w = clamp((t - weights[i]) / (weights[i+1] - weights[i]), 0.0f, 1.0f);
-        color += (step(weights[i], t) - step(weights[i+1], t)) * mix(colors[i], colors[i+1], w);
+    for (int i = 0; i < 3; ++i) {
+        float w = clamp((t - weights[i]) / (weights[i + 1] - weights[i]), 0.0f, 1.0f);
+        color += (step(weights[i], t) - step(weights[i + 1], t)) * mix(colors[i], colors[i + 1], w);
     }
 
     return color;
+}
+
+void main() {
+    float weights[4] = { -1.f, 0.3f, 0.5f, 1.f };
+    vec3 colors[4] = {
+        vec3(0.157, 0.127, 0.812),
+        vec3(0.294, 0.273, 0.871),
+        vec3(0.361, 0.575, 0.949),
+        vec3(0.761, 0.727, 0.988)
+    };
+
+    fragColor.rgb = colorRamp4(colors, weights, (position.y + maxHeight) / (maxHeight + maxHeight));
+    fragColor.rgb *= phongLighting();
+    fragColor.a = 0.6f;
 }

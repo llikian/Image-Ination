@@ -16,7 +16,6 @@
 #include "Camera.hpp"
 #include "Shader.hpp"
 #include "mesh/meshes.hpp"
-#include "Terrain.hpp"
 #include "Texture.hpp"
 
 /**
@@ -124,29 +123,19 @@ private:
     void updateTerrainUniforms();
 
     /**
-     * @brief Configures the ImGui window to tweak the water's parameters.
-     */
-    void waterWindow();
-
-    /**
-     * @brief Draws the noise water.
-     */
-    void drawNoiseWater();
-
-    /**
      * @brief Draws the water.
      */
     void drawWater();
 
     /**
-     * @brief Updates all of the noise water's shader program's uniforms.
-     */
-    void updateNoiseWaterUniforms();
-
-    /**
      * @brief Updates all of the water's shader program's uniforms.
      */
     void updateWaterUniforms();
+
+    /**
+     * @brief Updates all of the noise water's shader program's uniforms.
+     */
+    void updateNoiseWaterUniforms();
 
     /**
      * @brief Draws the clouds.
@@ -178,9 +167,11 @@ private:
 
     Shader* sTerrain; ///< The shader program for rendering the terrain.
     Shader* sWater;   ///< The shader program for rendering the water.
+    Shader* sNWater;  ///< The shader program for rendering the water made with noise.
     Shader* sClouds;  ///< The shader program for rendering the clouds.
 
-    Terrain terrain; ///< Contains all the data needed to render the terrain.
+    const float chunkSize; ///< The side length of a chunk.
+    const int chunks; ///< The side length of the chunk grid.
 
     mat4 projection; ///< The projection matrix.
     mat4 vpMatrix;   ///< The view/projection matrix.
@@ -198,10 +189,4 @@ private:
     Texture texGrass;      ///< Tileable grass texture.
     Texture texGrassDark;  ///< Darker tileable grass texture.
     Texture texSnow;       ///< Tileable snow texture.
-
-    struct Water {
-        float deltaNormal = 0.01f;
-        float chunkSize = 4.0f;
-        int chunks = 10;
-    } water;
 };

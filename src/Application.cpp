@@ -84,12 +84,12 @@ Application::Application(Window window)
       time(0.0f), delta(0.0f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
-      sTerrain(nullptr), sWater(nullptr), sClouds(nullptr),
-      projection(perspective(M_PI_4f, static_cast<float>(width) / height,
-                             0.1f, 2.0f * terrain.chunkSize * terrain.chunks)),
+      sTerrain(nullptr), sWater(nullptr), sNWater(nullptr), sClouds(nullptr),
+      chunkSize(32.0f), chunks(128),
+      projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 2.0f * chunkSize * chunks)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
-      grid(Meshes::tessGrid(terrain.chunkSize * terrain.chunks, terrain.chunks)),
+      grid(Meshes::tessGrid(chunkSize * chunks, chunks)),
       plane(Meshes::chunk()), screen(Meshes::screen()),
       texRock("data/rock.jpg"), texRockSmooth("data/rock_smooth.jpg"), texGrass("data/grass.jpg"),
       texGrassDark("data/grass_dark.png"), texSnow("data/snow.png") {
@@ -103,9 +103,9 @@ Application::Application(Window window)
     };
     sTerrain = new Shader(paths, 4, "Terrain");
 
-//    paths[2] = "shaders/water/noise_water.tese";
-//    paths[3] = "shaders/water/noise_water.frag";
-//    sWater = new Shader(paths, 4, "Noise Water);
+    paths[2] = "shaders/noise_water/noise_water.tese";
+    paths[3] = "shaders/noise_water/noise_water.frag";
+    sNWater = new Shader(paths, 4, "Noise Water");
 
     paths[0] = "shaders/water/water.vert";
     paths[1] = "shaders/water/water.frag";
@@ -133,6 +133,7 @@ Application::Application(Window window)
 Application::~Application() {
     delete sTerrain;
     delete sWater;
+    delete sNWater;
     delete sClouds;
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -165,10 +166,8 @@ void Application::runMinas() {
         updateWaterUniforms();
         drawWater();
 
+        /**** Debug ImGui Window ****/
         debugWindow();
-        if(isCursorVisible) {
-            waterWindow();
-        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -196,6 +195,11 @@ void Application::runKillian() {
         /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
+        grid.draw();
+
+        /**** Noise Water ****/
+        sNWater->use();
+        updateNoiseWaterUniforms();
         grid.draw();
 
         /**** Debug ImGui Window ****/
@@ -313,8 +317,8 @@ void Application::updateVariables() {
     delta = glfwGetTime() - time;
     time = glfwGetTime();
     vpMatrix = projection * camera.getViewMatrix();
-    cameraChunk.x = floor(0.5f + cameraPos.x / terrain.chunkSize);
-    cameraChunk.y = floor(0.5f + cameraPos.z / terrain.chunkSize);
+    cameraChunk.x = floor(0.5f + cameraPos.x / chunkSize);
+    cameraChunk.y = floor(0.5f + cameraPos.z / chunkSize);
 }
 
 void Application::debugWindow() {
@@ -331,30 +335,9 @@ void Application::updateTerrainUniforms() {
     sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
     sTerrain->setUniform("cameraPos", cameraPos);
     sTerrain->setUniform("cameraChunk", cameraChunk);
-    sTerrain->setUniform("chunkSize", terrain.chunkSize);
-    sTerrain->setUniform("totalTerrainWidth", terrain.chunks * terrain.chunkSize / 2.0f);
+    sTerrain->setUniform("chunkSize", chunkSize);
+    sTerrain->setUniform("totalTerrainWidth", chunks * chunkSize / 2.0f);
     sTerrain->setUniform("lightDirection", lightDirection);
-}
-
-void Application::waterWindow() {
-    ImGui::Begin("Water Options");
-    ImGui::SliderFloat("Delta Normal", &water.deltaNormal, 0.001f, 0.1f);
-    ImGui::InputFloat("Chunk Size", &water.chunkSize, 1.0f, 10.0f);
-    ImGui::InputInt("Chunks", &water.chunks, 2, 10);
-    ImGui::NewLine();
-    ImGui::InputFloat3("Light Direction", &lightDirection.x);
-    ImGui::End();
-}
-
-void Application::drawNoiseWater() {
-    for(int x = 0 ; x <= water.chunks ; ++x) {
-        for(int z = 0 ; z <= water.chunks ; ++z) {
-            sWater->setUniform("chunk",
-                               x - (water.chunks >> 1) + cameraChunk.x,
-                               z - (water.chunks >> 1) + cameraChunk.y);
-            plane.draw();
-        }
-    }
 }
 
 void Application::drawWater() {
@@ -366,13 +349,13 @@ void Application::drawWater() {
 }
 
 void Application::updateNoiseWaterUniforms() {
-    sWater->setUniform("cameraPos", cameraPos);
-    sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
-    sWater->setUniform("deltaNormal", water.deltaNormal);
-    sWater->setUniform("chunkSize", water.chunkSize);
-    sWater->setUniform("lightDirection", lightDirection);
-    sWater->setUniform("cameraChunk", cameraChunk);
-    sWater->setUniform("time", time);
+    sNWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
+    sNWater->setUniform("cameraPos", cameraPos);
+    sNWater->setUniform("cameraChunk", cameraChunk);
+    sNWater->setUniform("chunkSize", chunkSize);
+    sNWater->setUniform("totalTerrainWidth", chunks * chunkSize / 2.0f);
+    sNWater->setUniform("lightDirection", lightDirection);
+    sNWater->setUniform("time", time);
 }
 
 void Application::updateWaterUniforms() {
