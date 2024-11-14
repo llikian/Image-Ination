@@ -35,7 +35,9 @@ Shader::Shader(const std::string* paths, unsigned int count, const std::string& 
         char* message = new char[messageLength];
         glGetProgramInfoLog(id, messageLength, nullptr, message);
 
-        std::string errorMessage = "Failed to link shader program :\n";
+        std::string errorMessage = "Failed to link shader program '";
+        errorMessage += name;
+        errorMessage += "':\n";
         errorMessage += message;
 
         delete[] message;
@@ -100,7 +102,9 @@ unsigned int Shader::compileShader(const std::string& path) {
         char* message = new char[messageLength];
         glGetShaderInfoLog(id, messageLength, nullptr, message);
 
-        std::string errorMessage = "Failed to compile " + shaderTypeName + " shader:\n";
+        std::string errorMessage = "Failed to compile " + shaderTypeName + " shader for shader program '";
+        errorMessage += name;
+        errorMessage += "':\n";
         errorMessage += message;
 
         delete[] message;
