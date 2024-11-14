@@ -18,7 +18,6 @@ uniform vec3 cameraPos;
 uniform vec3 lightDirection;
 
 uniform float totalTerrainWidth;
-uniform bool isFogActive;
 
 uniform sampler2D texRock;
 uniform sampler2D texRockSmooth;
@@ -86,5 +85,5 @@ float fogFactor(float minDistance, float maxDistance) {
 
 void main() {
     fragColor.rgb = phongLighting() * getTextureColor();
-    fragColor.a = isFogActive ? fogFactor(totalTerrainWidth * 0.6f, totalTerrainWidth * 0.7f) : 1.0f;
+    fragColor.a = fogFactor(totalTerrainWidth * 0.6f, totalTerrainWidth * 0.7f);
 }

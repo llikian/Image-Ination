@@ -16,11 +16,8 @@ using namespace glm;
 struct Terrain {
     Terrain() :
         chunkSize(32.0f),
-        chunks(128),
-        isFogActive(true) { }
+        chunks(128) { }
 
     const float chunkSize;
     const int chunks;
-
-    bool isFogActive;
 };
