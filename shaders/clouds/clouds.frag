@@ -7,7 +7,6 @@
 
 out vec4 fragColor;
 
-in vec3 cameraPos;
 
 struct Ray {
   vec3 position;
@@ -26,6 +25,7 @@ uniform vec2 resolution;
 uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
+uniform vec3 cameraPos;
 
 float hash(float n) {
     return fract(cos(n) * 114514.1919);
@@ -53,21 +53,28 @@ float fbm(vec3 p) {
     return f;
 }
 
+vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 internColor, Ray ray, vec3 cameraPosition){
+    for (float depth = 0.0; depth < 100000.0; depth += 100.0) 
+    {
+        ray.position = cameraPosition + ray.direction * depth + cloudHeight;
+        if (cloudrange.x > ray.position.y && ray.position.y > cloudrange.y)
+        {
+            float alpha = smoothstep( densiteMin, densiteMax, fbm(ray.position * 0.000050) ); //modifier densité nuage
+            vec3 localcolor = mix(externColor, internColor, alpha);
+            alpha = (1.0 - sum.a) * alpha;
+            sum += vec4(localcolor * alpha, alpha);
+        }
+    }
+    return sum;
+}
+
 void main() {
     // Calcul des coordonnées UV
     vec2 uv = (2.0f * gl_FragCoord.xy - resolution) / resolution.y;
     Ray ray = Ray(cameraPos, normalize(cameraFront + uv.x * cameraRight + uv.y * cameraUp));
 
     vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
-    for (float depth = 0.0; depth < 100000.0; depth += 100.0) {
-        ray.position = cameraPos + ray.direction * depth + cloudHeight;
-        if (cloudrange.x > ray.position.y && ray.position.y > cloudrange.y) {
-            float alpha = smoothstep(0.5, 0.9, fbm(ray.position * 0.000050) ); //modifier densité nuage
-            vec3 localcolor = mix(vec3(1.0, 1.0, 1.0), vec3(0.6941, 0.6941, 0.6941), alpha);
-            alpha = (1.0 - sum.a) * alpha;
-            sum += vec4(localcolor * alpha, alpha);
-        }
-    }
+    sum = cloud(sum, 0.5,0.9,vec3(1., 1., 1.), vec3(0.8, 0.8, 0.8), ray, cameraPos);
 
     float alpha = smoothstep(0.4, 1.0, sum.a);
     sum.rgb /= sum.a + 0.0001;

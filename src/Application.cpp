@@ -379,7 +379,7 @@ void Application::drawClouds() {
 
 void Application::updateCloudsUniforms() {
     sClouds->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
-    sClouds->setUniform("cameraPosition", cameraPos);
+    sClouds->setUniform("cameraPos", cameraPos);
     sClouds->setUniform("cameraFront", camera.getDirection());
     sClouds->setUniform("cameraRight", camera.getRight());
     sClouds->setUniform("cameraUp", camera.getUp());
