@@ -63,12 +63,12 @@ float getMaxAmplitude(in float amplitude, uint octaves) {
 }
 
 float getHeight(in vec2 pos) {
-    float noisePlain = noise(pos, 0.01f, 25.0f, 8u);
+    float noisePlain = noise(pos, 0.01f, 25.0f, 8u) - 37.0f;
     float noiseMiddle = noise(pos, 0.003f, 130.0f, 8u);
-    float noiseMountains = noise(pos, 0.005f, 200.0f, 8u) + 30.0f;
+    float noiseMountains = noise(pos, 0.004f, 250.0f, 8u) + 25.0f;
 
-    minHeight = -getMaxAmplitude(25.0f, 8u);
-    maxHeight = getMaxAmplitude(200.0f, 8u) + 30.0f;
+    minHeight = -getMaxAmplitude(25.0f, 8u) - 37.0f;
+    maxHeight = getMaxAmplitude(250.0f, 8u) + 25.0f;
 
     return max(max(noisePlain, noiseMiddle), noiseMountains);
 }
