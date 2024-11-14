@@ -44,7 +44,7 @@ public:
      * @param path The path to the shader file.
      * @return The shader's corresponding id.
      */
-    static unsigned int compileShader(const std::string& path);
+    unsigned int compileShader(const std::string& path);
 
     /**
      * @brief Uses the shader program.
