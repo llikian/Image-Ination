@@ -84,13 +84,13 @@ Application::Application(Window window)
       time(0.0f), delta(0.0f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
-      sTerrain(nullptr), sWater(nullptr), sClouds(nullptr), sSky(nullptr),
+      sTerrain(nullptr), sWater(nullptr), sClouds(nullptr),
       projection(perspective(M_PI_4f, static_cast<float>(width) / height,
                              0.1f, 2.0f * terrain.chunkSize * terrain.chunks)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
       grid(Meshes::tessGrid(terrain.chunkSize * terrain.chunks, terrain.chunks)),
-      plane(Meshes::chunk()), screen(Meshes::screen()), cubemap(Meshes::cubemap()),
+      plane(Meshes::chunk()), screen(Meshes::screen()),
       texRock("data/rock.jpg"), texRockSmooth("data/rock_smooth.jpg"), texGrass("data/grass.jpg"),
       texGrassDark("data/grass_dark.png"), texSnow("data/snow.png") {
 
@@ -119,10 +119,6 @@ Application::Application(Window window)
     paths[1] = "shaders/clouds/clouds.frag";
     sClouds = new Shader(paths, 2);
 
-    paths[0] = "shaders/sky/sky.vert";
-    paths[1] = "shaders/sky/sky.frag";
-    sSky = new Shader(paths, 2);
-
     /**** Bind Textures ****/
     sTerrain->use();
 
@@ -142,7 +138,6 @@ Application::~Application() {
     delete sTerrain;
     delete sWater;
     delete sClouds;
-    delete sSky;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -164,11 +159,10 @@ void Application::runMinas() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /**** Skybox ****/
-        sSky->use();
-        sSky->setUniform("vpMatrix", vpMatrix);
-        sSky->setUniform("cameraPos", cameraPos);
-        drawSkybox();
+        /**** Background & Clouds ****/
+        sClouds->use();
+        updateCloudsUniforms();
+        drawClouds();
 
         /**** Water ****/
         sWater->use();
