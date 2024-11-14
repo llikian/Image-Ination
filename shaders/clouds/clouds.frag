@@ -7,6 +7,8 @@
 
 out vec4 fragColor;
 
+in vec3 cameraPos;
+
 struct Ray {
   vec3 position;
   vec3 direction;
@@ -21,7 +23,6 @@ mat3 m = mat3(0.00, 1.60, 1.20, -1.60, 0.72, -0.96, -1.20, -0.96, 1.28);
 
 // Uniformes 
 uniform vec2 resolution;
-uniform vec3 cameraPos;
 uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
