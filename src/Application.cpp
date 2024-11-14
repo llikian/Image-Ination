@@ -103,14 +103,10 @@ Application::Application(Window window)
     };
     sTerrain = new Shader(paths, 4, "Terrain");
 
-    //water made with multiple noises
-    /*
-    paths[2] = "shaders/water/noise_water.tese";
-    paths[3] = "shaders/water/noise_water.frag";
-    sWater = new Shader(paths, 4);
-    */
+//    paths[2] = "shaders/water/noise_water.tese";
+//    paths[3] = "shaders/water/noise_water.frag";
+//    sWater = new Shader(paths, 4, "Noise Water);
 
-    //water made with ray matching
     paths[0] = "shaders/water/water.vert";
     paths[1] = "shaders/water/water.frag";
     sWater = new Shader(paths, 2, "Water");
