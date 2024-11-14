@@ -9,8 +9,14 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader(const std::string* paths, unsigned int count) {
-    id = glCreateProgram();
+Shader::Shader(const std::string* paths, unsigned int count, const std::string& name = "") :
+    id(glCreateProgram()),
+    name(name) {
+
+    /**** Shader Name ****/
+    if(name.size() == 0) {
+        this->name = "shader" + std::to_string(id);
+    }
 
     /**** Shaders ****/
     unsigned int shaderID;

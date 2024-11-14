@@ -101,7 +101,7 @@ Application::Application(Window window)
         "shaders/terrain/terrain.tese",
         "shaders/terrain/terrain.frag"
     };
-    sTerrain = new Shader(paths, 4);
+    sTerrain = new Shader(paths, 4, "Terrain");
 
     //water made with multiple noises
     /*
@@ -113,11 +113,11 @@ Application::Application(Window window)
     //water made with ray matching
     paths[0] = "shaders/water/water.vert";
     paths[1] = "shaders/water/water.frag";
-    sWater = new Shader(paths, 2);
+    sWater = new Shader(paths, 2, "Water");
 
     paths[0] = "shaders/clouds/clouds.vert";
     paths[1] = "shaders/clouds/clouds.frag";
-    sClouds = new Shader(paths, 2);
+    sClouds = new Shader(paths, 2, "Clouds");
 
     /**** Bind Textures ****/
     sTerrain->use();

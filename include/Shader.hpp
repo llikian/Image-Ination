@@ -14,6 +14,8 @@
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
+#include <hash_map>
+
 using namespace glm;
 
 /**
@@ -30,7 +32,7 @@ public:
      * @param paths The paths to each of the different shaders.
      * @param count The amount of shaders to attach.
      */
-    Shader(const std::string* paths, unsigned int count);
+    Shader(const std::string* paths, unsigned int count, const std::string& name);
 
     /**
      * @brief Deletes the shader program.
@@ -60,11 +62,16 @@ public:
      * @param value The new value of the uniform.
      */
     template<typename... Value>
-    void setUniform(const std::string& uniform, Value... value) const {
+    void setUniform(const std::string& uniform, Value... value) {
         try {
             setUniform(uniforms.at(uniform), value...);
         } catch(const std::exception&) {
-            std::cout << "The uniform named '" << uniform << "' is unknown.\n";
+            if(!unknownUniforms.contains(uniform)) {
+                std::cout << "The uniform named '" << uniform << "' is unknown or unused";
+                std::cout << " in shader program '" << name << "'.\n";
+
+                unknownUniforms.emplace(uniform, true);
+            }
         }
     }
 
@@ -182,4 +189,6 @@ private:
 
     unsigned int id; ///< The shader program's id.
     std::unordered_map<std::string, int> uniforms; ///< Stores uniforms id's.
+    std::unordered_map<std::string, bool> unknownUniforms; ///< Stores unknown uniforms.
+    std::string name; ///< The shader's name.
 };
