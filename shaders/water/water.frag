@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * @file  water.frag
- * @brief Fragment shader for rendering the sky
+ * @brief Fragment shader for rendering the water
  **************************************************************************************************/
 
 #version 420 core
