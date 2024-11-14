@@ -159,10 +159,10 @@ void Application::runMinas() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        /**** Background & Clouds ****/
-//        sClouds->use();
-//        updateCloudsUniforms();
-//        drawClouds();
+        /**** Background & Clouds ****/
+        sClouds->use();
+        updateCloudsUniforms();
+        drawClouds();
 
         /**** Water ****/
         sWater->use();
