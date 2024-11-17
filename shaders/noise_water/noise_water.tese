@@ -11,6 +11,7 @@ out vec3 position;
 out vec3 normal;
 out vec2 texCoords;
 
+out float minHeight;
 out float maxHeight;
 
 uniform mat4 vpMatrix;
@@ -52,33 +53,32 @@ float perlinNoise(in vec2 pos) {
     return smoothLerp(nx, ny, fractPos.y);
 }
 
-float noise(in vec2 pos, in float freq, in float amp, in uint oct) {
-    float total = 0.0f;
+float getHeight(in vec2 pos) {
+    float freq = 0.05f;
+    float amp = 5.0f;
+    uint octaves = 4u;
 
-    maxHeight = 0.0f;
+    float total = 10.0f;
+    minHeight = 10.0f;
+    maxHeight = 10.0f;
 
-    for (uint i = 0u; i < oct; ++i) {
-        total += perlinNoise(pos * freq + 0.62 * time) * 0.75 * amp;
-        total += perlinNoise(pos * freq - 0.12 * time) * 0.6 * amp;
+    for (uint i = 0u; i < octaves; ++i) {
+        total += perlinNoise(pos * freq + 0.62f * time) * 0.75f * amp;
+        total += perlinNoise(pos * freq - 0.12f * time) * 0.60f * amp;
 
-        total += perlinNoise(vec2(pos.x * freq + 0.39 * time, pos.y * freq - 0.59 * time)) * 0.125 * amp;
-        total += perlinNoise(vec2(pos.x * freq - 0.69 * time, pos.y * freq + 0.29 * time)) * 0.25 * amp;
+        total += perlinNoise(vec2(pos.x * freq + 0.39f * time, pos.y * freq - 0.59f * time)) * 0.125f * amp;
+        total += perlinNoise(vec2(pos.x * freq - 0.69f * time, pos.y * freq + 0.29f * time)) * 0.250f * amp;
 
-        total /= 4;
+        maxHeight += 0.75f * amp;
+        maxHeight += 0.60f * amp;
+        maxHeight += 0.125f * amp;
+        maxHeight += 0.250f * amp;
 
-        maxHeight += amp;
         freq *= 2.0f;
         amp /= 2.0f;
     }
 
-    maxHeight += 7;
-    total += 7;
-
     return total;
-}
-
-float getHeight(in vec2 pos) {
-    return noise(pos, 0.05f, 20.0f, 2u);
 }
 
 vec3 getPosition(in vec2 uv) {

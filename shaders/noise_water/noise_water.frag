@@ -8,6 +8,7 @@
 in vec3 position;
 in vec3 normal;
 
+in float minHeight;
 in float maxHeight;
 
 out vec4 fragColor;
@@ -24,9 +25,10 @@ float phongLighting() {
     float diffuse = max(dot(normal, lightDir), 0.0f);
 
     /* Specular */
-    vec3 viewDirection = normalize(cameraPos - position);
-    vec3 reflectionDir = reflect(-lightDir, normal);
-    float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
+//    vec3 viewDirection = normalize(cameraPos - position);
+//    vec3 reflectionDir = reflect(-lightDir, normal);
+//    float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 16.0f);
+    float specular = 0.0f;
 
     return ambient + diffuse + specular;
 }
@@ -51,7 +53,7 @@ void main() {
         vec3(0.761, 0.727, 0.988)
     };
 
-    fragColor.rgb = colorRamp4(colors, weights, (position.y + maxHeight) / (maxHeight + maxHeight));
+    fragColor.rgb = colorRamp4(colors, weights, (position.y - minHeight) / (maxHeight - minHeight));
     fragColor.rgb *= phongLighting();
     fragColor.a = 0.6f;
 }
