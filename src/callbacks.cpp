@@ -17,14 +17,6 @@ void keyCallback(GLFWwindow* /* window */, int key, int /* scancode */, int acti
     app.handleKeyCallback(key, action, mods);
 }
 
-//void mouseButtonCallback(GLFWwindow* /* window */, int button, int action, int mods) {
-//
-//}
-
 void cursorPositionCallback(GLFWwindow* /* window */, double xPos, double yPos) {
     app.handleCursorPositionEvent(xPos, yPos);
 }
-
-//void scrollCallback(GLFWwindow* /* window */, double xOffset, double yOffset) {
-//
-//}
