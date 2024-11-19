@@ -5,94 +5,38 @@
 
 #include "Application.hpp"
 
-#include "callbacks.hpp"
+#include <stdexcept>
+
 #include <glm/gtc/matrix_transform.hpp>
+
 #include "imgui.h"
-#include "misc/cpp/imgui_stdlib.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "misc/cpp/imgui_stdlib.h"
 #include "mesh/meshes.hpp"
 
-Window initLibraries() {
-    Window window{nullptr, 1600, 800};
-
-    /**** GLFW ****/
-    if(!glfwInit()) {
-        throw std::runtime_error("Failed to initialize GLFW.");
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    window.window = glfwCreateWindow(window.width, window.height, "Image-Ination", nullptr,
-                                     nullptr);
-    if(!window.window) {
-        throw std::runtime_error("Failed to create window.");
-    }
-
-    glfwMakeContextCurrent(window.window);
-    glfwMaximizeWindow(window.window);
-    glfwSetInputMode(window.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSwapInterval(0);
-
-    /**** Actual Width / Height ****/
-    int w, h;
-    glfwGetWindowSize(window.window, &w, &h);
-    window.width = w;
-    window.height = h;
-
-    /**** GLFW Callbacks ****/
-    glfwSetWindowSizeCallback(window.window, windowSizeCallback);
-    glfwSetFramebufferSizeCallback(window.window, frameBufferSizeCallback);
-    glfwSetKeyCallback(window.window, keyCallback);
-    glfwSetCursorPosCallback(window.window, cursorPositionCallback);
-
-    /**** GLAD ****/
-    if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        throw std::runtime_error("Failed to initialize GLAD.");
-    }
-
-    /**** OpenGL ****/
-    glViewport(0, 0, window.width, window.height);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glActiveTexture(GL_TEXTURE0);
-    glPatchParameteri(GL_PATCH_VERTICES, 4);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-
-    // Sets the default texture to a plain white color
-    const unsigned char white[3]{255, 255, 255};
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, white);
-
-    /**** ImGui ****/
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-    ImGui::GetIO().IniFilename = "lib/imgui/imgui.ini";
-    ImGui_ImplGlfw_InitForOpenGL(window.window, true);
-    ImGui_ImplOpenGL3_Init("#version 420");
-
-    return window;
-}
-
-Application::Application(Window window)
-    : window(window.window), width(window.width), height(window.height),
-      mousePos(width / 2.0f, height / 2.0f),
+Application::Application()
+    : window(),
       time(0.0f), delta(0.0f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
       sTerrain(nullptr), sWater(nullptr), sNWater(nullptr), sClouds(nullptr),
       chunkSize(32.0f), chunks(128),
-      projection(perspective(M_PI_4f, static_cast<float>(width) / height, 0.1f, 2.0f * chunkSize * chunks)),
+      projection(perspective(M_PI_4f, window.getRatio(), 0.1f, 2.0f * chunkSize * chunks)),
       camera(vec3(0.0f, 20.0f, 0.0f)),
       cameraPos(camera.getPositionReference()),
       grid(Meshes::tessGrid(chunkSize * chunks, chunks)),
       plane(Meshes::chunk()), screen(Meshes::screen()),
       texRock("data/rock.jpg"), texRockSmooth("data/rock_smooth.jpg"), texGrass("data/grass.jpg"),
       texGrassDark("data/grass_dark.png"), texSnow("data/snow.png") {
+
+    /**** ImGui ****/
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui::GetIO().IniFilename = "lib/imgui/imgui.ini";
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 420");
 
     /**** Shaders ****/
     std::string paths[4]{
@@ -115,7 +59,7 @@ Application::Application(Window window)
     paths[1] = "shaders/clouds/clouds.frag";
     sClouds = new Shader(paths, 2, "Clouds");
 
-    /**** Bind Textures ****/
+    /**** Textures ****/
     sTerrain->use();
 
     sTerrain->setUniform("texRock", 0);
@@ -139,9 +83,6 @@ Application::~Application() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 }
 
 void Application::runMinas() {
@@ -175,7 +116,7 @@ void Application::runMinas() {
     }
 }
 
-void Application::runKillian() {
+void Application::run() {
     while(!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -211,35 +152,9 @@ void Application::runKillian() {
     }
 }
 
-void Application::runRaph() {
-    while(!glfwWindowShouldClose(window)) {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        handleEvents();
-
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        delta = glfwGetTime() - time;
-        time = glfwGetTime();
-
-        sClouds->use();
-        updateCloudsUniforms();
-        drawClouds();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
-    }
-}
-
 void Application::setWindowSize(int width, int height) {
-    this->width = width;
-    this->height = height;
-
-    projection[0][0] = 1.0f / (tanf(M_PI_4f / 2.0f) * static_cast<float>(width) / height);
+    window.updateSize(width, height);
+    projection[0][0] = 1.0f / (tanf(M_PI_4f / 2.0f) * window.getRatio());
 }
 
 void Application::handleKeyCallback(int key, int action, int /* mods */) {
@@ -359,10 +274,10 @@ void Application::updateNoiseWaterUniforms() {
 }
 
 void Application::updateWaterUniforms() {
+    sWater->setUniform("resolution", window.getResolution());
     sWater->setUniform("cameraPos", cameraPos);
     sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
     sWater->setUniform("time", time);
-    sWater->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
 }
 
 void Application::drawClouds() {
@@ -378,7 +293,7 @@ void Application::drawClouds() {
 }
 
 void Application::updateCloudsUniforms() {
-    sClouds->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+    sClouds->setUniform("resolution", window.getResolution());
     sClouds->setUniform("cameraPos", cameraPos);
     sClouds->setUniform("cameraFront", camera.getDirection());
     sClouds->setUniform("cameraRight", camera.getRight());
