@@ -13,7 +13,7 @@ using namespace glm;
 
 /**
  * @class Window
- * @brief
+ * @brief Handles initializing OpenGL, GLAD and GLFW and creates the window.
  */
 class Window {
 public:

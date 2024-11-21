@@ -187,8 +187,7 @@ void Application::handleKeyboardEvents() {
                     glfwSetWindowShouldClose(window, true);
                     break;
                 case GLFW_KEY_TAB:
-                    glfwSetInputMode(window, GLFW_CURSOR, isCursorVisible ? GLFW_CURSOR_DISABLED
-                                                                          : GLFW_CURSOR_NORMAL);
+                    glfwSetInputMode(window, GLFW_CURSOR, isCursorVisible ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
                     isCursorVisible = !isCursorVisible;
 
                     keys[key] = false;
