@@ -52,7 +52,7 @@ float perlinNoise(in vec2 pos) {
 }
 
 float getNoise(in vec2 pos, in Noise noise) {
-    return (perlinNoise(pos * noise.frequency) * 2.0f - 1.0f) * noise.amplitude * 0.5f;
+    return (perlinNoise(pos * noise.frequency) - 0.5f) * noise.amplitude;
 }
 
 float getHeight(in vec2 pos) {
