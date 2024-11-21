@@ -294,7 +294,7 @@ void Application::drawClouds() {
 
 void Application::updateCloudsUniforms() {
     sClouds->setUniform("resolution", window.getResolution());
-    sClouds->setUniform("cameraPos", cameraPos);
+    sClouds->setUniform("cameraPosition", cameraPos);
     sClouds->setUniform("cameraFront", camera.getDirection());
     sClouds->setUniform("cameraRight", camera.getRight());
     sClouds->setUniform("cameraUp", camera.getUp());
