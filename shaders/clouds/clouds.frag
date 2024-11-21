@@ -5,13 +5,9 @@
 
 #version 420 core
 
+in vec3 cameraPos;
+
 out vec4 fragColor;
-
-
-struct Ray {
-  vec3 position;
-  vec3 direction;
-};
 
 // Paramètres de couleur et de lumière
 vec3 skytop = vec3(0.1, 0.5, 0.9);
@@ -25,7 +21,6 @@ uniform vec2 resolution;
 uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
-uniform vec3 cameraPos;
 
 float hash(float n) {
     return fract(cos(n) * 114514.1919);
@@ -53,32 +48,45 @@ float fbm(vec3 p) {
     return f;
 }
 
-vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 internColor, Ray ray, vec3 cameraPosition){
-    for (float depth = 0.0; depth < 100000.0; depth += 100.0) 
-    {
-        ray.position = cameraPosition + ray.direction * depth + cloudHeight;
-        if (cloudrange.x > ray.position.y && ray.position.y > cloudrange.y)
-        {
-            float alpha = smoothstep( densiteMin, densiteMax, fbm(ray.position * 0.000050) ); //modifier densité nuage
+vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 internColor, vec3 direction) {
+    vec3 position;
+
+    for (float depth = 0.0; depth < 100000.0; depth += 100.0) {
+        position = cameraPos + direction * depth + cloudHeight;
+
+        if (cloudrange.x > position.y && position.y > cloudrange.y) {
+            float alpha = smoothstep(densiteMin, densiteMax, fbm(position * 0.000050)); //modifier densité nuage
             vec3 localcolor = mix(externColor, internColor, alpha);
             alpha = (1.0 - sum.a) * alpha;
             sum += vec4(localcolor * alpha, alpha);
         }
     }
+
     return sum;
+}
+
+mat3 setCamera( in vec3 ro, in vec3 ta, float cr ) {
+    vec3 cw = normalize(ta-ro);
+    vec3 cp = vec3(sin(cr), cos(cr),0.0);
+    vec3 cu = normalize( cross(cw,cp) );
+    vec3 cv =          ( cross(cu,cw) );
+    return mat3( cu, cv, cw );
 }
 
 void main() {
     // Calcul des coordonnées UV
     vec2 uv = (2.0f * gl_FragCoord.xy - resolution) / resolution.y;
-    Ray ray = Ray(cameraPos, normalize(cameraFront + uv.x * cameraRight + uv.y * cameraUp));
+//    vec3 direction = normalize(cameraFront + uv.x * cameraRight + uv.y * cameraUp);
+
+    mat3 camera = mat3(cameraRight, cameraUp, cameraFront);
+    vec3 direction = camera * normalize(vec3(uv, 2.5f));
 
     vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
-    sum = cloud(sum, 0.5,0.9,vec3(1., 1., 1.), vec3(0.8, 0.8, 0.8), ray, cameraPos);
+    sum = cloud(sum, 0.5, 0.9, vec3(1., 1., 1.), vec3(0.8, 0.8, 0.8), direction);
 
     float alpha = smoothstep(0.4, 1.0, sum.a);
     sum.rgb /= sum.a + 0.0001;
-    float sundot = clamp(dot(ray.direction, light), 0.0, 1.0);
+    float sundot = clamp(dot(direction, light), 0.0, 1.0);
     vec3 col = 0.8 * (skytop);
     col += vec3(1.0, 1.0, 1.0) * pow(sundot, 350.0);
     col += 0.4 * vec3(1.0, 1.0, 1.0) * pow(sundot, 2.0);
