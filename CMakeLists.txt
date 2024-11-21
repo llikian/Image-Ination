@@ -24,6 +24,7 @@ set(SOURCES
         src/Image.cpp
         src/Shader.cpp
         src/Texture.cpp
+        src/Window.cpp
 
         src/mesh/Mesh.cpp
         src/mesh/meshes.cpp

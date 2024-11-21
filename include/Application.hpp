@@ -5,34 +5,18 @@
 
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
-#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 #include <glm/vec2.hpp>
 
 #include "Camera.hpp"
 #include "Shader.hpp"
-#include "mesh/meshes.hpp"
 #include "Texture.hpp"
+#include "Window.hpp"
+#include "mesh/Mesh.hpp"
 
-/**
- * @struct Window
- * @brief Contains the data about a window.
- */
-struct Window {
-    GLFWwindow* window;  ///< The GLFW window.
-    unsigned int width;  ///< The window's width.
-    unsigned int height; ///< The window's height.
-};
-
-/**
- * @brief Initializes GLFW, GLAD, OpenGL and ImGui.
- * @return A Window struct containing a pointer to a GLFW window, its width and its height.
- */
-Window initLibraries();
+using namespace glm;
 
 /**
  * @class Application
@@ -43,12 +27,9 @@ public:
     /**** Constructor & Destructor ****/
 
     /**
-     * @brief Sets the default value of all member variables and constants.
-     * @param window The GLFW window
-     * @param width
-     * @param height
+     * @brief Initializes the window and sets the default value of all member variables and constants.
      */
-    Application(Window window);
+    Application();
 
     /**
      * @brief Frees all allocated memory.
@@ -63,14 +44,9 @@ public:
     void runMinas();
 
     /**
-     * @brief Contains the main loop for Killian.
+     * @brief Contains the main loop.
      */
-    void runKillian();
-
-    /**
-     * @brief Contains the main loop for Raph.
-     */
-    void runRaph();
+    void run();
 
     /**
      * @brief Sets the width and height of the GLFW window.
@@ -148,9 +124,7 @@ private:
     void updateCloudsUniforms();
 
     /**** Variables & Constants ****/
-    GLFWwindow* window;  ///< GLFW window.
-    unsigned int width;  ///< The width of the window in pixels.
-    unsigned int height; ///< The height of the window in pixels.
+    Window window; ///< The GLFW window.
 
     std::unordered_map<int, bool> keys; ///< Map of the current state of keys.
 

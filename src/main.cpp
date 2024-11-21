@@ -9,16 +9,14 @@
 #include <iostream>
 #include <stdexcept>
 
-Application app(initLibraries());
+Application app;
 
 int main() {
     try {
         #if defined I_AM_MINAS
             app.runMinas();
-        #elif defined I_AM_KILLIAN
-            app.runKillian();
         #else
-            app.runRaph();
+            app.run();
         #endif
     } catch(const std::exception& exception) {
         std::cerr << "ERROR : " << exception.what() << '\n';
