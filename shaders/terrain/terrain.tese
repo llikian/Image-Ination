@@ -51,13 +51,11 @@ float perlinNoise(in vec2 pos) {
     return smoothLerp(nx, ny, fractPos.y);
 }
 
-float noise(in vec2 pos, in float frequency, in float amplitude) {
-    return (perlinNoise(pos * frequency) * 2.0f - 1.0f) * amplitude * 0.5f;
+float getNoise(in vec2 pos, in Noise noise) {
+    return (perlinNoise(pos * noise.frequency) * 2.0f - 1.0f) * noise.amplitude * 0.5f;
 }
 
 float getHeight(in vec2 pos) {
-    uint octaves = 8u;
-
     Noise plains = Noise(0.01f, 25.0f, -37.0f);
     Noise plateaux = Noise(0.003f, 130.0, 0.0f);
     Noise mountains = Noise(0.004f, 250.0f, 25.0f);
@@ -69,17 +67,17 @@ float getHeight(in vec2 pos) {
     minHeight = plains.height;
     maxHeight = mountains.height;
 
-    for(uint i = 0 ; i < octaves ; ++i) {
-        heightPlain += noise(pos, plains.frequency, plains.amplitude);
+    for(uint i = 0 ; i < 8u ; ++i) {
+        heightPlain += getNoise(pos, plains);
         plains.frequency *= 2.0f;
         plains.amplitude /= 2.0f;
         minHeight -= plains.amplitude;
 
-        heightPlateau += noise(pos, plateaux.frequency, plateaux.amplitude);
+        heightPlateau += getNoise(pos, plateaux);
         plateaux.frequency *= 2.0f;
         plateaux.amplitude /= 2.0f;
 
-        heightMountain += noise(pos, mountains.frequency, mountains.amplitude);
+        heightMountain += getNoise(pos, mountains);
         mountains.frequency *= 2.0f;
         mountains.amplitude /= 2.0f;
         maxHeight += mountains.amplitude;
