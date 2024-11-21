@@ -13,7 +13,7 @@ out vec4 fragColor;
 vec3 skytop = vec3(0.1, 0.5, 0.9);
 vec3 light = normalize(vec3(0.1, 0.2, 0.9));
 vec2 cloudrange = vec2(100., -1000.);
-vec3 cloudHeight = vec3(0., -50000., 0.);
+vec3 cloudHeight = vec3(0., -40000., 0.);
 mat3 m = mat3(0.00, 1.60, 1.20, -1.60, 0.72, -0.96, -1.20, -0.96, 1.28);
 
 // Uniformes 
@@ -65,21 +65,11 @@ vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 
     return sum;
 }
 
-mat3 setCamera( in vec3 ro, in vec3 ta, float cr ) {
-    vec3 cw = normalize(ta-ro);
-    vec3 cp = vec3(sin(cr), cos(cr),0.0);
-    vec3 cu = normalize( cross(cw,cp) );
-    vec3 cv =          ( cross(cu,cw) );
-    return mat3( cu, cv, cw );
-}
-
 void main() {
     // Calcul des coordonnées UV
     vec2 uv = (2.0f * gl_FragCoord.xy - resolution) / resolution.y;
-//    vec3 direction = normalize(cameraFront + uv.x * cameraRight + uv.y * cameraUp);
-
-    mat3 camera = mat3(cameraRight, cameraUp, cameraFront);
-    vec3 direction = camera * normalize(vec3(uv, 2.5f));
+    float focalLength = 2.5f;
+    vec3 direction = mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength));
 
     vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
     sum = cloud(sum, 0.5, 0.9, vec3(1., 1., 1.), vec3(0.8, 0.8, 0.8), direction);
