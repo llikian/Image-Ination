@@ -246,7 +246,7 @@ void Application::debugWindow() {
 }
 
 void Application::updateTerrainUniforms() {
-    sTerrain->setUniform("vpMatrix", camera.getVPmatrix(projection));
+    sTerrain->setUniform("vpMatrix", vpMatrix);
     sTerrain->setUniform("cameraPos", cameraPos);
     sTerrain->setUniform("cameraChunk", cameraChunk);
     sTerrain->setUniform("chunkSize", chunkSize);
@@ -263,7 +263,7 @@ void Application::drawWater() {
 }
 
 void Application::updateNoiseWaterUniforms() {
-    sNWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
+    sNWater->setUniform("vpMatrix", vpMatrix);
     sNWater->setUniform("cameraPos", cameraPos);
     sNWater->setUniform("cameraChunk", cameraChunk);
     sNWater->setUniform("chunkSize", chunkSize);
@@ -275,7 +275,7 @@ void Application::updateNoiseWaterUniforms() {
 void Application::updateWaterUniforms() {
     sWater->setUniform("resolution", window.getResolution());
     sWater->setUniform("cameraPos", cameraPos);
-    sWater->setUniform("vpMatrix", camera.getVPmatrix(projection));
+    sWater->setUniform("vpMatrix", vpMatrix);
     sWater->setUniform("time", time);
 }
 
