@@ -78,7 +78,7 @@ void Camera::move(CameraControls direction, float deltaTime) {
 }
 
 void Camera::look(vec2 mouseOffset) {
-    constexpr float sensitivity = 0.1f;
+    constexpr float sensitivity = 0.01f;
     constexpr float epsilon = 0.00001f;
     mouseOffset *= sensitivity;
 

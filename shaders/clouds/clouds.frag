@@ -13,7 +13,7 @@ out vec4 fragColor;
 vec3 skytop = vec3(0.1, 0.5, 0.9);
 vec3 light = normalize(vec3(0.1, 0.2, 0.9));
 vec2 cloudrange = vec2(100., -1000.);
-vec3 cloudHeight = vec3(0., -40000., 0.);
+vec3 cloudHeight = vec3(0., -10000., 0.);
 mat3 m = mat3(0.00, 1.60, 1.20, -1.60, 0.72, -0.96, -1.20, -0.96, 1.28);
 
 // Uniformes 
@@ -21,6 +21,7 @@ uniform vec2 resolution;
 uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
+uniform float time;
 
 float hash(float n) {
     return fract(cos(n) * 114514.1919);
@@ -52,10 +53,10 @@ vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 
     vec3 position;
 
     for (float depth = 0.0; depth < 100000.0; depth += 100.0) {
-        position = cameraPos + direction * depth + cloudHeight;
+        position = cameraPos + direction * depth + cloudHeight ;
 
         if (cloudrange.x > position.y && position.y > cloudrange.y) {
-            float alpha = smoothstep(densiteMin, densiteMax, fbm(position * 0.000050)); //modifier densité nuage
+            float alpha = smoothstep(densiteMin, densiteMax, fbm(position * 0.00050 + time/10. )); //modifier densité nuage
             vec3 localcolor = mix(externColor, internColor, alpha);
             alpha = (1.0 - sum.a) * alpha;
             sum += vec4(localcolor * alpha, alpha);
@@ -65,6 +66,7 @@ vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 
     return sum;
 }
 
+
 void main() {
     // Calcul des coordonnées UV
     vec2 uv = (2.0f * gl_FragCoord.xy - resolution) / resolution.y;
@@ -72,7 +74,7 @@ void main() {
     vec3 direction = mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength));
 
     vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
-    sum = cloud(sum, 0.5, 0.9, vec3(1., 1., 1.), vec3(0.8, 0.8, 0.8), direction);
+    sum = cloud(sum, 0.5, 0.9, vec3(1., 1., 1.), vec3(0.7, 0.7, 0.7), direction);
 
     float alpha = smoothstep(0.4, 1.0, sum.a);
     sum.rgb /= sum.a + 0.0001;
