@@ -33,7 +33,8 @@ vec2 getUV() {
 
 Ray getRay(){
     vec2 uv = getUV();
-    return Ray(cameraPos, normalize(cameraFront + uv.x * cameraRight + uv.y * cameraUp));
+    float focalLength = 2.5f;
+    return Ray(cameraPos, mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength)));
 }
 
 vec2 wavedx(vec2 pos, vec2 dir, float freq, float timeShift){
