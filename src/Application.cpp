@@ -286,10 +286,10 @@ void Application::updateNoiseWaterUniforms() {
 void Application::updateWaterUniforms() {
     sWater->setUniform("resolution", window.getResolution());
     sWater->setUniform("cameraPos", cameraPos);
-    sClouds->setUniform("cameraFront", camera.getDirection());
-    sClouds->setUniform("cameraRight", camera.getRight());
-    sClouds->setUniform("cameraUp", camera.getUp());
-`    sWater->setUniform("time", time);
+    sWater->setUniform("cameraFront", camera.getDirection());
+    sWater->setUniform("cameraRight", camera.getRight());
+    sWater->setUniform("cameraUp", camera.getUp());
+    sWater->setUniform("time", time);
 }
 
 void Application::drawClouds() {
