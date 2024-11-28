@@ -12,8 +12,8 @@ out vec4 fragColor;
 // Paramètres de couleur et de lumière
 vec3 skytop = vec3(0.1, 0.5, 0.9);
 vec3 light = normalize(vec3(0.1, 0.2, 0.9));
-vec2 cloudrange = vec2(100., -1000.);
-vec3 cloudHeight = vec3(0., -10000., 0.);
+vec2 cloudrange = vec2(100.0, -1000.0);
+vec3 cloudHeight = vec3(0.0, -10000.0, 0.0);
 mat3 m = mat3(0.00, 1.60, 1.20, -1.60, 0.72, -0.96, -1.20, -0.96, 1.28);
 
 // Uniformes 
@@ -22,6 +22,17 @@ uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
 uniform float time;
+
+struct CloudType {
+    float densiteMin;
+    float densiteMax;
+    vec3 externColor;
+    vec3 internColor;
+};
+
+CloudType cirrus = CloudType(0.5, 0.9, vec3(1.0, 1.0, 1.0), vec3(0.8, 0.8, 0.8));
+CloudType cumulus = CloudType(0.6, 0.9, vec3(1.0, 1.0, 1.0), vec3(0.8, 0.8, 0.8));
+CloudType stratus = CloudType(0.1, 0.8, vec3(0.9, 0.9, 0.9), vec3(0.5, 0.5, 0.5));
 
 float hash(float n) {
     return fract(cos(n) * 114514.1919);
@@ -53,10 +64,10 @@ vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 
     vec3 position;
 
     for (float depth = 0.0; depth < 100000.0; depth += 100.0) {
-        position = cameraPos + direction * depth + cloudHeight ;
+        position = cameraPos + direction * depth + cloudHeight;
 
         if (cloudrange.x > position.y && position.y > cloudrange.y) {
-            float alpha = smoothstep(densiteMin, densiteMax, fbm(position * 0.00050 + time/10. )); //modifier densité nuage
+            float alpha = smoothstep(densiteMin, densiteMax, fbm(position * 0.00050 )); // Modifier densité nuage
             vec3 localcolor = mix(externColor, internColor, alpha);
             alpha = (1.0 - sum.a) * alpha;
             sum += vec4(localcolor * alpha, alpha);
@@ -66,20 +77,55 @@ vec4 cloud(vec4 sum, float densiteMin, float densiteMax, vec3 externColor, vec3 
     return sum;
 }
 
+CloudType mixCloudType(CloudType a, CloudType b, float t) {
+    return CloudType(
+        mix(a.densiteMin, b.densiteMin, t),
+        mix(a.densiteMax, b.densiteMax, t),
+        mix(a.externColor, b.externColor, t),
+        mix(a.internColor, b.internColor, t)
+    );
+}
+
+CloudType getActiveCloudType(float time) {
+    float cycle = mod(time, 40.0);
+    float t;
+
+    if (cycle < 5.0) {
+        return cirrus; 
+    } else if (cycle < 10.0) {
+        t = (cycle - 5.0) / 5.0; 
+        return mixCloudType(cirrus, cumulus, t);
+    } else if(cycle < 20.0){
+        t = (cycle - 10.0) / 10.0; 
+        return mixCloudType(cumulus, stratus, t);
+    }
+    else{
+        t = (cycle - 20.0) / 20.0; 
+        return mixCloudType(stratus, cirrus, t);
+    }
+}
 
 void main() {
-    // Calcul des coordonnées UV
-    vec2 uv = (2.0f * gl_FragCoord.xy - resolution) / resolution.y;
+    vec2 uv = (2.0 * gl_FragCoord.xy - resolution) / resolution.y;
     float focalLength = 2.5f;
     vec3 direction = mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength));
 
-    vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
-    sum = cloud(sum, 0.5, 0.9, vec3(1., 1., 1.), vec3(0.7, 0.7, 0.7), direction);
+    vec4 sum = vec4(0.0);
+    CloudType activeCloud = getActiveCloudType(time);
+
+    sum = cloud(
+        sum,
+        activeCloud.densiteMin,
+        activeCloud.densiteMax,
+        activeCloud.externColor,
+        activeCloud.internColor,
+        direction 
+    );
 
     float alpha = smoothstep(0.4, 1.0, sum.a);
     sum.rgb /= sum.a + 0.0001;
     float sundot = clamp(dot(direction, light), 0.0, 1.0);
-    vec3 col = 0.8 * (skytop);
+    vec3 col = 0.8 * skytop;
     col += vec3(1.0, 1.0, 1.0) * pow(sundot, 350.0);
     col += 0.4 * vec3(1.0, 1.0, 1.0) * pow(sundot, 2.0);
     sum.rgb -= 0.6 * vec3(0.8, 0.75, 0.7) * pow(sundot, 13.0) * alpha;
