@@ -27,8 +27,8 @@ struct Ray {
     vec3 direction;
 };
 
-vec2 getUV(in vec2 offset) {
-    return (2.0f * (gl_FragCoord.xy + offset) - resolution) / resolution.y;
+vec2 getUV() {
+    return (2.0f * gl_FragCoord.xy - resolution) / resolution.y;
 }
 
 vec2 wavedx(vec2 pos, vec2 dir, float freq, float timeShift) {
@@ -99,8 +99,8 @@ float raymarch(in Ray ray) {
     return distanceFromOrigin;
 }
 
-vec4 render(in vec2 uvOffset) {
-    vec2 uv = getUV(vec2(uvOffset));
+void main() {
+    vec2 uv = getUV();
     float focalLength = 2.5f;
     Ray ray = Ray(cameraPos, mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength)));
 
@@ -121,11 +121,5 @@ vec4 render(in vec2 uvOffset) {
         color = mix(vec3(0.3f, 0.6f, 0.8f), reflection, fresnel);
     }
 
-    return vec4(color, 1.0f - abs(distance) / MAX_DISTANCE);
-}
-
-void main() {
-    // Render Anti-Aliasing
-    vec4 e = vec4(0.125f, -0.125f, 0.375f, -0.375f);
-    fragColor = 0.25f * (render(e.xz) + render(e.yw) + render(e.wx) + render(e.zy));
+    fragColor = vec4(color, 1.0f - abs(distance) / MAX_DISTANCE);
 }
