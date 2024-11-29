@@ -326,4 +326,5 @@ void Application::updateCloudsUniforms() {
 void Application::updateRainUniforms() {
     sRain->setUniform("resolution", window.getResolution());
     sRain->setUniform("time", time);
+
 }
