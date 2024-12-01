@@ -68,7 +68,6 @@ float getWaves(vec2 position) {
 float map(vec3 position) {
     float waveHeight = getWaves(position.xz) * WATER_DEPTH;
     float toWater = position.y - waveHeight;
-    vec3 color = vec3(0.3f, 0.6f, 0.8f);
 
     return toWater;
 }
@@ -105,7 +104,7 @@ void main() {
     Ray ray = Ray(cameraPos, mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength)));
 
     float distance = raymarch(ray);
-    vec3 color = vec3(0.0f);
+    vec3 color = vec3(0.3f, 0.6f, 0.8f);
 
     if (distance < MAX_DISTANCE) {
         vec3 hitPos = ray.origin + ray.direction * distance;
@@ -118,7 +117,7 @@ void main() {
 
         // Reflection (simple sky color for now)
         vec3 reflection = vec3(0.0f); // Sky color
-        color = mix(vec3(0.3f, 0.6f, 0.8f), reflection, fresnel);
+        color = mix(color, reflection, fresnel);
     }
 
     fragColor = vec4(color, 1.0f - abs(distance) / MAX_DISTANCE);
