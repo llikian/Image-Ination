@@ -7,7 +7,7 @@
 
 out vec4 fragColor;
 
-#define alpha fraagColor.a
+#define alpha fragColor.a
 
 uniform vec3 cameraPos;
 uniform float time;
@@ -16,7 +16,7 @@ uniform vec3 cameraRight;
 uniform vec3 cameraUp;
 uniform vec2 resolution;
 
-const uint MAX_STEPS = 64;
+const uint MAX_STEPS = 128;
 const float MIN_DISTANCE = 0.001f;
 const float MAX_DISTANCE = 1000.0f;
 const float WATER_DEPTH = 5.0f;
@@ -39,30 +39,30 @@ vec2 wavedx(vec2 pos, vec2 dir, float freq, float timeShift) {
 }
 
 float getWaves(vec2 position) {
-    float waveShift = length(position);
+    float waveShift = length(position) * 0.1;
     float iter = 0.0f;
     float freq = 1.0f;
     float timeMult = 2.0f;
     float weight = 1.0f;
     float sumValues = 0.0f;
-    float sumWaights = 0.0f;
+    float sumWeights = 0.0f;
 
     for (int i = 0; i < 12; i++) {
-        vec2 p = vec2(sin(iter), cos(iter));
-        vec2 wave = wavedx(position, p, freq, time * timeMult + waveShift);
+        vec2 wavedir = vec2(sin(iter), cos(iter));
+        vec2 wave = wavedx(position, wavedir, freq, time * timeMult + waveShift);
 
-        position += p * wave.y * weight * DRAG;
+        position += wavedir * wave.y * weight * DRAG;
 
         sumValues += wave.x * weight;
-        sumWaights += weight;
+        sumWeights += weight;
 
-        weight *= 0.8f;
+        weight = mix(weight, 0.0f, 0.2f);
         freq *= 1.018f;
         timeMult *= 1.07f;
-        iter += 123.399963;
+        iter += 1282.26113f;
     }
 
-    return sumValues / sumWaights;
+    return sumValues / sumWeights;
 }
 
 float map(vec3 position) {
@@ -77,20 +77,20 @@ vec3 calculateNormal(vec2 position, float epsilon) {
     vec3 p = vec3(position.x, height, position.y);
 
     vec3 dx = p - vec3(position.x - epsilon, getWaves(position - vec2(epsilon, 0.0f)) * WATER_DEPTH, position.y);
-    vec3 dy = p - vec3(position.x, getWaves(position + vec2(epsilon, 0.0f)) * WATER_DEPTH, position.y + epsilon);
+    vec3 dy = p - vec3(position.x, getWaves(position + vec2(0.0f, epsilon)) * WATER_DEPTH, position.y + epsilon);
 
     return normalize(cross(dx, dy));
 }
 
 float raymarch(in Ray ray) {
-    float distance;
+    float dist;
     float distanceFromOrigin = 0.0f;
 
     for (uint i = 0u; i < MAX_STEPS; ++i) {
-        distance = map(ray.origin + ray.direction * distanceFromOrigin);
-        distanceFromOrigin += distance;
+        dist = map(ray.origin + ray.direction * distanceFromOrigin);
+        distanceFromOrigin += dist;
 
-        if (abs(distance) < MIN_DISTANCE || distanceFromOrigin >= MAX_DISTANCE) {
+        if (abs(dist) < MIN_DISTANCE || distanceFromOrigin >= MAX_DISTANCE) {
             break;
         }
     }
@@ -98,12 +98,37 @@ float raymarch(in Ray ray) {
     return distanceFromOrigin;
 }
 
+float raymarchwater(in Ray ray){
+    vec3 position = ray.origin;
+    vec3 direction = normalize(ray.direction);
+
+    for (uint i = 0u; i < MAX_STEPS; i++) {
+        float waveHeight = getWaves(position.xz);
+        if(position.y <= waveHeight + MIN_DISTANCE){
+            return length(position-ray.origin);
+        }
+
+        position += direction* (position.y - waveHeight);
+
+        if (length(position - ray.origin) >= MAX_DISTANCE) {
+            break;
+        }
+    }
+}
+
 void main() {
     vec2 uv = getUV();
     float focalLength = 2.5f;
     Ray ray = Ray(cameraPos, mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength)));
 
-    float distance = raymarch(ray);
+    if(ray.direction.y >= -0.05){
+        fragColor = vec4(0.0f);
+        fragColor.a = clamp(ray.direction.y * 0.8f, 0.0f, 1.0f);
+        return;
+    }
+
+
+    float distance = raymarchwater(ray);
     vec3 color = vec3(0.3f, 0.6f, 0.8f);
 
     if (distance < MAX_DISTANCE) {
