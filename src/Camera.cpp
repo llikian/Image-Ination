@@ -11,11 +11,9 @@
 Camera::Camera(const vec3& position)
     : movementSpeed(200.0f),
       position(position),
+      yaw(M_PIf), pitch(0.0f),
       worldUp(0.0f, 1.0f, 0.0f),
-      view(1.0f) {
-
-    pitch = 0.0f;
-    yaw = M_PIf;
+      view(1.0f){
 
     look(vec2());
 }
