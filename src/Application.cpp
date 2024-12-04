@@ -59,6 +59,10 @@ Application::Application()
     paths[1] = "shaders/clouds/clouds.frag";
     sClouds = new Shader(paths, 2, "Clouds");
 
+    paths[0] = "shaders/clouds/rain.vert";
+    paths[1] = "shaders/clouds/rain.frag";
+    sRain = new Shader(paths, 2, "Rain");
+
     /**** Textures ****/
     sTerrain->use();
 
@@ -79,6 +83,7 @@ Application::~Application() {
     delete sWater;
     delete sNWater;
     delete sClouds;
+    delete sRain;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -133,6 +138,10 @@ void Application::run() {
         updateCloudsUniforms();
         drawClouds();
 
+        sRain->use();
+        updateRainUniforms();
+        //drawClouds();
+
         /**** Terrain ****/
         sTerrain->use();
         updateTerrainUniforms();
@@ -142,6 +151,8 @@ void Application::run() {
         sNWater->use();
         updateNoiseWaterUniforms();
         grid.draw();
+
+        
 
         /**** Debug ImGui Window ****/
         debugWindow();
@@ -275,7 +286,9 @@ void Application::updateNoiseWaterUniforms() {
 void Application::updateWaterUniforms() {
     sWater->setUniform("resolution", window.getResolution());
     sWater->setUniform("cameraPos", cameraPos);
-    sWater->setUniform("vpMatrix", vpMatrix);
+    sWater->setUniform("cameraFront", camera.getDirection());
+    sWater->setUniform("cameraRight", camera.getRight());
+    sWater->setUniform("cameraUp", camera.getUp());
     sWater->setUniform("time", time);
 }
 
@@ -291,10 +304,27 @@ void Application::drawClouds() {
     glDepthMask(GL_TRUE);
 }
 
+void Application::drawRain() {
+
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+
+    screen.draw();
+
+    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
+
+}
+
 void Application::updateCloudsUniforms() {
     sClouds->setUniform("resolution", window.getResolution());
     sClouds->setUniform("cameraPosition", cameraPos);
     sClouds->setUniform("cameraFront", camera.getDirection());
     sClouds->setUniform("cameraRight", camera.getRight());
     sClouds->setUniform("cameraUp", camera.getUp());
+    sClouds->setUniform("time", time);
+}
+
+void Application::updateRainUniforms() {
+    sRain->setUniform("resolution", window.getResolution());
+    sRain->setUniform("time", time);
+
 }

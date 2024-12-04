@@ -7,12 +7,6 @@
 
 layout(location = 0) in vec3 aPos;
 
-out vec3 position;
-
-uniform vec3 cameraPos;
-uniform mat4 vpMatrix;
-
 void main() {
-    position = aPos;
-    gl_Position = vpMatrix * vec4(aPos + cameraPos, 1.0f);
+    gl_Position = vec4(aPos, 1.0f);
 }

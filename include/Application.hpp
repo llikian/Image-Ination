@@ -118,10 +118,14 @@ private:
      */
     void drawClouds();
 
+    void drawRain();
+
     /**
      * @brief Updates all of the clouds's shader program's uniforms.
      */
     void updateCloudsUniforms();
+
+    void updateRainUniforms();
 
     /**** Variables & Constants ****/
     Window window; ///< The GLFW window.
@@ -143,6 +147,7 @@ private:
     Shader* sWater;   ///< The shader program for rendering the water.
     Shader* sNWater;  ///< The shader program for rendering the water made with noise.
     Shader* sClouds;  ///< The shader program for rendering the clouds.
+    Shader* sRain; ///< The shader program for rendering the rain.
 
     const float chunkSize; ///< The side length of a chunk.
     const int chunks; ///< The side length of the chunk grid.
