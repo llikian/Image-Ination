@@ -108,7 +108,7 @@ float raymarchwater(in Ray ray){
             return length(position-ray.origin);
         }
 
-        position += direction* (position.y - waveHeight);
+        position += direction * (position.y - waveHeight);
 
         if (length(position - ray.origin) >= MAX_DISTANCE) {
             break;
@@ -121,7 +121,7 @@ void main() {
     float focalLength = 2.5f;
     Ray ray = Ray(cameraPos, mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength)));
 
-    if(ray.direction.y >= -0.05){
+    if(ray.direction.y >= -0.056){
         fragColor = vec4(0.0f);
         fragColor.a = clamp(ray.direction.y * 0.8f, 0.0f, 1.0f);
         return;
@@ -142,8 +142,8 @@ void main() {
 
         // Reflection (simple sky color for now)
         vec3 reflection = vec3(0.0f); // Sky color
-        color = mix(color, reflection, fresnel);
+        color = mix(color, 0.5*reflection, fresnel);
     }
 
-    fragColor = vec4(color, 1.0f - abs(distance) / MAX_DISTANCE);
+    fragColor = vec4(color, 0.8 + 0.2 * (1.0f - abs(distance) / MAX_DISTANCE));
 }
