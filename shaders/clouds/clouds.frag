@@ -179,15 +179,15 @@ void main() {
     float alpha = smoothstep(0.4, 1.0, sum.a); // Ajustement de l'alpha
     sum.rgb /= sum.a + 0.0001; // Normalisation des couleurs par alpha
     float sun = clamp(dot(direction, light), 0.0, 1.0); // Calcul de l'éclairement solaire
-    vec3 col = 0.8 * skytop; // Couleur de base
-    col += vec3(1.0, 1.0, 1.0) * pow(sun, 350.0); // Ajout de la lumière directe
-    col += 0.4 * vec3(1.0, 1.0, 1.0) * pow(sun, 2.0); // Ajout d'une lumière diffuse
+    vec3 color = 0.8 * skytop; // Couleur de base
+    color += vec3(1.0, 1.0, 1.0) * pow(sun, 350.0); // Ajout de la lumière directe
+    color += 0.4 * vec3(1.0, 1.0, 1.0) * pow(sun, 2.0); // Ajout d'une lumière diffuse
     sum.rgb -= 0.6 * vec3(0.8, 0.8, 0.8) * pow(sun, 13.0) * alpha; // Ombres sur les nuages
     sum.rgb += 0.2 * vec3(1.0, 1.0, 1.0) * pow(sun, 5.0) * (1.0 - alpha); // Lumière sur les nuages
 
     // Ajustement final des couleurs basé sur la distance
     float depthFactor = clamp(length(direction), 0.0, 1.0); // Facteur de profondeur
-    col = mix(col, sum.rgb, sum.a * depthFactor); // Mélange des couleurs
+    color = mix(color, sum.rgb, sum.a * depthFactor); // Mélange des couleurs
 
-    fragColor = vec4(col, 1.0); // Définition de la couleur finale du fragment
+    fragColor = vec4(color, 1.0); // Définition de la couleur finale du fragment
 }
