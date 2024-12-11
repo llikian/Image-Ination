@@ -84,6 +84,8 @@ Application::~Application() {
 }
 
 void Application::run() {
+    Mesh mWater(Meshes::plane(1.0f));
+
     while(!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -105,10 +107,17 @@ void Application::run() {
         updateTerrainUniforms();
         grid.draw();
 
-        /**** Noise Water ****/
-        sNWater->use();
-        updateNoiseWaterUniforms();
-        grid.draw();
+//        /**** Noise Water ****/
+//        sNWater->use();
+//        updateNoiseWaterUniforms();
+//        grid.draw();
+
+        /**** Water ****/
+        sWater->use();
+        updateWaterUniforms();
+        sWater->setUniform("vpMatrix", vpMatrix);
+        sWater->setUniform("totalTerrainWidth", chunks * chunkSize);
+        mWater.draw();
 
         /**** Debug ImGui Window ****/
         debugWindow();

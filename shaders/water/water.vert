@@ -7,6 +7,13 @@
 
 layout(location = 0) in vec3 aPos;
 
+uniform mat4 vpMatrix;
+uniform float totalTerrainWidth;
+uniform vec2 resolution;
+
 void main() {
-    gl_Position = vec4(aPos, 1.0f);
+    vec3 pos = totalTerrainWidth * aPos;
+//    pos.xz *= resolution;
+
+    gl_Position = vpMatrix * vec4(pos, 1.0f);
 }

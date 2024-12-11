@@ -81,16 +81,16 @@ vec3 calculateNormal(vec2 position, float epsilon) {
     return normalize(cross(dx, dy));
 }
 
-float raymarch(in Ray ray){
+float raymarch(in Ray ray) {
     vec3 position = ray.origin;
     vec3 direction = normalize(ray.direction);
     float dist;
 
     for (uint i = 0u; i < MAX_STEPS; i++) {
         float waveHeight = map(position);
-        dist = length(position-ray.origin);
+        dist = length(position - ray.origin);
 
-        if(position.y <= waveHeight + MIN_DISTANCE || dist >= maxDistance) {
+        if (position.y <= waveHeight + MIN_DISTANCE || dist >= maxDistance) {
             break;
         }
 
@@ -104,7 +104,7 @@ void main() {
     float focalLength = 2.5f;
     Ray ray = Ray(cameraPos, mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength)));
 
-    if(ray.direction.y >= 0){
+    if (ray.direction.y >= 0) {
         discard;
     }
 
@@ -127,5 +127,5 @@ void main() {
     }
 
     fragColor = vec4(color, 0.8 + 0.2 * (1.0f - abs(dist) / maxDistance));
-    fragColor.a = clamp( exp( (maxDistance * 0.7f - dist) / (maxDistance * (0.7f - 0.6f)) ), 0.0f, 1.0f);
+    fragColor.a = clamp(exp((maxDistance * 0.7f - dist) / (maxDistance * (0.7f - 0.6f))), 0.0f, 0.8f);
 }
