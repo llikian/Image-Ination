@@ -111,7 +111,7 @@ void Application::run() {
         /**** Water ****/
         sWater->use();
         updateWaterUniforms();
-        plane.draw();
+        drawWater();
 
         /**** Debug ImGui Window ****/
         debugWindow();
@@ -227,7 +227,7 @@ void Application::updateTerrainUniforms() {
 void Application::drawWater() {
     if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
-    screen.draw();
+    plane.draw();
 
     if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
 }
