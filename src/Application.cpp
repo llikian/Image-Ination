@@ -57,10 +57,6 @@ Application::Application()
     paths[1] = "shaders/clouds/clouds.frag";
     sClouds = new Shader(paths, 2, "Clouds");
 
-    paths[0] = "shaders/clouds/rain.vert";
-    paths[1] = "shaders/clouds/rain.frag";
-    sRain = new Shader(paths, 2, "Rain");
-
     /**** Textures ****/
     sTerrain->use();
 
@@ -81,7 +77,6 @@ Application::~Application() {
     delete sWater;
     delete sNWater;
     delete sClouds;
-    delete sRain;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -104,10 +99,6 @@ void Application::run() {
         sClouds->use();
         updateCloudsUniforms();
         drawClouds();
-
-//        sRain->use();
-//        updateRainUniforms();
-//        drawClouds();
 
         /**** Terrain ****/
         sTerrain->use();
@@ -269,16 +260,6 @@ void Application::drawClouds() {
     glDepthMask(GL_TRUE);
 }
 
-void Application::drawRain() {
-
-    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
-
-    screen.draw();
-
-    if(wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
-
-}
-
 void Application::updateCloudsUniforms() {
     sClouds->setUniform("resolution", window.getResolution());
     sClouds->setUniform("cameraPosition", cameraPos);
@@ -286,10 +267,4 @@ void Application::updateCloudsUniforms() {
     sClouds->setUniform("cameraRight", camera.getRight());
     sClouds->setUniform("cameraUp", camera.getUp());
     sClouds->setUniform("time", time);
-}
-
-void Application::updateRainUniforms() {
-    sRain->setUniform("resolution", window.getResolution());
-    sRain->setUniform("time", time);
-
 }
