@@ -115,8 +115,6 @@ void Application::run() {
         /**** Water ****/
         sWater->use();
         updateWaterUniforms();
-        sWater->setUniform("vpMatrix", vpMatrix);
-        sWater->setUniform("totalTerrainWidth", chunks * chunkSize);
         mWater.draw();
 
         /**** Debug ImGui Window ****/
@@ -249,11 +247,13 @@ void Application::updateNoiseWaterUniforms() {
 }
 
 void Application::updateWaterUniforms() {
+    sWater->setUniform("vpMatrix", vpMatrix);
     sWater->setUniform("resolution", window.getResolution());
     sWater->setUniform("cameraPos", cameraPos);
     sWater->setUniform("cameraFront", camera.getDirection());
     sWater->setUniform("cameraRight", camera.getRight());
     sWater->setUniform("cameraUp", camera.getUp());
+    sWater->setUniform("totalTerrainWidth", chunks * chunkSize);
     sWater->setUniform("time", time);
     sWater->setUniform("maxDistance", chunks * chunkSize / 2.0f);
 }
