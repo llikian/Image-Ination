@@ -15,11 +15,11 @@ uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
 uniform vec2 resolution;
+uniform float maxDistance;
 
 const uint MAX_STEPS = 128;
 const float MIN_DISTANCE = 0.001f;
-const float MAX_DISTANCE = 1000.0f;
-const float WATER_DEPTH = 5.0f;
+const float WATER_DEPTH = 3.0f;
 const float DRAG = 0.38f;
 
 struct Ray {
@@ -39,7 +39,7 @@ vec2 wavedx(vec2 pos, vec2 dir, float freq, float timeShift) {
 }
 
 float getWaves(vec2 position) {
-    float waveShift = length(position) * 0.1;
+    float waveShift = length(position) * 0.5;
     float iter = 0.0f;
     float freq = 1.0f;
     float timeMult = 2.0f;
@@ -67,9 +67,8 @@ float getWaves(vec2 position) {
 
 float map(vec3 position) {
     float waveHeight = getWaves(position.xz) * WATER_DEPTH;
-    float toWater = position.y - waveHeight;
 
-    return toWater;
+    return waveHeight;
 }
 
 vec3 calculateNormal(vec2 position, float epsilon) {
@@ -82,38 +81,22 @@ vec3 calculateNormal(vec2 position, float epsilon) {
     return normalize(cross(dx, dy));
 }
 
-float raymarch(in Ray ray) {
-    float dist;
-    float distanceFromOrigin = 0.0f;
-
-    for (uint i = 0u; i < MAX_STEPS; ++i) {
-        dist = map(ray.origin + ray.direction * distanceFromOrigin);
-        distanceFromOrigin += dist;
-
-        if (abs(dist) < MIN_DISTANCE || distanceFromOrigin >= MAX_DISTANCE) {
-            break;
-        }
-    }
-
-    return distanceFromOrigin;
-}
-
-float raymarchwater(in Ray ray){
+float raymarch(in Ray ray){
     vec3 position = ray.origin;
     vec3 direction = normalize(ray.direction);
+    float dist;
 
     for (uint i = 0u; i < MAX_STEPS; i++) {
-        float waveHeight = getWaves(position.xz);
-        if(position.y <= waveHeight + MIN_DISTANCE){
-            return length(position-ray.origin);
+        float waveHeight = map(position);
+        dist = length(position-ray.origin);
+
+        if(position.y <= waveHeight + MIN_DISTANCE || dist >= maxDistance) {
+            break;
         }
 
         position += direction * (position.y - waveHeight);
-
-        if (length(position - ray.origin) >= MAX_DISTANCE) {
-            break;
-        }
     }
+    return dist;
 }
 
 void main() {
@@ -121,18 +104,16 @@ void main() {
     float focalLength = 2.5f;
     Ray ray = Ray(cameraPos, mat3(cameraRight, cameraUp, cameraFront) * normalize(vec3(uv, focalLength)));
 
-    if(ray.direction.y >= -0.056){
-        fragColor = vec4(0.0f);
-        fragColor.a = clamp(ray.direction.y * 0.8f, 0.0f, 1.0f);
-        return;
+    if(ray.direction.y >= 0){
+        discard;
     }
 
 
-    float distance = raymarchwater(ray);
-    vec3 color = vec3(0.3f, 0.6f, 0.8f);
+    float dist = raymarch(ray);
+    vec3 color = vec3(0.102f, 0.192f, 0.510f);
 
-    if (distance < MAX_DISTANCE) {
-        vec3 hitPos = ray.origin + ray.direction * distance;
+    if (dist < maxDistance) {
+        vec3 hitPos = ray.origin + ray.direction * dist;
         vec3 normal = calculateNormal(hitPos.xz, 0.01f);
         vec3 viewDir = normalize(cameraPos - hitPos);
 
@@ -141,9 +122,10 @@ void main() {
         fresnel = clamp(fresnel, 0.0f, 0.5f);
 
         // Reflection (simple sky color for now)
-        vec3 reflection = vec3(0.0f); // Sky color
-        color = mix(color, 0.5*reflection, fresnel);
+        vec3 reflection = vec3(0.01f); // Sky color
+        color = mix(color, reflection, fresnel);
     }
 
-    fragColor = vec4(color, 0.8 + 0.2 * (1.0f - abs(distance) / MAX_DISTANCE));
+    fragColor = vec4(color, 0.8 + 0.2 * (1.0f - abs(dist) / maxDistance));
+    fragColor.a = clamp( exp( (maxDistance * 0.7f - dist) / (maxDistance * (0.7f - 0.6f)) ), 0.0f, 1.0f);
 }
