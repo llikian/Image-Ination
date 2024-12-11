@@ -27,7 +27,7 @@ uniform sampler2D texSnow;
 
 float phongLighting() {
     /* Ambient */
-    float ambient = 0.1f;
+    float ambient = 0.4f;
 
     /* Diffuse */
     vec3 lightDir = normalize(lightDirection);
