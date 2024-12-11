@@ -149,9 +149,9 @@ private:
     const vec3& cameraPos; ///< The camera's position.
     vec2 cameraChunk;      ///< The chunk the camera is in.
 
-    Mesh grid;    ///< Mesh for a grid. Used to render the terrain.
-    Mesh plane;   ///< Mesh for a plane. Used to render a chunk.
-    Mesh screen;  ///< Mesh for a screen. Used to render the clouds.
+    Mesh grid;   ///< Mesh for a grid. Used to render the terrain.
+    Mesh screen; ///< Mesh for a screen. Used to render the clouds.
+    Mesh plane;  ///< Mesh for a plane. Used to render the water.
 
     Texture texRock;       ///< Tileable rocky texture.
     Texture texRockSmooth; ///< Smoother tileable rocky texture.

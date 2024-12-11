@@ -21,10 +21,8 @@ Application::Application()
       sTerrain(nullptr), sWater(nullptr), sNWater(nullptr), sClouds(nullptr),
       chunkSize(32.0f), chunks(128),
       projection(perspective(M_PI_4f, window.getRatio(), 0.1f, 2.0f * chunkSize * chunks)),
-      camera(vec3(0.0f, 20.0f, 0.0f)),
-      cameraPos(camera.getPositionReference()),
-      grid(Meshes::tessGrid(chunkSize * chunks, chunks)),
-      plane(Meshes::chunk()), screen(Meshes::screen()),
+      camera(vec3(0.0f, 20.0f, 0.0f)), cameraPos(camera.getPositionReference()),
+      grid(Meshes::tessGrid(chunkSize * chunks, chunks)), screen(Meshes::screen()), plane(Meshes::plane(1.0f)),
       texRock("data/rock.jpg"), texRockSmooth("data/rock_smooth.jpg"), texGrass("data/grass.jpg"),
       texGrassDark("data/grass_dark.png"), texSnow("data/snow.png") {
 
@@ -84,8 +82,6 @@ Application::~Application() {
 }
 
 void Application::run() {
-    Mesh mWater(Meshes::plane(1.0f));
-
     while(!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -115,7 +111,7 @@ void Application::run() {
         /**** Water ****/
         sWater->use();
         updateWaterUniforms();
-        mWater.draw();
+        plane.draw();
 
         /**** Debug ImGui Window ****/
         debugWindow();
