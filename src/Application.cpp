@@ -246,6 +246,7 @@ void Application::updateWaterUniforms() {
     sWater->setUniform("cameraRight", camera.getRight());
     sWater->setUniform("cameraUp", camera.getUp());
     sWater->setUniform("time", time);
+    sWater->setUniform("maxDistance", chunks * chunkSize / 2.0f);
 }
 
 void Application::drawClouds() {
