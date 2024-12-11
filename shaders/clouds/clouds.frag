@@ -13,7 +13,7 @@ out vec4 fragColor; // Couleur finale du fragment
 vec3 skytop = vec3(0.1, 0.5, 0.9); // Couleur du ciel en haut
 vec3 light = normalize(vec3(0.1, 0.2, 0.9)); // Direction de la lumière
 vec2 cloudrange = vec2(1000.0, -1000.0); // Plage de hauteur des nuages
-vec3 cloudHeight = vec3(0.0, -5000.0, 0.0); // Position de base des nuages
+vec3 cloudHeight = vec3(0.0, -10000.0, 0.0); // Position de base des nuages
 // Matrice pour la transformation des coordonnées des nuages
 mat3 m = mat3(0.00, 1.60, 1.20, -1.60, 0.72, -0.96, -1.20, -0.96, 1.28);
 
