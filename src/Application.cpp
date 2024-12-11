@@ -5,8 +5,6 @@
 
 #include "Application.hpp"
 
-#include <stdexcept>
-
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "imgui.h"
@@ -16,7 +14,7 @@
 #include "mesh/meshes.hpp"
 
 Application::Application()
-    : window(),
+    : window(this),
       time(0.0f), delta(0.0f),
       lightDirection(2.0f, 2.0f, 0.0f),
       wireframe(false), cullface(true), isCursorVisible(false),
@@ -90,37 +88,6 @@ Application::~Application() {
     ImGui::DestroyContext();
 }
 
-void Application::runMinas() {
-    while(!glfwWindowShouldClose(window)) {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        handleEvents();
-        updateVariables();
-
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        /**** Background & Clouds ****/
-        sClouds->use();
-        updateCloudsUniforms();
-        drawClouds();
-
-        /**** Water ****/
-        sWater->use();
-        updateWaterUniforms();
-        drawWater();
-
-        /**** Debug ImGui Window ****/
-        debugWindow();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
-    }
-}
-
 void Application::run() {
     while(!glfwWindowShouldClose(window)) {
         ImGui_ImplOpenGL3_NewFrame();
@@ -138,9 +105,9 @@ void Application::run() {
         updateCloudsUniforms();
         drawClouds();
 
-        sRain->use();
-        updateRainUniforms();
-        //drawClouds();
+//        sRain->use();
+//        updateRainUniforms();
+//        drawClouds();
 
         /**** Terrain ****/
         sTerrain->use();
@@ -151,8 +118,6 @@ void Application::run() {
         sNWater->use();
         updateNoiseWaterUniforms();
         grid.draw();
-
-        
 
         /**** Debug ImGui Window ****/
         debugWindow();

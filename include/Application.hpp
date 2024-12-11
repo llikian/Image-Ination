@@ -39,11 +39,6 @@ public:
     /**** Public Methods ****/
 
     /**
-     * @brief Contains the main loop for Minas.
-     */
-    void runMinas();
-
-    /**
      * @brief Contains the main loop.
      */
     void run();

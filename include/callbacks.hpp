@@ -7,8 +7,6 @@
 
 #include "Application.hpp"
 
-extern Application app;
-
 /**
  * @brief Callback for when the specified window is resized.
  * @param window The GLFW window.

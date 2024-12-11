@@ -19,8 +19,9 @@ class Window {
 public:
     /**
      * @brief Initializes GLFW, GLAD and OpenGL.
+     * @param userPointer A pointer that can be used by the user in callbacks.
      */
-    Window();
+    Window(void* userPointer);
 
     /**
      * @brief Destroys the GLFW window.

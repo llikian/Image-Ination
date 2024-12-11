@@ -9,7 +9,7 @@
 
 #include "callbacks.hpp"
 
-Window::Window() : window(nullptr), width(1600), height(800) {
+Window::Window(void* userPointer) : window(nullptr), width(1600), height(800) {
     /**** GLFW ****/
     if(!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW.");
@@ -25,6 +25,7 @@ Window::Window() : window(nullptr), width(1600), height(800) {
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetWindowUserPointer(window, userPointer);
     glfwMaximizeWindow(window);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(0); // Disables V-Sync
