@@ -57,7 +57,7 @@ float getWaves(vec2 position) {
         sumWeights += weight;
 
         weight = mix(weight, 0.0f, 0.2f);
-        freq *= 1.018f;
+        freq *= 1.058f;
         timeMult *= 1.07f;
     }
 
