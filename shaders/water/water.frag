@@ -20,7 +20,7 @@ uniform float maxDistance;
 const uint MAX_STEPS = 128;
 const float MIN_DISTANCE = 0.001f;
 const float WATER_DEPTH = 3.0f;
-const float DRAG = 0.38f;
+const float DRAG = 0.58f;
 
 struct Ray {
     vec3 origin;
@@ -40,7 +40,7 @@ vec2 wavedx(vec2 pos, vec2 dir, float freq, float timeShift) {
 
 float getWaves(vec2 position) {
     float waveShift = length(position) * 0.5;
-    float iter = 0.0f;
+    float iter = 1682.26f;
     float freq = 1.0f;
     float timeMult = 2.0f;
     float weight = 1.0f;
@@ -48,7 +48,7 @@ float getWaves(vec2 position) {
     float sumWeights = 0.0f;
 
     for (int i = 0; i < 12; i++) {
-        vec2 wavedir = vec2(sin(iter), cos(iter));
+        vec2 wavedir = vec2(sin(iter * i), cos(iter * i));
         vec2 wave = wavedx(position, wavedir, freq, time * timeMult + waveShift);
 
         position += wavedir * wave.y * weight * DRAG;
@@ -59,7 +59,6 @@ float getWaves(vec2 position) {
         weight = mix(weight, 0.0f, 0.2f);
         freq *= 1.018f;
         timeMult *= 1.07f;
-        iter += 1282.26113f;
     }
 
     return sumValues / sumWeights;
