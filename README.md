@@ -44,10 +44,41 @@ levels between 8 and 16, etc...):
 Here, the color is more smooth and the mesh is rendered in wireframe mode to more clearly see the differences:
 ![terrain-tesselation-wireframe.png](screenshots/terrain-tesselation-wireframe.png)
 
-Once the mesh is properly subdivided, we need to assign a height to each of the 
+Once the mesh is properly subdivided, we need to assign a height to each of the vertices. This is done
+by combining the results of 3 different Perlin noises. For each vertex, we calculate 3 different
+heights, by using Perlin noise with different frequency and amplitude values in order to create more
+diversity in the terrain. The first noise aims to create plains, so it has low amplitude and average
+frequency, the second has a higher amplitude and aims to create hills and higher plains and the
+third and last noise has a low frequency and high amplitude to create mountains.
+
+Plains:
+![terrain-noises-plain.png](screenshots/terrain-noises-plain.png)
+
+Hills:
+![terrain-noises-plateau.png](screenshots/terrain-noises-plateau.png)
+
+Mountains
+![terrain-noises-mountains.png](screenshots/terrain-noises-mountains.png)
+
+Finally, the last step is to color the terrain. To do this, we first calculate illumination, for this
+we used a simplified Phong model where we ignored specular reflections because except for the areas
+that were supposed to be snowy, it wouldn't make sense to have a "shiny" terrain since it's mostly
+supposed to be dirt, grass and rock. The light is calculated using the normals that we previously
+calculated and produces a global illumination.
+
+Next, we need to apply textures to the terrain, otherwise it would look quite boring. Each point on
+the terrain will have its color determined by the height. For each of the four textures that we use
+we define a "low" height, a "perfect" height and a "high", at the perfect height the color will only
+be defined by that texture, for any value in between we interpolate. So if the point is bellow
+a texture's perfect height, we interpolate the color according to the lower texture's high height and
+the current one's low height, same principle if the point is higher but in the opposite direction.
+
+After all of this we apply a simple fog effect by calculating a fog factor according to the point's
+distance to the camera so that we don't see where the terrain ends.
 
 Here is a diagram of how the pipeline looks and what each stage does:
 ![pipeline diagram.png](screenshots/pipeline%20diagram.png)
+
 ## Setup
 ### Dependencies
 You can install the dependencies with the following instructions:
