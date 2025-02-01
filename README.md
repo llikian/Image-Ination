@@ -5,9 +5,9 @@
 This project is a simulation of clouds, water and a terrain using OpenGL.
 The terrain was done by [Killian](https://github.com/llikian).
 The water was done  by [Minas](https://github.com/Minas02).
-Thet clouds were done by [Raphaël](https://github.com/zbeubizbeub).
+The clouds were done by [Raphaël](https://github.com/zbeubizbeub).
 
-Since the engine part wasn't the focus of this project, we used [llikian's OpenGL engine](https://github.com/llikian/OpenGL-Engine)
+Since the engine part wasn't the focus of this project, we used llikian's [OpenGL engine](https://github.com/llikian/OpenGL-Engine)
 for the rendering, and so we won't be talking about how it works here.
 
 ### Structure
